@@ -443,11 +443,15 @@ bool Renderer::_UpdateColorInfo() noexcept {
 
 		_colorInfo.kind = acInfo.CurrentAdvancedColorKind();
 		if (_colorInfo.kind == winrt::AdvancedColorKind::HighDynamicRange) {
+			_colorInfo.minLuminance = acInfo.MinLuminanceInNits() / SCENE_REFERRED_SDR_WHITE_LEVEL;
 			_colorInfo.maxLuminance = acInfo.MaxLuminanceInNits() / SCENE_REFERRED_SDR_WHITE_LEVEL;
 			_colorInfo.sdrWhiteLevel = acInfo.SdrWhiteLevelInNits() / SCENE_REFERRED_SDR_WHITE_LEVEL;
+			_colorInfo.redPrimary = acInfo.RedPrimary();
+			_colorInfo.greenPrimary = acInfo.GreenPrimary();
+			_colorInfo.bluePrimary = acInfo.BluePrimary();
+			_colorInfo.whitePoint = acInfo.WhitePoint();
 		} else {
-			_colorInfo.maxLuminance = 1.0f;
-			_colorInfo.sdrWhiteLevel = 1.0f;
+			_colorInfo = {};
 		}
 
 		return true;
@@ -474,12 +478,15 @@ bool Renderer::_UpdateColorInfo() noexcept {
 					// DXGI 将 WCG 视为 SDR
 					if (desc.ColorSpace == DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020) {
 						_colorInfo.kind = winrt::AdvancedColorKind::HighDynamicRange;
+						_colorInfo.minLuminance = desc.MinLuminance / SCENE_REFERRED_SDR_WHITE_LEVEL;
 						_colorInfo.maxLuminance = desc.MaxLuminance / SCENE_REFERRED_SDR_WHITE_LEVEL;
 						_colorInfo.sdrWhiteLevel = GetSDRWhiteLevel(desc.DeviceName);
+						_colorInfo.redPrimary = { desc.RedPrimary[0], desc.RedPrimary[1] };
+						_colorInfo.greenPrimary = { desc.GreenPrimary[0], desc.GreenPrimary[1] };
+						_colorInfo.bluePrimary = { desc.BluePrimary[0], desc.BluePrimary[1] };
+						_colorInfo.whitePoint = { desc.WhitePoint[0], desc.WhitePoint[1] };
 					} else {
-						_colorInfo.kind = winrt::AdvancedColorKind::StandardDynamicRange;
-						_colorInfo.maxLuminance = 1.0f;
-						_colorInfo.sdrWhiteLevel = 1.0f;
+						_colorInfo = {};
 					}
 
 					return true;
@@ -489,9 +496,7 @@ bool Renderer::_UpdateColorInfo() noexcept {
 	}
 
 	// 未找到视为 SDR
-	_colorInfo.kind = winrt::AdvancedColorKind::StandardDynamicRange;
-	_colorInfo.maxLuminance = 1.0f;
-	_colorInfo.sdrWhiteLevel = 1.0f;
+	_colorInfo = {};
 	return true;
 }
 

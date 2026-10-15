@@ -481,12 +481,12 @@ HRESULT EffectsDrawer::Draw(
 		curData->fenceValue = frameFenceValue;
 		curData->textureSize = _outputSize;
 		curData->rowPitch = readbackRowPitch;
-		curData->acKind = _colorInfo.kind;
+		curData->colorInfo = _colorInfo;
 		curData->isExportingRingBuffer = true;
 
 		// 把要导出的纹理转换为用于导出截图的格式。
 		// SDR: 需做伽马校正
-		// WCG: 需转换为 BT.2020
+		// WCG: 需转换为 BT.2020 SDR
 		// HDR: 需转换为 BT.2020/PQ
 		computeContext.InsertTransitionBarrier(
 			outputResource,
@@ -545,10 +545,10 @@ HRESULT EffectsDrawer::Draw(
 		if (!_screenshotPSO) {
 			D3D12_SHADER_BYTECODE psByteCode;
 			bool isSM6Supported = _d3d12Context->GetShaderModel() >= D3D_SHADER_MODEL_6_0;
-			if (curData->acKind == winrt::AdvancedColorKind::StandardDynamicRange) {
+			if (curData->colorInfo.kind == winrt::AdvancedColorKind::StandardDynamicRange) {
 				psByteCode = DirectXHelper::SelectShader(
 					isSM6Supported, ScreenshotCS, ScreenshotCS_SM5);
-			} else if (curData->acKind == winrt::AdvancedColorKind::WideColorGamut) {
+			} else if (curData->colorInfo.kind == winrt::AdvancedColorKind::WideColorGamut) {
 				psByteCode = DirectXHelper::SelectShader(
 					isSM6Supported, ScreenshotCS_WCG, ScreenshotCS_WCG_SM5);
 			} else {
@@ -740,7 +740,7 @@ static TakeScreenshotResult ExportScreenshot(
 	EffectTextureFormat textureFormat,
 	const std::span<uint8_t>& pixelData,
 	uint32_t rowPitch,
-	winrt::AdvancedColorKind acKind,
+	const ColorInfo& colorInfo,
 	std::wstring& screenshotFileName
 ) noexcept {
 	// 确保截图保存目录存在
@@ -780,7 +780,7 @@ static TakeScreenshotResult ExportScreenshot(
 		std::filesystem::path screenshotPath = options.screenshotsDir / screenshotFileName;
 
 		HRESULT hr = TextureHelper::Save(screenshotPath.c_str(), imgSize,
-			textureFormat, pixelData, rowPitch, acKind);
+			textureFormat, pixelData, rowPitch, colorInfo);
 		if (FAILED(hr)) {
 			Logger::Get().ComError("TextureHelper::SaveTexture 失败", hr);
 			return TakeScreenshotResult::InternalError;
@@ -815,13 +815,13 @@ void EffectsDrawer::OnProducerFrameCompleted(uint64_t fenceValue) noexcept {
 				HWND hwndSrc = ScalingWindow::Get().SrcHandle();
 				SizeU imgSize = curData.textureSize;
 				uint32_t rowPitch = curData.rowPitch;
-				winrt::AdvancedColorKind acKind = curData.acKind;
+				ColorInfo colorInfo = curData.colorInfo;
 
 				co_await winrt::resume_background();
 
 				result = ExportScreenshot(hwndSrc, L"png", imgSize,
 					EffectTextureFormat::R16G16B16A16_UNORM, pixelData,
-					rowPitch, acKind, screenshotFileName);
+					rowPitch, colorInfo, screenshotFileName);
 			}
 			
 			co_await dispatcher;

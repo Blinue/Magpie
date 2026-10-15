@@ -63,7 +63,8 @@ struct serializer<
 };
 
 // 避免依赖 D3DCompiler_47.dll
-struct SimpleBlob : winrt::implements<SimpleBlob, ID3DBlob> {
+struct SimpleBlob : winrt::implements<SimpleBlob, ID3DBlob,
+	winrt::non_agile, winrt::no_weak_ref, winrt::no_module_lock> {
 public:
 	SimpleBlob(uint32_t size) : _buffer(size), _size(size) {}
 

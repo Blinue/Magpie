@@ -6,6 +6,8 @@
 #include "WICImageLoader.h"
 #include "DirectXHelper.h"
 #include "resource.h"
+#include "MemStream.h"
+#include "Win32Helper.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // 
@@ -637,22 +639,16 @@ static HRESULT SaveToDDSFile(
 		return hr;
 	}
 
-	DWORD bytesWritten;
-	if (!WriteFile(hFile.get(), header, (DWORD)DDS_DX10_HEADER_SIZE, &bytesWritten, nullptr) ||
-		bytesWritten != DDS_DX10_HEADER_SIZE)
-	{
-		hr = HRESULT_FROM_WIN32(GetLastError());
-		Logger::Get().Win32Error("WriteFile 失败");
-		return hr;
+	if (!Win32Helper::WriteFile(hFile.get(), header)) {
+		Logger::Get().Error("Win32Helper::WriteFile 失败");
+		return E_FAIL;
 	}
 
 	// 写入图像
 	if ((uint32_t)pixelData.size() == ddsSlicePitch) {
-		if (!WriteFile(hFile.get(), pixelData.data(), (DWORD)ddsSlicePitch, &bytesWritten, nullptr) ||
-			bytesWritten != ddsSlicePitch) {
-			hr = HRESULT_FROM_WIN32(GetLastError());
-			Logger::Get().Win32Error("WriteFile 失败");
-			return hr;
+		if (!Win32Helper::WriteFile(hFile.get(), pixelData)) {
+			Logger::Get().Error("Win32Helper::WriteFile 失败");
+			return E_FAIL;
 		}
 	} else {
 		// DDS 使用字节对齐，所以肯定是 rowPitch 错误
@@ -661,12 +657,9 @@ static HRESULT SaveToDDSFile(
 		const uint8_t* __restrict sPtr = pixelData.data();
 
 		for (uint32_t i = 0; i < size.height; ++i) {
-			if (!WriteFile(hFile.get(), sPtr, (DWORD)ddsRowPitch, &bytesWritten, nullptr) ||
-				bytesWritten != ddsRowPitch)
-			{
-				hr = HRESULT_FROM_WIN32(GetLastError());
-				Logger::Get().Win32Error("WriteFile 失败");
-				return hr;
+			if (!Win32Helper::WriteFile(hFile.get(), std::span(sPtr, (DWORD)ddsRowPitch))) {
+				Logger::Get().Error("Win32Helper::WriteFile 失败");
+				return E_FAIL;
 			}
 
 			sPtr += rowPitch;
@@ -730,19 +723,104 @@ static HRESULT EmbedBT2020ICC(IWICImagingFactory2* wicFactory, IWICBitmapFrameEn
 	return S_OK;
 }
 
-static uint32_t CalculateCRC32(const uint8_t* data, size_t length) noexcept {
-	uint32_t crc = 0xFFFFFFFF;
-	for (size_t i = 0; i < length; i++) {
-		crc ^= data[i];
-		for (int j = 0; j < 8; j++) {
-			if (crc & 1) {
-				crc = (crc >> 1) ^ 0xEDB88320;
+static uint32_t MakeUI4(uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4) noexcept {
+	return v1 | (v2 << 8) | (v3 << 16) | (v4 << 24);
+}
+
+// PNG 的整数使用 network byte order，高位在前
+static uint16_t MakePngUI2(uint16_t value) noexcept {
+	return ((value >> 8) & 0xFFu) | ((value & 0xFFu) << 8);
+}
+
+static uint32_t MakePngUI4(uint32_t value) noexcept {
+	return MakeUI4(uint8_t(value >> 24), uint8_t(value >> 16), uint8_t(value >> 8), uint8_t(value));
+}
+
+// 参考自 https://www.w3.org/TR/png-3/#samplecrc。由于要校验的数据很少，
+// 无需构建查找表。
+static uint32_t CalculateCRC32(const uint8_t* data, uint32_t len) noexcept {
+	uint32_t c = 0xFFFFFFFFu;
+
+	for (uint32_t i = 0; i < len; ++i) {
+		c ^= data[i];
+
+		for (int j = 0; j < 8; ++j) {
+			if (c & 1) {
+				c = 0xEDB88320u ^ (c >> 1);
 			} else {
-				crc >>= 1;
+				c >>= 1;
 			}
 		}
 	}
-	return crc ^ 0xFFFFFFFF;
+
+	return MakePngUI4(c ^ 0xFFFFFFFFu);
+}
+
+// PNG 标准: https://www.w3.org/TR/png-3
+static std::array<uint8_t, 16> MakeCICPChunk(winrt::AdvancedColorKind acKind) noexcept {
+	std::array<uint8_t, 16> chunk;
+
+	// 数据长度
+	*(uint32_t*)&chunk[0] = MakeUI4(0, 0, 0, uint8_t(chunk.size() - 12u));
+	
+	// Chunk 类型
+	*(uint32_t*)&chunk[4] = MakeUI4('c', 'I', 'C', 'P');
+
+	// Chunk 内容
+	*(uint32_t*)&chunk[8] = MakeUI4(
+		// Color Primaries: 9 表示 BT.2020
+		9,
+		// Transfer Function: 15 表示 BT.2020 SDR，16 表示 BT.2020/PQ
+		acKind == winrt::AdvancedColorKind::WideColorGamut ? 15 : 16,
+		// Matrix Coefficients: 必须为 0
+		0,
+		// Video Full Range Flag: 1 表示 Full Range
+		1
+	);
+
+	// CRC32 校验
+	*(uint32_t*)&chunk[12] = CalculateCRC32(&chunk[4], (uint32_t)chunk.size() - 8u);
+
+	return chunk;
+}
+
+static uint16_t EncodeChroma(float value) noexcept {
+	constexpr float CHROMA_DIVISOR = 0.00002f;
+	return MakePngUI2((uint16_t)std::lround(value / CHROMA_DIVISOR));
+}
+
+static uint32_t EncodeLuminace(float value) noexcept {
+	constexpr float LUM_DIVISOR = 0.0001f;
+	return MakePngUI4((uint32_t)std::lround(value * SCENE_REFERRED_SDR_WHITE_LEVEL / LUM_DIVISOR));
+}
+
+static std::array<uint8_t, 36> MakeMDCVChunk(const ColorInfo& colorInfo) noexcept {
+	std::array<uint8_t, 36> chunk;
+
+	// 数据长度
+	*(uint32_t*)&chunk[0] = MakeUI4(0, 0, 0, uint8_t(chunk.size() - 12u));
+
+	// Chunk 类型
+	*(uint32_t*)&chunk[4] = MakeUI4('m', 'D', 'C', 'V');
+	
+	// 原色
+	*(uint16_t*)&chunk[8] = EncodeChroma(colorInfo.redPrimary.X);
+	*(uint16_t*)&chunk[10] = EncodeChroma(colorInfo.redPrimary.Y);
+	*(uint16_t*)&chunk[12] = EncodeChroma(colorInfo.greenPrimary.X);
+	*(uint16_t*)&chunk[14] = EncodeChroma(colorInfo.greenPrimary.Y);
+	*(uint16_t*)&chunk[16] = EncodeChroma(colorInfo.bluePrimary.X);
+	*(uint16_t*)&chunk[18] = EncodeChroma(colorInfo.bluePrimary.Y);
+	// 白点
+	*(uint16_t*)&chunk[20] = EncodeChroma(colorInfo.whitePoint.X);
+	*(uint16_t*)&chunk[22] = EncodeChroma(colorInfo.whitePoint.Y);
+	// 最高和最低亮度
+	*(uint32_t*)&chunk[24] = EncodeLuminace(colorInfo.maxLuminance);
+	*(uint32_t*)&chunk[28] = EncodeLuminace(colorInfo.minLuminance);
+
+	// CRC32 校验
+	*(uint32_t*)&chunk[32] = CalculateCRC32(&chunk[4], (uint32_t)chunk.size() - 8u);
+
+	return chunk;
 }
 
 static HRESULT SavePng(
@@ -750,7 +828,7 @@ static HRESULT SavePng(
 	SizeU size,
 	std::span<uint8_t> pixelData,
 	uint32_t rowPitch,
-	winrt::AdvancedColorKind acKind
+	const ColorInfo& colorInfo
 ) noexcept {
 	// 初始化 WIC
 	winrt::com_ptr<IWICImagingFactory2> wicFactory =
@@ -768,7 +846,7 @@ static HRESULT SavePng(
 	}
 
 	// 用于在 WCG 和 HDR 下嵌入 cICP
-	winrt::com_ptr<IStream> memStream;
+	winrt::com_ptr<MemStream> memStream;
 	{
 		winrt::com_ptr<IWICStream> wicStream;
 		hr = wicFactory->CreateStream(wicStream.put());
@@ -777,18 +855,15 @@ static HRESULT SavePng(
 			return hr;
 		}
 
-		if (acKind == winrt::AdvancedColorKind::StandardDynamicRange) {
+		if (colorInfo.kind == winrt::AdvancedColorKind::StandardDynamicRange) {
 			hr = wicStream->InitializeFromFilename(fileName.c_str(), GENERIC_WRITE);
 			if (FAILED(hr)) {
 				Logger::Get().ComError("IWICStream::InitializeFromFilename 失败", hr);
 				return hr;
 			}
 		} else {
-			hr = CreateStreamOnHGlobal(NULL, TRUE, memStream.put());
-			if (FAILED(hr)) {
-				Logger::Get().ComError("CreateStreamOnHGlobal 失败", hr);
-				return hr;
-			}
+			// 导出的 PNG 文件一般是几 MB 到 十几 MB，初始容量设置为 1MB
+			memStream = winrt::make_self<MemStream>(1 << 20);
 
 			hr = wicStream->InitializeFromIStream(memStream.get());
 			if (FAILED(hr)) {
@@ -831,7 +906,7 @@ static HRESULT SavePng(
 	}
 	assert(destFormat == GUID_WICPixelFormat64bppRGBA);
 
-	if (acKind == winrt::AdvancedColorKind::WideColorGamut) {
+	if (colorInfo.kind == winrt::AdvancedColorKind::WideColorGamut) {
 		// 出于兼容性考虑为 WCG 截图嵌入 icc，这样不支持 cICP 的软件也能正确渲染。但 HDR 截图
 		// 不嵌入，因为这不是推荐的做法，而且支持的软件很少，见 https://www.w3.org/TR/png-hdr-pq
 		hr = EmbedBT2020ICC(wicFactory.get(), frameEncoder.get());
@@ -863,56 +938,17 @@ static HRESULT SavePng(
 		return hr;
 	}
 
+	// 在 WCG 和 HDR 截图中嵌入 cICP
 	if (memStream) {
-		assert(acKind != winrt::AdvancedColorKind::StandardDynamicRange);
+		assert(colorInfo.kind != winrt::AdvancedColorKind::StandardDynamicRange);
 
-		// 构造 cICP 数据块
-		uint8_t cicpChunk[16];
+		const uint8_t* pMem = memStream->GetData();
+		const uint32_t memSize = memStream->GetSize();
 
-		// 数据长度
-		cicpChunk[0] = 0;
-		cicpChunk[1] = 0;
-		cicpChunk[2] = 0;
-		cicpChunk[3] = 4;
+		// 在 IHDR 后增加数据块。前有 8 字节 PNG 签名和 25 字节 IHDR 数据块 
+		constexpr uint32_t CICP_CHUNK_OFFSET = 33;
 
-		// Chunk 类型
-		cicpChunk[4] = 'c';
-		cicpChunk[5] = 'I';
-		cicpChunk[6] = 'C';
-		cicpChunk[7] = 'P';
-
-		// BT.2020
-		cicpChunk[8] = 9;
-		// PQ
-		cicpChunk[9] = 16;
-		// RGB Identity
-		cicpChunk[10] = 0;
-		// Full Range
-		cicpChunk[11] = 1;
-
-		// CRC32 校验
-		uint32_t crc = CalculateCRC32(&cicpChunk[4], 8);
-		cicpChunk[12] = (crc >> 24) & 0xFF;
-		cicpChunk[13] = (crc >> 16) & 0xFF;
-		cicpChunk[14] = (crc >> 8) & 0xFF;
-		cicpChunk[15] = crc & 0xFF;
-
-		wil::unique_hglobal hMem;
-		hr = GetHGlobalFromStream(memStream.get(), &hMem);
-		if (FAILED(hr)) {
-			Logger::Get().ComError("GetHGlobalFromStream 失败", hr);
-			return hr;
-		}
-
-		wil::unique_hglobal_locked lockedMem(hMem.get());
-		if (!lockedMem) {
-			hr = HRESULT_FROM_WIN32(GetLastError());
-			Logger::Get().Win32Error("GlobalLock 失败");
-			return hr;
-		}
-
-		SIZE_T memSize = GlobalSize(hMem.get());
-		if (memSize <= 33) {
+		if (memSize <= CICP_CHUNK_OFFSET) {
 			return E_FAIL;
 		}
 
@@ -923,26 +959,35 @@ static HRESULT SavePng(
 		wil::unique_hfile hFile(CreateFile2(
 			fileName.c_str(), GENERIC_WRITE, 0, CREATE_ALWAYS, &extendedParams));
 		if (!hFile) {
+			hr = HRESULT_FROM_WIN32(GetLastError());
 			Logger::Get().Win32Error("CreateFile2 失败");
+			return hr;
+		}
+
+		if (!Win32Helper::WriteFile(hFile.get(), std::span(pMem, CICP_CHUNK_OFFSET))) {
+			Logger::Get().Error("Win32Helper::WriteFile 失败");
 			return E_FAIL;
 		}
 
-		DWORD written;
-		if (!::WriteFile(hFile.get(), lockedMem.get(), 33, &written, nullptr) || written < 13) {
-			Logger::Get().Win32Error("WriteFile 失败");
+		// 嵌入 cICP 数据块。WIC 可能添加了 sRGB 和 gAMA 块，cICP 的优先级高于它们
+		if (!Win32Helper::WriteFile(hFile.get(), MakeCICPChunk(colorInfo.kind))) {
+			Logger::Get().Error("Win32Helper::WriteFile 失败");
 			return E_FAIL;
 		}
 
-		// 嵌入 cICP
-		if (!::WriteFile(hFile.get(), cicpChunk, std::size(cicpChunk), &written, nullptr) ||
-			written < std::size(cicpChunk)) {
-			Logger::Get().Win32Error("WriteFile 失败");
-			return E_FAIL;
+		if (colorInfo.kind == winrt::AdvancedColorKind::HighDynamicRange) {
+			// 嵌入 mDCV 数据块
+			auto chunk = MakeMDCVChunk(colorInfo);
+			if (!Win32Helper::WriteFile(hFile.get(), chunk)) {
+				Logger::Get().Error("Win32Helper::WriteFile 失败");
+				return E_FAIL;
+			}
 		}
-
-		size_t restSize = memSize - 33;
-		if (!::WriteFile(hFile.get(), (uint8_t*)lockedMem.get() + 33, restSize, &written, nullptr) || written < restSize) {
-			Logger::Get().Win32Error("WriteFile 失败");
+		
+		if (!Win32Helper::WriteFile(hFile.get(),
+			std::span(pMem + CICP_CHUNK_OFFSET, memSize - CICP_CHUNK_OFFSET))) 
+		{
+			Logger::Get().Error("Win32Helper::WriteFile 失败");
 			return E_FAIL;
 		}
 	}
@@ -956,17 +1001,17 @@ HRESULT TextureHelper::Save(
 	EffectTextureFormat textureFormat,
 	std::span<uint8_t> pixelData,
 	uint32_t rowPitch,
-	winrt::AdvancedColorKind acKind
+	const ColorInfo& colorInfo
 ) noexcept {
-	assert(textureFormat > EffectTextureFormat::COLOR_SPACE_ADAPTIVE &&
-		textureFormat < EffectTextureFormat::COUNT);
-
 	if (fileName.ends_with(L".dds")) {
+		assert(textureFormat > EffectTextureFormat::COLOR_SPACE_ADAPTIVE &&
+			textureFormat < EffectTextureFormat::COUNT);
 		DXGI_FORMAT dxgiFormat = EFFECT_TEXTURE_FORMAT_PROPS[(uint32_t)textureFormat].dxgiFormat;
 		return SaveToDDSFile(fileName.c_str(), size, dxgiFormat, pixelData, rowPitch);
 	} else {
 		assert(fileName.ends_with(L".png"));
-		return SavePng(fileName, size, pixelData, rowPitch, acKind);
+		assert(textureFormat == EffectTextureFormat::R16G16B16A16_UNORM);
+		return SavePng(fileName, size, pixelData, rowPitch, colorInfo);
 	}
 }
 

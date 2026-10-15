@@ -23,7 +23,7 @@ struct TextureHelper {
 		EffectTextureFormat format,
 		std::span<uint8_t> pixelData,
 		uint32_t rowPitch,
-		winrt::AdvancedColorKind acKind = winrt::AdvancedColorKind::StandardDynamicRange
+		const ColorInfo& colorInfo
 	) noexcept;
 };
 

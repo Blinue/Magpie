@@ -168,6 +168,9 @@
     <ClInclude Include="ShaderEffectDrawInfo.h">
       <Filter>Render</Filter>
     </ClInclude>
+    <ClInclude Include="MemStream.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />

@@ -98,7 +98,8 @@ private:
 		uint32_t bufferSize = 0;
 		SizeU textureSize{};
 		uint32_t rowPitch = 0;
-		winrt::AdvancedColorKind acKind = winrt::AdvancedColorKind::StandardDynamicRange;
+		// 由于导出是异步的需要备份 colorInfo
+		ColorInfo colorInfo;
 
 		// 用于把要导出的纹理转换为 R16G16B16A16_FLOAT 格式
 		winrt::com_ptr<ID3D12Resource> tempTexture;

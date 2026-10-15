@@ -3,9 +3,9 @@
 Texture2D<float4> inputTex : register(t0);
 RWTexture2D<float4> outputTex : register(u0);
 
-// 维基百科和 ITU-R BT.2020-2 建议书中 BT.2020 的光电转换函数更加复杂，但伽马 2.4 已经
-// 成为事实上的标准，比如 Chrome、FirFox、CSS 标准等全部使用伽马 2.4。经过测试，在浏览器
-// 和图片查看器中伽马 2.4 的画面和 sRGB 相同，而标准的光电转换函数会使画面变暗。
+// BT.2020 的光电转换函数比较混乱。维基百科、ITU-R BT.2020-2 建议书和 PNG 标准中
+// BT.2020 的光电转换函数是和 sRGB 类似的分段函数，但 Chrome、CSS 标准和图片查看
+// 器等实现全部使用简单的伽马 2.4。目前看来，伽马 2.4 已经成为事实上的标准。
 // 见 https://github.com/w3c/csswg-drafts/issues/12574
 float3 BT2020FromLinear(float3 color) {
 	return pow(color, 1.0f / 2.4f);

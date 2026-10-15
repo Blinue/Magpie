@@ -67,6 +67,7 @@
     <ClInclude Include="ImGuiImpl.h" />
     <ClInclude Include="include\AppFolderManager.h" />
     <ClInclude Include="include\WICImageLoader.h" />
+    <ClInclude Include="MemStream.h" />
     <ClInclude Include="OverlayDrawer.h" />
     <ClInclude Include="OverlayHelper.h" />
     <ClInclude Include="TextureHelper.h" />
