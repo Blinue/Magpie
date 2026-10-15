@@ -442,17 +442,25 @@ bool Renderer::_UpdateColorInfo() noexcept {
 		winrt::AdvancedColorInfo acInfo = _displayInfo.GetAdvancedColorInfo();
 
 		_colorInfo.kind = acInfo.CurrentAdvancedColorKind();
-		if (_colorInfo.kind == winrt::AdvancedColorKind::HighDynamicRange) {
-			_colorInfo.minLuminance = acInfo.MinLuminanceInNits() / SCENE_REFERRED_SDR_WHITE_LEVEL;
-			_colorInfo.maxLuminance = acInfo.MaxLuminanceInNits() / SCENE_REFERRED_SDR_WHITE_LEVEL;
-			_colorInfo.sdrWhiteLevel = acInfo.SdrWhiteLevelInNits() / SCENE_REFERRED_SDR_WHITE_LEVEL;
+		if (_colorInfo.kind == winrt::AdvancedColorKind::StandardDynamicRange) {
+			_colorInfo = {};
+		} else {
 			_colorInfo.redPrimary = acInfo.RedPrimary();
 			_colorInfo.greenPrimary = acInfo.GreenPrimary();
 			_colorInfo.bluePrimary = acInfo.BluePrimary();
 			_colorInfo.whitePoint = acInfo.WhitePoint();
-		} else {
-			_colorInfo = {};
+
+			if (_colorInfo.kind == winrt::AdvancedColorKind::HighDynamicRange) {
+				_colorInfo.minLuminance = acInfo.MinLuminanceInNits() / SCENE_REFERRED_SDR_WHITE_LEVEL;
+				_colorInfo.maxLuminance = acInfo.MaxLuminanceInNits() / SCENE_REFERRED_SDR_WHITE_LEVEL;
+				_colorInfo.sdrWhiteLevel = acInfo.SdrWhiteLevelInNits() / SCENE_REFERRED_SDR_WHITE_LEVEL;
+			} else {
+				_colorInfo.minLuminance = 0.0f;
+				_colorInfo.maxLuminance = 1.0f;
+				_colorInfo.sdrWhiteLevel = 1.0f;
+			}
 		}
+		
 
 		return true;
 	}

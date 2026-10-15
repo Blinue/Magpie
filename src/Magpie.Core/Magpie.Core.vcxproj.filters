@@ -246,7 +246,6 @@
     <ClCompile Include="TextureHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
-    <ClCompile Include="WICImageLoader.cpp" />
     <ClCompile Include="AppFolderManager.cpp" />
     <ClCompile Include="OverlayDrawer.cpp">
       <Filter>Render</Filter>
@@ -264,6 +263,9 @@
       <Filter>Helpers</Filter>
     </ClCompile>
     <ClCompile Include="AppXReader.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="WICImageLoader.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
   </ItemGroup>

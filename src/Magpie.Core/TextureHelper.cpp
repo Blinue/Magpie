@@ -975,10 +975,9 @@ static HRESULT SavePng(
 			return E_FAIL;
 		}
 
+		// HDR 截图嵌入 mDCV 数据块
 		if (colorInfo.kind == winrt::AdvancedColorKind::HighDynamicRange) {
-			// 嵌入 mDCV 数据块
-			auto chunk = MakeMDCVChunk(colorInfo);
-			if (!Win32Helper::WriteFile(hFile.get(), chunk)) {
+			if (!Win32Helper::WriteFile(hFile.get(), MakeMDCVChunk(colorInfo))) {
 				Logger::Get().Error("Win32Helper::WriteFile 失败");
 				return E_FAIL;
 			}
