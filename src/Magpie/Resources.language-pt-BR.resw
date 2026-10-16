@@ -886,4 +886,79 @@
   <data name="Home_Toolbar_StateToggle.Header" xml:space="preserve">
     <value>Atalho para alternar o estado da barra de ferramentas</value>
   </data>
+  <data name="Home_Toolbar_StateToggle_ShortcutControl.Title" xml:space="preserve">
+    <value>Atalho para alternar o estado da barra de ferramentas</value>
+  </data>
+  <data name="Message_ToolbarIn3DGameMode" xml:space="preserve">
+    <value>A barra de ferramentas não é suportada no modo de jogo 3D.</value>
+  </data>
+  <data name="Message_ToolbarNewState" xml:space="preserve">
+    <value>Barra de ferramentas: {}</value>
+  </data>
+  <data name="Overlay_Toolbar_Close" xml:space="preserve">
+    <value>Parar dimensionamento</value>
+  </data>
+  <data name="Overlay_Toolbar_Demo" xml:space="preserve">
+    <value>Demonstração de Janela ImGui</value>
+  </data>
+  <data name="Overlay_Toolbar_Pin" xml:space="preserve">
+    <value>Fixar Barra de ferramentas</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot" xml:space="preserve">
+    <value>Tirar Captura de Tela</value>
+  </data>
+  <data name="Message_Windowed3DGameMode" xml:space="preserve">
+    <value>O redimensionamento em modo janela não é suportado no modo de jogo 3D.</value>
+  </data>
+  <data name="Profile_General_3DGameMode.Description" xml:space="preserve">
+    <value>Habilita otimizações para jogos 3D, mas é incompatível com a barra de ferramentas e redimensionamento em modo janela</value>
+  </data>
+  <data name="Home_Toolbar_TakeScreenshot.Header" xml:space="preserve">
+    <value>Atalho para captura de tela</value>
+  </data>
+  <data name="Home_Toolbar_TakeScreenshot_ShortcutControl.Title" xml:space="preserve">
+    <value>Atalho para captura de tela</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
+    <value>Diretório para salvar capturas de tela</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
+    <value>Alterar</value>
+  </data>
+  <data name="Dialog_SelectScreenshotSaveDirectory_Title" xml:space="preserve">
+    <value>Selecione um diretório para salvar as capturas de tela</value>
+  </data>
+  <data name="Message_ScreenshotSaved" xml:space="preserve">
+    <value>Captura de tela salva como {}</value>
+  </data>
+  <data name="Message_ScreenshotFailed_Title" xml:space="preserve">
+    <value>Captura de tela falhou</value>
+  </data>
+  <data name="Message_ScreenshotFailed_InvalidDirectory" xml:space="preserve">
+    <value>Diretório para salvar as capturas de tela é inválido.</value>
+  </data>
+  <data name="Message_ScreenshotFailed_InvalidFilenameTemplate" xml:space="preserve">
+    <value>Formato de nome da captura de tela é inválido.</value>
+  </data>
+  <data name="Message_ScreenshotFailed_InternalError" xml:space="preserve">
+    <value>Um erro interno ocorreu, por favor verifique os logs para mais detalhes.</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
+    <value>Clique com o botão direito para exportar um resultado intermediário</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot_PopupTitle" xml:space="preserve">
+    <value>Exportar resultado intermediário</value>
+  </data>
+  <data name="Profile_WindowedScaling.Header" xml:space="preserve">
+    <value>Redimensionamento em modo janela</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor.Header" xml:space="preserve">
+    <value>Fator de escala inicial</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor_Auto.Content" xml:space="preserve">
+    <value>Automático</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor_Custom.Content" xml:space="preserve">
+    <value>Personalizado</value>
+  </data>
 </root>
