@@ -1295,7 +1295,8 @@ bool OverlayDrawer::_DrawProfiler(const SmallVector<float>& effectTimings, uint3
 }
 
 const std::string& OverlayDrawer::_GetResourceString(const std::wstring_view& key) noexcept {
-	static phmap::flat_hash_map<std::wstring_view, std::string> cache;
+	// 由于返回引用应确保值的地址稳定
+	static phmap::node_hash_map<std::wstring_view, std::string> cache;
 
 	if (auto it = cache.find(key); it != cache.end()) {
 		return it->second;

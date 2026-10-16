@@ -316,8 +316,8 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 				co_return;
 			}
 			
-			if (!WriteFile(updatePkg.get(), bufferData, bufferSize, nullptr, nullptr)) {
-				Logger::Get().Win32Error("WriteFile 失败");
+			if (!Win32Helper::WriteFile(updatePkg.get(), std::span(bufferData, bufferSize))) {
+				Logger::Get().Error("Win32Helper::WriteFile 失败");
 				_Status(UpdateStatus::ErrorWhileDownloading);
 				co_return;
 			}

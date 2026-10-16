@@ -3,6 +3,7 @@
 #include "ByteBuffer.h"
 #include "DDS.h"
 #include "Logger.h"
+#include "Win32Helper.h"
 
 ///////////////////////////////////////////////////////////////////////
 // 
@@ -976,18 +977,15 @@ static bool SaveToDDSFile(
 		return false;
 	}
 
-	DWORD bytesWritten;
-	if (!WriteFile(hFile.get(), header, (DWORD)DDS_DX10_HEADER_SIZE, &bytesWritten, nullptr) ||
-		bytesWritten != DDS_DX10_HEADER_SIZE) {
-		Logger::Get().Win32Error("WriteFile 失败");
+	if (!Win32Helper::WriteFile(hFile.get(), header)) {
+		Logger::Get().Error("Win32Helper::WriteFile 失败");
 		return false;
 	}
 
 	// 写入图像
 	if ((uint32_t)pixelData.size() == ddsSlicePitch) {
-		if (!WriteFile(hFile.get(), pixelData.data(), (DWORD)ddsSlicePitch, &bytesWritten, nullptr) ||
-			bytesWritten != ddsSlicePitch) {
-			Logger::Get().Win32Error("WriteFile 失败");
+		if (!Win32Helper::WriteFile(hFile.get(), pixelData)) {
+			Logger::Get().Error("Win32Helper::WriteFile 失败");
 			return false;
 		}
 	} else {
@@ -1000,9 +998,8 @@ static bool SaveToDDSFile(
 		const uint8_t* __restrict sPtr = pixelData.data();
 
 		for (uint32_t i = 0; i < height; ++i) {
-			if (!WriteFile(hFile.get(), sPtr, (DWORD)ddsRowPitch, &bytesWritten, nullptr) ||
-				bytesWritten != ddsRowPitch) {
-				Logger::Get().Win32Error("WriteFile 失败");
+			if (!Win32Helper::WriteFile(hFile.get(), std::span(sPtr, ddsRowPitch))) {
+				Logger::Get().Error("Win32Helper::WriteFile 失败");
 				return false;
 			}
 
