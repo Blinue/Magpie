@@ -223,6 +223,7 @@ void FrameProducer::OnSystemCursorVisibilityChanged(bool isVisible, bool onDesto
 	});
 }
 
+// colorInfo 确保在初始化完成前有效，可以传递引用
 void FrameProducer::_ProducerThreadProc(
 	const ColorInfo& colorInfo,
 	HMONITOR hMonSrc,

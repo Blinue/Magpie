@@ -70,7 +70,9 @@ private:
 
 	RECT _rendererRect{};
 	RECT _destRect{};
-	ColorInfo _colorInfo;
+
+	winrt::AdvancedColorKind _acKind = winrt::AdvancedColorKind::StandardDynamicRange;
+	float _sdrWhiteLevel = 1.0f;
 
 	ImGuiImpl _imguiImpl;
 

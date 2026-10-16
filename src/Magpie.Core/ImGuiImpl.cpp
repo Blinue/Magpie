@@ -34,7 +34,8 @@ void ImGuiImpl::Initialize(
 	D3D12Context& d3d12Context,
 	const RECT& rendererRect,
 	const RECT& destRect,
-	const ColorInfo& colorInfo
+	winrt::AdvancedColorKind acKind,
+	float sdrWhiteLevel
 ) noexcept {
 	_rendererRect = rendererRect;
 	_destRect = destRect;
@@ -55,7 +56,7 @@ void ImGuiImpl::Initialize(
 	io.ConfigDebugHighlightIdConflicts = false;
 #endif
 
-	_backend.Initialize(d3d12Context, colorInfo);
+	_backend.Initialize(d3d12Context, acKind, sdrWhiteLevel);
 }
 
 static wil::zstring_view FindHoveredWindowId(ImVec2 mousePos) noexcept {

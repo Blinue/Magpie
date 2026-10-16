@@ -98,7 +98,8 @@ bool CursorDrawer::Initialize(
 	_srcSize.height = uint32_t(srcRect.bottom - srcRect.top);
 	_rendererRect = rendererRect;
 	_destRect = destRect;
-	_colorInfo = colorInfo;
+	_acKind = colorInfo.kind;
+	_sdrWhiteLevel = colorInfo.sdrWhiteLevel;
 
 	[[maybe_unused]] static Ignore _ = [] {
 		SYSTEM_DPI = GetDpiForSystem();
@@ -325,7 +326,7 @@ HRESULT CursorDrawer::Draw(
 		graphicsContext.SetRootSignature(_maskRootSignature.get());
 	}
 
-	const bool isScRGB = _colorInfo.kind != winrt::AdvancedColorKind::StandardDynamicRange;
+	const bool isScRGB = _acKind != winrt::AdvancedColorKind::StandardDynamicRange;
 
 	const RECT viewportRect = {
 		_destRect.left - _rendererRect.left,
@@ -357,7 +358,7 @@ HRESULT CursorDrawer::Draw(
 			{.uintVal = backBuffer ? 0u :uint32_t(cursorRect.left - _destRect.left)},
 			{.uintVal = backBuffer ? 0u : uint32_t(cursorRect.top - _destRect.top)},
 			// 原始帧需要伽马校正，从渲染目标复制的临时纹理不需要。WCG/HDR 下这个参数有不同的意义
-			{.uintVal = isScRGB ? std::bit_cast<uint32_t>(_colorInfo.sdrWhiteLevel) : (backBuffer ? 0u : 1u)}
+			{.uintVal = isScRGB ? std::bit_cast<uint32_t>(_sdrWhiteLevel) : (backBuffer ? 0u : 1u)}
 		};
 		graphicsContext.SetRoot32BitConstants(1, (UINT)std::size(constants), constants);
 
@@ -495,9 +496,11 @@ void CursorDrawer::OnResized(const RECT& rendererRect, const RECT& destRect) noe
 }
 
 void CursorDrawer::OnColorInfoChanged(const ColorInfo& colorInfo) noexcept {
-	bool wasScRGB = _colorInfo.kind != winrt::AdvancedColorKind::StandardDynamicRange;
+	bool wasScRGB = _acKind != winrt::AdvancedColorKind::StandardDynamicRange;
 	bool isScRGB = colorInfo.kind != winrt::AdvancedColorKind::StandardDynamicRange;
-	_colorInfo = colorInfo;
+
+	_acKind = colorInfo.kind;
+	_sdrWhiteLevel = colorInfo.sdrWhiteLevel;
 
 	if (wasScRGB != isScRGB) {
 		// 渲染目标纹理格式变了
@@ -798,19 +801,20 @@ void CursorDrawer::_TryResolveCursorFramesFromSource(
 static void FillColorCursorRGB(
 	HALF* textureData,
 	uint8_t* pixels,
-	const ColorInfo& colorInfo,
+	winrt::AdvancedColorKind acKind,
+	float _sdrWhiteLevel,
 	float alpha
 ) noexcept {
 	// 预乘 Alpha 通道并归一化
 	float factor = alpha / 255.0f;
 
-	if (colorInfo.kind == winrt::AdvancedColorKind::StandardDynamicRange) {
+	if (acKind == winrt::AdvancedColorKind::StandardDynamicRange) {
 		*textureData++ = XMConvertFloatToHalf(pixels[2] * factor);
 		*textureData++ = XMConvertFloatToHalf(pixels[1] * factor);
 		*textureData = XMConvertFloatToHalf(pixels[0] * factor);
 	} else {
-		if (colorInfo.kind == winrt::AdvancedColorKind::HighDynamicRange) {
-			factor *= colorInfo.sdrWhiteLevel;
+		if (acKind == winrt::AdvancedColorKind::HighDynamicRange) {
+			factor *= _sdrWhiteLevel;
 		}
 
 		*textureData++ = XMConvertFloatToHalf(ColorHelper::SrgbToLinear(pixels[2]) * factor);
@@ -870,7 +874,7 @@ bool CursorDrawer::_ResolveCursorFramePixels(
 
 			for (uint32_t i = 0; i < bi.bmiHeader.biSizeImage; i += 4) {
 				float alpha = pixels[i + 3] / 255.0f;
-				FillColorCursorRGB(&textureData[i], &pixels[i], _colorInfo, alpha);
+				FillColorCursorRGB(&textureData[i], &pixels[i], _acKind, _sdrWhiteLevel, alpha);
 				textureData[i + 3] = XMConvertFloatToHalf(1.0f - alpha);
 			}
 		} else {
@@ -906,7 +910,7 @@ bool CursorDrawer::_ResolveCursorFramePixels(
 				for (uint32_t i = 0; i < bi.bmiHeader.biSizeImage; i += 4) {
 					if (maskPixels[i] == 0) {
 						// Alpha 通道为 0，无需设置
-						FillColorCursorRGB(&textureData[i], &pixels[i], _colorInfo, 1.0f);
+						FillColorCursorRGB(&textureData[i], &pixels[i], _acKind, _sdrWhiteLevel, 1.0f);
 					} else {
 						// 透明像素
 						textureData[i + 3] = XMConvertFloatToHalf(1.0f);
@@ -952,7 +956,7 @@ bool CursorDrawer::_ResolveCursorFramePixels(
 					// 黑色全为 0，无需设置
 					if (pixels[i + halfSize] != 0) {
 						// 白色。非 HDR 时 sdrWhiteLevel 始终为 1
-						std::fill_n(&textureData[i], 3, XMConvertFloatToHalf(_colorInfo.sdrWhiteLevel));
+						std::fill_n(&textureData[i], 3, XMConvertFloatToHalf(_sdrWhiteLevel));
 					}
 				} else {
 					// 透明
@@ -1256,7 +1260,7 @@ void CursorDrawer::_ClearCursorInfos() noexcept {
 
 HRESULT CursorDrawer::_CreateColorPSO() noexcept {
 	ID3D12Device5* device = _d3d12Context->GetDevice();
-	const bool isScRGB = _colorInfo.kind != winrt::AdvancedColorKind::StandardDynamicRange;
+	const bool isScRGB = _acKind != winrt::AdvancedColorKind::StandardDynamicRange;
 
 	if (!_colorRootSignature) {
 		winrt::com_ptr<ID3DBlob> signature;
@@ -1354,7 +1358,7 @@ HRESULT CursorDrawer::_CreateMaskPSO(
 	bool isMonochrome,
 	winrt::com_ptr<ID3D12PipelineState>& result
 ) noexcept {
-	const bool isScRGB = _colorInfo.kind != winrt::AdvancedColorKind::StandardDynamicRange;
+	const bool isScRGB = _acKind != winrt::AdvancedColorKind::StandardDynamicRange;
 
 	if (!_maskRootSignature) {
 		winrt::com_ptr<ID3DBlob> signature;

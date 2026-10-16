@@ -61,7 +61,10 @@ void ShaderEffectDrawer::Bind(SizeU inputSize, SizeU outputSize, const ColorInfo
 
 	// 如果色域改变可能需要重新编译，否则只需要重新创建中间纹理
 	if (_inputSize == inputSize && _outputSize == outputSize) {
-		if (_colorInfo == colorInfo) {
+		if (_acKind == colorInfo.kind &&
+			_maxLuminance == colorInfo.maxLuminance &&
+			_sdrWhiteLevel == colorInfo.sdrWhiteLevel)
+		{
 			return;
 		}
 	} else {
@@ -70,9 +73,12 @@ void ShaderEffectDrawer::Bind(SizeU inputSize, SizeU outputSize, const ColorInfo
 		_shouldUpdateSizeDependentResources = true;
 	}
 
-	bool wasSrgb = _colorInfo.kind != winrt::AdvancedColorKind::StandardDynamicRange;
+	bool wasSrgb = _acKind != winrt::AdvancedColorKind::StandardDynamicRange;
 	bool isSrgb = colorInfo.kind != winrt::AdvancedColorKind::StandardDynamicRange;
-	_colorInfo = colorInfo;
+
+	_acKind = colorInfo.kind;
+	_maxLuminance = colorInfo.maxLuminance;
+	_sdrWhiteLevel = colorInfo.sdrWhiteLevel;
 
 	if (!_compilationTaskId.empty()) {
 		if (wasSrgb == isSrgb) {
@@ -664,9 +670,10 @@ void ShaderEffectDrawer::_UpdateConstants() noexcept {
 
 	// WCG/HDR 参数
 	if (bool(_effectInfo->flags & EffectFlags::SupportAdvancedColor) &&
-		_colorInfo.kind != winrt::AdvancedColorKind::StandardDynamicRange) {
-		constants.emplace_back(Constant32::Float(_colorInfo.maxLuminance));
-		constants.emplace_back(Constant32::Float(_colorInfo.sdrWhiteLevel));
+		_acKind != winrt::AdvancedColorKind::StandardDynamicRange)
+	{
+		constants.emplace_back(Constant32::Float(_maxLuminance));
+		constants.emplace_back(Constant32::Float(_sdrWhiteLevel));
 	}
 
 	// 效果参数
@@ -740,7 +747,7 @@ HRESULT ShaderEffectDrawer::_UpdateSizeDependentResources() noexcept {
 				}
 
 				if (effectTexDesc.format == EffectTextureFormat::COLOR_SPACE_ADAPTIVE) {
-					if (_colorInfo.kind == winrt::AdvancedColorKind::StandardDynamicRange) {
+					if (_acKind == winrt::AdvancedColorKind::StandardDynamicRange) {
 						dxgiFormat = DXGI_FORMAT_R10G10B10A2_UNORM;
 					} else {
 						dxgiFormat = DXGI_FORMAT_R16G16B16A16_FLOAT;

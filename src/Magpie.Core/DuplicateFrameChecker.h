@@ -15,7 +15,6 @@ public:
 	bool Initialize(
 		ID3D11Device5* d3d11Device,
 		ID3D11DeviceContext4* d3d11DC,
-		const ColorInfo& colorInfo,
 		SizeU frameSize,
 		uint32_t captureFrameCount,
 		bool disableBoundsChecking
@@ -54,7 +53,6 @@ private:
 	uint16_t _nextSkipCount;
 	uint16_t _framesLeft;
 
-	bool _isScRGB = false;
 #ifdef _DEBUG
 	bool _isBoundsCheckingDisabled = false;
 #endif

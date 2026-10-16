@@ -30,9 +30,14 @@ ImGuiBackend::~ImGuiBackend() noexcept {
 #endif
 }
 
-void ImGuiBackend::Initialize(D3D12Context& d3d12Context, const ColorInfo& colorInfo) noexcept {
+void ImGuiBackend::Initialize(
+	D3D12Context& d3d12Context,
+	winrt::AdvancedColorKind acKind,
+	float sdrWhiteLevel
+) noexcept {
 	_d3d12Context = &d3d12Context;
-	_colorInfo = colorInfo;
+	_acKind = acKind;
+	_sdrWhiteLevel = sdrWhiteLevel;
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.BackendRendererName = "Magpie";
@@ -201,12 +206,13 @@ HRESULT ImGuiBackend::RenderDrawData(
 }
 
 void ImGuiBackend::OnColorInfoChanged(const ColorInfo& colorInfo) noexcept {
-	const winrt::AdvancedColorKind oldKind = _colorInfo.kind;
-	_colorInfo = colorInfo;
+	const winrt::AdvancedColorKind oldKind = _acKind;
+	_acKind = colorInfo.kind;
+	_sdrWhiteLevel = colorInfo.sdrWhiteLevel;
 
-	if (colorInfo.kind != oldKind) {
+	if (_acKind != oldKind) {
 		bool wasHDR = oldKind == winrt::AdvancedColorKind::HighDynamicRange;
-		bool isHDR = colorInfo.kind == winrt::AdvancedColorKind::HighDynamicRange;
+		bool isHDR = _acKind == winrt::AdvancedColorKind::HighDynamicRange;
 		if (wasHDR != isHDR) {
 			_imguiRootSignature = nullptr;
 		}
@@ -458,8 +464,8 @@ HRESULT ImGuiBackend::_SetupRenderState(
 		graphicsContext.SetRoot32BitConstants(0, 2, scale);
 	}
 
-	if (_colorInfo.kind == winrt::AdvancedColorKind::HighDynamicRange) {
-		graphicsContext.SetRoot32BitConstants(1, 1, &_colorInfo.sdrWhiteLevel);
+	if (_acKind == winrt::AdvancedColorKind::HighDynamicRange) {
+		graphicsContext.SetRoot32BitConstants(1, 1, &_sdrWhiteLevel);
 		descriptorTableIdx = 2;
 	} else {
 		descriptorTableIdx = 1;
@@ -470,8 +476,8 @@ HRESULT ImGuiBackend::_SetupRenderState(
 
 HRESULT ImGuiBackend::_CreateImGuiPSO() noexcept {
 	ID3D12Device5* device = _d3d12Context->GetDevice();
-	const bool isScRGB = _colorInfo.kind != winrt::AdvancedColorKind::StandardDynamicRange;
-	const bool isHDR = _colorInfo.kind == winrt::AdvancedColorKind::HighDynamicRange;
+	const bool isScRGB = _acKind != winrt::AdvancedColorKind::StandardDynamicRange;
+	const bool isHDR = _acKind == winrt::AdvancedColorKind::HighDynamicRange;
 
 	// PREFast 错误认为对 rootParams 的访问会越界
 	[[gsl::suppress("28020")]]

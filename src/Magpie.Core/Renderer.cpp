@@ -18,13 +18,6 @@
 
 namespace Magpie {
 
-enum class TakeScreenshotResult {
-	Success,
-	InvalidDirectory,
-	InvalidFilenameTemplate,
-	InternalError
-};
-
 // 如果描述符大小为 32 字节，描述符堆消耗 2MiB 显存
 static uint32_t CSU_HEAP_CAPACITY = 65536;
 // 目前只有渲染到后缓冲和缩放光标时需要 RTV
@@ -461,7 +454,6 @@ bool Renderer::_UpdateColorInfo() noexcept {
 			}
 		}
 		
-
 		return true;
 	}
 
@@ -668,8 +660,12 @@ HRESULT Renderer::_RenderImpl(HCURSOR hCursor, POINT cursorPos, bool waitForGpu)
 }
 
 void Renderer::_UpdateOutputRect(SizeU outputSize) noexcept {
-	// TODO: 窗口模式缩放始终填充画面
 	const SizeU rendererSize = _presenter->GetSize();
+	if (rendererSize == outputSize) {
+		_outputRect = { 0,0,outputSize.width,outputSize.height };
+		return;
+	}
+
 	OutputAlignment alignment = ScalingWindow::Get().Options().outputAlignment;
 
 	using enum OutputAlignment;

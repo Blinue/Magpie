@@ -61,7 +61,8 @@ bool OverlayDrawer::Initialize(
 	_frameProducer = &frameProducer;
 	_rendererRect = rendererRect;
 	_destRect = destRect;
-	_colorInfo = colorInfo;
+	_acKind = colorInfo.kind;
+	_sdrWhiteLevel = colorInfo.sdrWhiteLevel;
 
 	// 需要时初始化 ImGui
 	const ScalingOptions& options = ScalingWindow::Get().Options();
@@ -222,8 +223,9 @@ void OverlayDrawer::OnCursorCapturedOnForegroundChanged(bool value) noexcept {
 }
 
 void OverlayDrawer::OnColorInfoChanged(const ColorInfo& colorInfo) noexcept {
-	_colorInfo = colorInfo;
-
+	_acKind = colorInfo.kind;
+	_sdrWhiteLevel = colorInfo.sdrWhiteLevel;
+	
 	if (_isImplInitialized) {
 		_imguiImpl.OnColorInfoChanged(colorInfo);
 	}
@@ -260,7 +262,7 @@ static const std::wstring& GetSystemFontsFolder() noexcept {
 HRESULT OverlayDrawer::_InitializeImpl() noexcept {
 	SetDefaultWindowOptions(_overlayOptions->windows);
 
-	_imguiImpl.Initialize(*_d3d12Context, _rendererRect, _destRect, _colorInfo);
+	_imguiImpl.Initialize(*_d3d12Context, _rendererRect, _destRect, _acKind, _sdrWhiteLevel);
 
 	_dpiScale = ScalingWindow::Get().GetDpi() / float(USER_DEFAULT_SCREEN_DPI);
 

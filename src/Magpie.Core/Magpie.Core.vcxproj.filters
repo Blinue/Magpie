@@ -82,9 +82,6 @@
     <ClInclude Include="EffectDrawerBase.h">
       <Filter>EffectDrawer</Filter>
     </ClInclude>
-    <ClInclude Include="CatmullRomDrawer.h">
-      <Filter>EffectDrawer</Filter>
-    </ClInclude>
     <ClInclude Include="DuplicateFrameChecker.h">
       <Filter>Capture</Filter>
     </ClInclude>
@@ -171,6 +168,9 @@
     <ClInclude Include="MemStream.h">
       <Filter>Helpers</Filter>
     </ClInclude>
+    <ClInclude Include="CatmullRomDrawer.h">
+      <Filter>Render</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -208,9 +208,6 @@
     </ClCompile>
     <ClCompile Include="FrameRingBuffer.cpp">
       <Filter>Render</Filter>
-    </ClCompile>
-    <ClCompile Include="CatmullRomDrawer.cpp">
-      <Filter>EffectDrawer</Filter>
     </ClCompile>
     <ClCompile Include="DuplicateFrameChecker.cpp">
       <Filter>Capture</Filter>
@@ -267,6 +264,9 @@
     </ClCompile>
     <ClCompile Include="WICImageLoader.cpp">
       <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="CatmullRomDrawer.cpp">
+      <Filter>Render</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

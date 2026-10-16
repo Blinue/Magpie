@@ -39,7 +39,11 @@ private:
 
 	SizeU _inputSize{};
 	SizeU _outputSize{};
-	ColorInfo _colorInfo;
+
+	winrt::AdvancedColorKind _acKind = winrt::AdvancedColorKind::StandardDynamicRange;
+	float _maxLuminance = 1.0f;
+	float _sdrWhiteLevel = 1.0f;
+
 	std::string _compilationTaskId;
 	const ShaderEffectDrawInfo* _drawInfo = nullptr;
 	std::string _errorMsg;

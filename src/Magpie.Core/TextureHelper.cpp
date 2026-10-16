@@ -975,7 +975,8 @@ static HRESULT SavePng(
 			return E_FAIL;
 		}
 
-		// HDR 截图嵌入 mDCV 数据块
+		// HDR 截图嵌入 mDCV 数据块存储当前显示器的色彩显示能力。目前不嵌入 cLLI，
+		// 统计亮度需要额外的工作，如果特别有用再考虑添加。
 		if (colorInfo.kind == winrt::AdvancedColorKind::HighDynamicRange) {
 			if (!Win32Helper::WriteFile(hFile.get(), MakeMDCVChunk(colorInfo))) {
 				Logger::Get().Error("Win32Helper::WriteFile 失败");
