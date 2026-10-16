@@ -172,7 +172,8 @@ protected:
 		case WM_PAINT:
 		{
 			if (!((T*)this)->_ShouldDrawBackground()) {
-				return 0;
+				// 应调用 DefWindowProc 来消除更新区域，否则会持续产生 WM_PAINT 消息
+				break;
 			}
 
 			PAINTSTRUCT ps{};
