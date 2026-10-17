@@ -82,10 +82,12 @@ App::App() {
 		Logger::Get().ComCritical(StrHelper::Concat("未处理的异常: ",
 			StrHelper::UTF16ToUTF8(e.Message())), e.Exception().value);
 
+#ifdef _DEBUG
 		if (IsDebuggerPresent()) {
 			hstring errorMessage = e.Message();
 			__debugbreak();
 		}
+#endif
 	});
 
 	// !!! HACK !!!

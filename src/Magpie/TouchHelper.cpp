@@ -191,8 +191,8 @@ bool TouchHelper::Register() noexcept {
 
 	// 记录版本
 	targetPath += L".ver";
-	static const uint32_t version = TOUCH_HELPER_VERSION;
-	if (!Win32Helper::WriteFile(targetPath.c_str(), { (uint8_t*)&version, sizeof(version)})) {
+	const uint32_t version = TOUCH_HELPER_VERSION;
+	if (!Win32Helper::WriteFile(targetPath.c_str(), std::span((const uint8_t*)&version, sizeof(version)))) {
 		Logger::Get().Error("写入资源文件失败");
 		return false;
 	}
