@@ -172,7 +172,8 @@ enum class ScalingFlags {
 	DisableFP16 = 1 << 16,
 	BenchmarkMode = 1 << 17,
 	DeveloperMode = 1 << 18,
-	DisableTopmost = 1 << 19
+	DisableTopmost = 1 << 19,
+	RemoteCursor = 1 << 20
 };
 // NOLINTNEXTLINE(clang-analyzer-optin.core.EnumCastOutOfRange)
 DEFINE_ENUM_FLAG_OPERATORS(ScalingFlags)
@@ -188,6 +189,7 @@ struct ScalingOptions {
 	DEFINE_FLAG_ACCESSOR(Is3DGameMode, ScalingFlags::Is3DGameMode, flags)
 	DEFINE_FLAG_ACCESSOR(IsCaptureTitleBar, ScalingFlags::CaptureTitleBar, flags)
 	DEFINE_FLAG_ACCESSOR(IsAdjustCursorSpeed, ScalingFlags::AdjustCursorSpeed, flags)
+	DEFINE_FLAG_ACCESSOR(IsRemoteCursorEnabled, ScalingFlags::RemoteCursor, flags)
 	DEFINE_FLAG_ACCESSOR(IsDirectFlipDisabled, ScalingFlags::DisableDirectFlip, flags)
 	DEFINE_FLAG_ACCESSOR(IsFontCacheDisabled, ScalingFlags::DisableFontCache, flags)
 	DEFINE_FLAG_ACCESSOR(IsAllowScalingMaximized, ScalingFlags::AllowScalingMaximized, flags)

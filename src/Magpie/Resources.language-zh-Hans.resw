@@ -1135,4 +1135,10 @@
   <data name="Root_ProfileFlyout_DeleteConfirmationText" xml:space="preserve">
     <value>确定删除“{}”？</value>
   </data>
+  <data name="Profile_Cursor_RemoteCursor.Header" xml:space="preserve">
+    <value>远程光标兼容</value>
+  </data>
+  <data name="Profile_Cursor_RemoteCursor.Description" xml:space="preserve">
+    <value>隐藏远程桌面和串流软件中多出的系统光标。下次开始缩放时生效。</value>
+  </data>
 </root>
