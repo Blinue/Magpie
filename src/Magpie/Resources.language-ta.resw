@@ -591,9 +591,6 @@
   <data name="Profile_Cursor_DrawCursor_Interpolation.Header" xml:space="preserve">
     <value>இடைக்கணிப்பு வழிமுறை</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
-    <value>பிலினியர்</value>
-  </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
     <value>அருகிலுள்ள அரிச்போர்</value>
   </data>
@@ -768,9 +765,6 @@
   </data>
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
     <value>ஒருபோதும்</value>
-  </data>
-  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
-    <value>மாறும் கண்டறிதலுக்கான புள்ளிவிவரங்களை இயக்கவும்</value>
   </data>
   <data name="Overlay_Profiler_FrameRate" xml:space="preserve">
     <value>பிரேம் வீதம்</value>

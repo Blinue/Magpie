@@ -303,9 +303,6 @@
   <data name="Profile_Cursor_DrawCursor_ScaleFactor.Header" xml:space="preserve">
     <value>Skalierungsfaktor</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
-    <value>Bilinear</value>
-  </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
     <value>Nächster Nachbar</value>
   </data>
@@ -732,9 +729,6 @@
   </data>
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Dynamic.Content" xml:space="preserve">
     <value>Dynamisch</value>
-  </data>
-  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
-    <value>Statistik für die dynamische Erkennung aktivieren</value>
   </data>
   <data name="Home_TouchSupport_EnableTouchSupport_Description.Text" xml:space="preserve">
     <value>Sie müssen Administratorrechte besitzen, um diese Einstellung zu ändern</value>

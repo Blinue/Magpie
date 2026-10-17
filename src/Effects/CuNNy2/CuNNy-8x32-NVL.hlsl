@@ -16,10 +16,11 @@
 
 
 //!MAGPIE EFFECT
-//!VERSION 4
+//!VERSION 5
 //!SORT_NAME CuNNy-08x32
 //!USE MulAdd
 //!CAPABILITY FP16
+//!SCALE_FACTOR 2
 
 #include "../StubDefs.hlsli"
 
@@ -27,8 +28,6 @@
 Texture2D INPUT;
 
 //!TEXTURE
-//!WIDTH INPUT_WIDTH * 2
-//!HEIGHT INPUT_HEIGHT * 2
 Texture2D OUTPUT;
 
 //!SAMPLER
@@ -147,7 +146,7 @@ Texture2D T15;
 //!IN INPUT
 //!OUT T0, T1, T2, T3, T4, T5, T6, T7
 
-#define L0(x, y) V3(O(INPUT, x, y).rgb)
+#define L0(x, y) V3(EncodeSrgb(O(INPUT, x, y).rgb))
 #define V3 MF3
 #define M3x4 MF3x4
 
@@ -5671,8 +5670,8 @@ void Pass10(uint2 blockStart, uint3 tid) {
 	r1 = MulAdd(s1_2_2, M4(3.648e-03, -7.492e-03, 7.566e-03, -6.626e-02, -1.922e-03, -1.418e-03, 8.532e-05, -1.628e-03, -1.875e-03, -7.480e-03, -5.740e-03, -3.978e-02, -8.104e-04, 2.341e-03, 5.188e-04, -7.545e-03), r1);
 	r2 = MulAdd(s1_2_2, M4(2.797e-03, -3.287e-03, 8.760e-03, -5.046e-02, -1.458e-03, -2.502e-03, 6.034e-04, -3.008e-03, -1.281e-03, 1.262e-03, 3.077e-03, 6.751e-02, -1.200e-04, 1.705e-03, -1.655e-05, -5.620e-03), r2);
 	float2 opt = float2(GetOutputPt()), fpos = (float2(gxy) + 0.5) * opt;
-	OUTPUT[gxy + int2(0, 0)] = MF4(saturate(INPUT.SampleLevel(SL, fpos + float2(0.0, 0.0) * opt, 0).rgb + MF3(r0.x, r1.x, r2.x)), 1.0);
-	OUTPUT[gxy + int2(1, 0)] = MF4(saturate(INPUT.SampleLevel(SL, fpos + float2(1.0, 0.0) * opt, 0).rgb + MF3(r0.y, r1.y, r2.y)), 1.0);
-	OUTPUT[gxy + int2(0, 1)] = MF4(saturate(INPUT.SampleLevel(SL, fpos + float2(0.0, 1.0) * opt, 0).rgb + MF3(r0.z, r1.z, r2.z)), 1.0);
-	OUTPUT[gxy + int2(1, 1)] = MF4(saturate(INPUT.SampleLevel(SL, fpos + float2(1.0, 1.0) * opt, 0).rgb + MF3(r0.w, r1.w, r2.w)), 1.0);
+	OUTPUT[gxy + int2(0, 0)] = MF4(saturate(DecodeSrgb(EncodeSrgb(INPUT.SampleLevel(SL, fpos + float2(0.0, 0.0) * opt, 0).rgb) + MF3(r0.x, r1.x, r2.x))), 1.0);
+	OUTPUT[gxy + int2(1, 0)] = MF4(saturate(DecodeSrgb(EncodeSrgb(INPUT.SampleLevel(SL, fpos + float2(1.0, 0.0) * opt, 0).rgb) + MF3(r0.y, r1.y, r2.y))), 1.0);
+	OUTPUT[gxy + int2(0, 1)] = MF4(saturate(DecodeSrgb(EncodeSrgb(INPUT.SampleLevel(SL, fpos + float2(0.0, 1.0) * opt, 0).rgb) + MF3(r0.z, r1.z, r2.z))), 1.0);
+	OUTPUT[gxy + int2(1, 1)] = MF4(saturate(DecodeSrgb(EncodeSrgb(INPUT.SampleLevel(SL, fpos + float2(1.0, 1.0) * opt, 0).rgb) + MF3(r0.w, r1.w, r2.w))), 1.0);
 }

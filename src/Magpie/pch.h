@@ -15,6 +15,10 @@
 #undef GetCurrentTime
 #undef GetNextSibling
 
+// DirectX 头文件
+#include <dxgi1_6.h>
+#include <d3d12.h>
+
 // C++ 运行时
 #include <cstdlib>
 #include <string>
