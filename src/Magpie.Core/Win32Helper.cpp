@@ -324,7 +324,7 @@ bool Win32Helper::ReadFile(const wchar_t* fileName, std::vector<uint8_t>& result
 	return true;
 }
 
-bool Win32Helper::WriteFile(const wchar_t* fileName, std::span<uint8_t> buffer) noexcept {
+bool Win32Helper::WriteFile(const wchar_t* fileName, std::span<const uint8_t> data) noexcept {
 	Logger::Get().Info(StrHelper::Concat("写入文件: ", StrHelper::UTF16ToUTF8(fileName)));
 
 	CREATEFILE2_EXTENDED_PARAMETERS extendedParams{
@@ -338,10 +338,23 @@ bool Win32Helper::WriteFile(const wchar_t* fileName, std::span<uint8_t> buffer) 
 		return false;
 	}
 
+	if (!WriteFile(hFile.get(), data)) {
+		Logger::Get().Error("Win32Helper::WriteFile 失败");
+		return false;
+	}
+
+	return true;
+}
+
+bool Win32Helper::WriteFile(HANDLE hFile, std::span<const uint8_t> data) noexcept {
 	DWORD written;
-	if (!::WriteFile(hFile.get(), buffer.data(), (DWORD)buffer.size(), &written, nullptr)
-		|| written < buffer.size()) {
+	if (!::WriteFile(hFile, data.data(), (DWORD)data.size(), &written, nullptr)) {
 		Logger::Get().Win32Error("WriteFile 失败");
+		return false;
+	}
+
+	if (written < data.size()) {
+		Logger::Get().Error("WriteFile 未写入全部数据");
 		return false;
 	}
 
