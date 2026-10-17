@@ -34,16 +34,11 @@ EffectsDrawer::~EffectsDrawer() noexcept {
 		}
 	}
 
+	assert(_screenshotDatas.empty());
+
 #ifdef _DEBUG
 	if (_descriptorBaseOffset != std::numeric_limits<uint32_t>::max()) {
 		_d3d12Context->GetDescriptorHeap().Free(_descriptorBaseOffset, _CalcDescriptorCount());
-	}
-
-	for (const _ScreenshotData& data : _screenshotDatas) {
-		if (data.descriptorBaseOffset != std::numeric_limits<uint32_t>::max()) {
-			_d3d12Context->GetDescriptorHeap().Free(
-				data.descriptorBaseOffset, data.isExportingRingBuffer ? 2 : 1);
-		}
 	}
 #endif
 }
@@ -243,7 +238,7 @@ HRESULT EffectsDrawer::Draw(
 	ID3D12Resource* outputResource,
 	uint32_t inputSrvOffset,
 	uint32_t outputUavOffset,
-	uint64_t completedFenceValue,
+	uint64_t /*completedFenceValue*/,
 	uint64_t frameFenceValue
 ) noexcept {
 	const std::pair<int, int> screenshotTask =
@@ -269,17 +264,36 @@ HRESULT EffectsDrawer::Draw(
 
 	//commandList->EndQuery(_queryHeap.get(), D3D12_QUERY_TYPE_TIMESTAMP, queryHeapIndex);
 
+	if (screenshotTask.first == -2) {
+		// 导出捕获画面
+		HRESULT hr = _DrawScreenshot(computeContext, inputSrvOffset, nullptr,
+			EffectTextureFormat::UNKNOWN, _inputSize, frameFenceValue);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("_DrawScreenshot 失败", hr);
+			return hr;
+		}
+	}
+
+	bool exportRingBuffer = screenshotTask.first == -1;
+
 	const uint32_t effectCount = (uint32_t)_effectDatas.size();
 	// 如果多个连续的效果都不能渲染，则合并为一个 CatmullRom
 	uint32_t catmullRomStartIdx = std::numeric_limits<uint32_t>::max();
 
 	for (uint32_t effectIdx = 0; effectIdx < effectCount; ++effectIdx) {
+		_EffectData& curEffectData = _effectDatas[effectIdx];
+
 		EffectDrawerState state;
 		std::string msg;
-		HRESULT hr = _effectDatas[effectIdx].drawer->Update(state, msg);
+		HRESULT hr = curEffectData.drawer->Update(state, curEffectData.passCount, msg);
 		if (FAILED(hr)) {
-			Logger::Get().ComError("ShaderEffectDrawer::Update 失败", hr);
+			Logger::Get().ComError(fmt::format("EffectDrawer[{}]::Update 失败", effectIdx), hr);
 			return hr;
+		}
+
+		if (curEffectData.passCount == 0) {
+			state = EffectDrawerState::Error;
+			msg = "内部错误";
 		}
 
 		if (state != EffectDrawerState::Ready) {
@@ -299,16 +313,13 @@ HRESULT EffectsDrawer::Draw(
 				uint32_t prevIdx = catmullRomStartIdx - 1;
 				inputSize = _effectDatas[prevIdx].outputSize;
 				inputSrv = _descriptorBaseOffset + prevIdx * 2;
-
-				computeContext.InsertTransitionBarrier(
-					_effectDatas[prevIdx].outputTexture.get(),
-					D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-					D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE
-				);
 			}
 
+			ID3D12Resource* prevOutputTexture =
+				_effectDatas[size_t(effectIdx - 1)].outputTexture.get();
+
 			computeContext.InsertTransitionBarrier(
-				_effectDatas[size_t(effectIdx - 1)].outputTexture.get(),
+				prevOutputTexture,
 				D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
 				D3D12_RESOURCE_STATE_UNORDERED_ACCESS
 			);
@@ -321,19 +332,17 @@ HRESULT EffectsDrawer::Draw(
 				_descriptorBaseOffset + effectIdx * 2 - 1
 			);
 
+			computeContext.InsertTransitionBarrier(
+				prevOutputTexture,
+				D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+				D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE
+			);
+
 			catmullRomStartIdx = std::numeric_limits<uint32_t>::max();
 		}
 
 		bool writeToRingBuffer = effectIdx == effectCount - 1 &&
-			_effectDatas[effectIdx].outputSize == _outputSize;
-
-		if (effectIdx != 0) {
-			computeContext.InsertTransitionBarrier(
-				_effectDatas[size_t(effectIdx - 1)].outputTexture.get(),
-				D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-				D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE
-			);
-		}
+			curEffectData.outputSize == _outputSize;
 
 		if (writeToRingBuffer) {
 			computeContext.InsertTransitionBarrier(
@@ -343,21 +352,67 @@ HRESULT EffectsDrawer::Draw(
 			);
 		} else {
 			computeContext.InsertTransitionBarrier(
-				_effectDatas[effectIdx].outputTexture.get(),
+				curEffectData.outputTexture.get(),
 				D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
 				D3D12_RESOURCE_STATE_UNORDERED_ACCESS
 			);
 		}
 
-		hr = _effectDatas[effectIdx].drawer->Draw(
+		bool exportCurEffect = (int)effectIdx == screenshotTask.first;
+		bool exportInternalTexture = exportCurEffect && screenshotTask.second >= 0 &&
+			screenshotTask.second < (int)curEffectData.passCount - 1;
+
+		EffectDrawerExportData exportData;
+
+		hr = curEffectData.drawer->Draw(
 			computeContext,
 			effectIdx == 0 ? inputSrvOffset : _descriptorBaseOffset + (effectIdx - 1) * 2,
 			writeToRingBuffer ? outputUavOffset : _descriptorBaseOffset + effectIdx * 2 + 1,
-			(int)effectIdx == screenshotTask.first ? screenshotTask.second : -2
+			exportInternalTexture ? screenshotTask.second : -1,
+			exportData
 		);
 		if (FAILED(hr)) {
-			Logger::Get().ComError("EffectDrawerBase::Draw 失败", hr);
+			Logger::Get().ComError(fmt::format("EffectDrawer[{}]::Draw 失败", effectIdx), hr);
 			return hr;
+		}
+
+		if (exportInternalTexture) {
+			if (exportData.IsValid()) {
+				_screenshotDatas.push_back(_ScreenshotData{
+					.fenceValue = frameFenceValue,
+					.buffer = std::move(exportData.readbackBuffer),
+					.textureSize = exportData.textureSize,
+					.textureFormat = exportData.textureFormat,
+					.rowPitch = exportData.rowPitch,
+					.colorInfo = _colorInfo
+				});
+			} else {
+				Logger::Get().Error(fmt::format("EffectDrawer[{}] 导出内部纹理失败", effectIdx));
+			}
+		}
+
+		if (!writeToRingBuffer) {
+			computeContext.InsertTransitionBarrier(
+				curEffectData.outputTexture.get(),
+				D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+				D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE
+			);
+		}
+
+		if (exportCurEffect && (screenshotTask.second == -1 ||
+			screenshotTask.second == (int)curEffectData.passCount - 1))
+		{
+			// 导出当前效果的输出
+			if (writeToRingBuffer) {
+				exportRingBuffer = true;
+			} else {
+				hr = _DrawScreenshot(computeContext, _descriptorBaseOffset + effectIdx * 2,
+					nullptr, EffectTextureFormat::UNKNOWN, curEffectData.outputSize, frameFenceValue);
+				if (FAILED(hr)) {
+					Logger::Get().ComError("_DrawScreenshot 失败", hr);
+					return hr;
+				}
+			}
 		}
 	}
 
@@ -371,12 +426,6 @@ HRESULT EffectsDrawer::Draw(
 			uint32_t prevIdx = catmullRomStartIdx - 1;
 			inputSize = _effectDatas[prevIdx].outputSize;
 			inputSrv = _descriptorBaseOffset + prevIdx * 2;
-
-			computeContext.InsertTransitionBarrier(
-				_effectDatas[prevIdx].outputTexture.get(),
-				D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-				D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE
-			);
 		}
 
 		computeContext.InsertTransitionBarrier(
@@ -388,12 +437,6 @@ HRESULT EffectsDrawer::Draw(
 		_catmullRomDrawer.Draw(
 			computeContext, inputSize, _outputSize, inputSrv, outputUavOffset);
 	} else if (_effectDatas.back().outputSize != _outputSize) {
-		computeContext.InsertTransitionBarrier(
-			_effectDatas.back().outputTexture.get(),
-			D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-			D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE
-		);
-
 		computeContext.InsertTransitionBarrier(
 			outputResource,
 			D3D12_RESOURCE_STATE_COMMON,
@@ -409,199 +452,23 @@ HRESULT EffectsDrawer::Draw(
 		);
 	}
 
-	if (screenshotTask.first == -1) {
+	if (exportRingBuffer) {
 		// 导出最终输出画面
-		ID3D12Device5* device = _d3d12Context->GetDevice();
-		
-		// R16G16B16A16_FLOAT 每像素 8 个字节
-		uint32_t readbackRowSize = _outputSize.width * 8u;
-		uint32_t readbackRowPitch = DirectXHelper::Align(readbackRowSize, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
-		uint32_t requiredBufferSize = readbackRowPitch * _outputSize.height;
-
-		// 寻找空闲且足够大的回读缓冲区
-		uint32_t reuseDataIdx = std::numeric_limits<uint32_t>::max();
-		for (uint32_t i = 0, end = (uint32_t)_screenshotDatas.size(); i < end; ++i) {
-			const _ScreenshotData& curData = _screenshotDatas[i];
-
-			if (!curData.isExported || curData.fenceValue > completedFenceValue) {
-				continue;
-			}
-
-			if (curData.bufferSize >= requiredBufferSize) {
-				reuseDataIdx = i;
-				break;
-			}
-		}
-
-		_ScreenshotData* curData;
-
-		if (reuseDataIdx == std::numeric_limits<uint32_t>::max()) {
-			_ScreenshotData newData = {
-				.bufferSize = requiredBufferSize
-			};
-
-			CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_READBACK);
-
-			D3D12_HEAP_FLAGS heapFlags = _d3d12Context->IsHeapFlagCreateNotZeroedSupported() ?
-				D3D12_HEAP_FLAG_CREATE_NOT_ZEROED : D3D12_HEAP_FLAG_NONE;
-
-			CD3DX12_RESOURCE_DESC bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(newData.bufferSize);
-
-			HRESULT hr = device->CreateCommittedResource(
-				&heapProps,
-				heapFlags,
-				&bufferDesc,
-				D3D12_RESOURCE_STATE_COPY_DEST,
-				nullptr,
-				IID_PPV_ARGS(&newData.buffer)
-			);
-			if (FAILED(hr)) {
-				Logger::Get().ComError("CreateCommittedResource 失败", hr);
-				return hr;
-			}
-
-			hr = newData.buffer->Map(0, nullptr, &newData.bufferData);
-			if (FAILED(hr)) {
-				Logger::Get().ComError("ID3D12Resource::Map 失败", hr);
-				return hr;
-			}
-
-			curData = &_screenshotDatas.emplace_back(std::move(newData));
-		} else {
-			curData = &_screenshotDatas[reuseDataIdx];
-
-			curData->isExported = false;
-			curData->tempTexture = nullptr;
-			if (curData->descriptorBaseOffset != std::numeric_limits<uint32_t>::max()) {
-				auto& descriptorHeap = _d3d12Context->GetDescriptorHeap();
-				descriptorHeap.Free(curData->descriptorBaseOffset, curData->isExportingRingBuffer ? 2 : 1);
-			}
-		}
-
-		curData->fenceValue = frameFenceValue;
-		curData->textureSize = _outputSize;
-		curData->rowPitch = readbackRowPitch;
-		curData->colorInfo = _colorInfo;
-		curData->isExportingRingBuffer = true;
-
-		// 把要导出的纹理转换为用于导出截图的格式。
-		// SDR: 需做伽马校正
-		// WCG: 需转换为 BT.2020 SDR
-		// HDR: 需转换为 BT.2020/PQ
 		computeContext.InsertTransitionBarrier(
 			outputResource,
 			D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
 			D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE
 		);
 
-		// 纹理格式始终是 R16G16B16A16_UNORM
-		CD3DX12_RESOURCE_DESC texDesc = CD3DX12_RESOURCE_DESC::Tex2D(
-			DXGI_FORMAT_R16G16B16A16_UNORM,
-			_outputSize.width, _outputSize.height, 1, 1, 1, 0,
-			D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS
-		);
-
-		CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_DEFAULT);
-
-		D3D12_HEAP_FLAGS heapFlags = _d3d12Context->IsHeapFlagCreateNotZeroedSupported() ?
-			D3D12_HEAP_FLAG_CREATE_NOT_ZEROED : D3D12_HEAP_FLAG_NONE;
-
-		HRESULT hr = device->CreateCommittedResource(
-			&heapProps, heapFlags, &texDesc, D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-			nullptr, IID_PPV_ARGS(&curData->tempTexture));
+		EffectTextureFormat textureFormat =
+			_colorInfo.kind == winrt::AdvancedColorKind::StandardDynamicRange ?
+			EffectTextureFormat::R8G8B8A8_UNORM : EffectTextureFormat::R16G16B16A16_FLOAT;
+		HRESULT hr = _DrawScreenshot(computeContext, std::numeric_limits<uint32_t>::max(),
+			outputResource, textureFormat, _outputSize, frameFenceValue);
 		if (FAILED(hr)) {
-			Logger::Get().ComError("CreateCommittedResource 失败", hr);
+			Logger::Get().ComError("_DrawScreenshot 失败", hr);
 			return hr;
 		}
-
-		auto& descriptorHeap = _d3d12Context->GetDescriptorHeap();
-		hr = descriptorHeap.Alloc(2, curData->descriptorBaseOffset);
-		if (FAILED(hr)) {
-			Logger::Get().ComError("DescriptorHeap::Alloc 失败", hr);
-			return hr;
-		}
-
-		CD3DX12_SHADER_RESOURCE_VIEW_DESC srvDesc =
-			CD3DX12_SHADER_RESOURCE_VIEW_DESC::Tex2D(
-				_colorInfo.kind == winrt::AdvancedColorKind::StandardDynamicRange ?
-				DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_R16G16B16A16_FLOAT, 1);
-		CD3DX12_UNORDERED_ACCESS_VIEW_DESC uavDesc =
-			CD3DX12_UNORDERED_ACCESS_VIEW_DESC::Tex2D(texDesc.Format);
-
-		CD3DX12_CPU_DESCRIPTOR_HANDLE cpuHandle(descriptorHeap.GetCpuHandle(curData->descriptorBaseOffset));
-		device->CreateShaderResourceView(outputResource, &srvDesc, cpuHandle);
-		cpuHandle.Offset(descriptorHeap.GetDescriptorSize());
-		device->CreateUnorderedAccessView(curData->tempTexture.get(), nullptr, &uavDesc, cpuHandle);
-
-		if (!_screenshotRootSignature) {
-			hr = _InitializeScreenshotRootSignature();
-			if (FAILED(hr)) {
-				Logger::Get().ComError("_InitializeScreenshotRootSignature 失败", hr);
-				return hr;
-			}
-		}
-		computeContext.SetRootSignature(_screenshotRootSignature.get());
-
-		if (!_screenshotPSO) {
-			D3D12_SHADER_BYTECODE psByteCode;
-			bool isSM6Supported = _d3d12Context->GetShaderModel() >= D3D_SHADER_MODEL_6_0;
-			if (curData->colorInfo.kind == winrt::AdvancedColorKind::StandardDynamicRange) {
-				psByteCode = DirectXHelper::SelectShader(
-					isSM6Supported, ScreenshotCS, ScreenshotCS_SM5);
-			} else if (curData->colorInfo.kind == winrt::AdvancedColorKind::WideColorGamut) {
-				psByteCode = DirectXHelper::SelectShader(
-					isSM6Supported, ScreenshotCS_WCG, ScreenshotCS_WCG_SM5);
-			} else {
-				psByteCode = DirectXHelper::SelectShader(
-					isSM6Supported, ScreenshotCS_HDR, ScreenshotCS_HDR_SM5);
-			}
-
-			D3D12_COMPUTE_PIPELINE_STATE_DESC psoDesc = {
-				.pRootSignature = _screenshotRootSignature.get(),
-				.CS = psByteCode
-			};
-			hr = _d3d12Context->GetDevice()->CreateComputePipelineState(
-				&psoDesc, IID_PPV_ARGS(&_screenshotPSO));
-			if (FAILED(hr)) {
-				Logger::Get().ComError("CreateComputePipelineState 失败", hr);
-				return hr;
-			}
-		}
-
-		computeContext.SetPipelineState(_screenshotPSO.get());
-
-		computeContext.SetRootDescriptorTable(0, curData->descriptorBaseOffset);
-		computeContext.SetRootDescriptorTable(1, curData->descriptorBaseOffset + 1);
-
-		constexpr uint32_t BLOCK_SIZE = 16;
-		computeContext.Dispatch(
-			(_outputSize.width + BLOCK_SIZE - 1) / BLOCK_SIZE,
-			(_outputSize.height + BLOCK_SIZE - 1) / BLOCK_SIZE
-		);
-
-		computeContext.InsertTransitionBarrier(
-			curData->tempTexture.get(),
-			D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-			D3D12_RESOURCE_STATE_COPY_SOURCE
-		);
-
-		computeContext.CopyTextureRegion(
-			CD3DX12_TEXTURE_COPY_LOCATION(
-				curData->buffer.get(),
-				D3D12_PLACED_SUBRESOURCE_FOOTPRINT{
-					.Footprint = {
-						.Format = DXGI_FORMAT_R16G16B16A16_UNORM,
-						.Width = curData->textureSize.width,
-						.Height = curData->textureSize.height,
-						.Depth = 1,
-						.RowPitch = curData->rowPitch
-					}
-				}
-			),
-			0,
-			0,
-			CD3DX12_TEXTURE_COPY_LOCATION(curData->tempTexture.get())
-		);
 
 		computeContext.InsertTransitionBarrier(
 			outputResource,
@@ -619,22 +486,6 @@ HRESULT EffectsDrawer::Draw(
 	// commandList->EndQuery(_queryHeap.get(), D3D12_QUERY_TYPE_TIMESTAMP, queryHeapIndex + 1);
 	// commandList->ResolveQueryData(_queryHeap.get(), D3D12_QUERY_TYPE_TIMESTAMP, queryHeapIndex, 2,
 	//	_queryResultBuffer.get(), queryHeapIndex * sizeof(UINT64));
-
-	// 释放空闲的回读缓冲区
-	for (int i = (int)_screenshotDatas.size() - 1; i >= 0; --i) {
-		_ScreenshotData& curBuffer = _screenshotDatas[i];
-
-		if (curBuffer.isExported) {
-			assert(curBuffer.fenceValue <= completedFenceValue);
-
-			if (curBuffer.descriptorBaseOffset != std::numeric_limits<uint32_t>::max()) {
-				_d3d12Context->GetDescriptorHeap().Free(
-					curBuffer.descriptorBaseOffset, curBuffer.isExportingRingBuffer ? 2 : 1);
-			}
-
-			_screenshotDatas.erase(_screenshotDatas.begin() + i);
-		}
-	}
 
 	return S_OK;
 }
@@ -736,7 +587,7 @@ enum class TakeScreenshotResult {
 static TakeScreenshotResult ExportScreenshot(
 	HWND hwndSrc,
 	std::wstring_view imgFormat,
-	SizeU imgSize,
+	SizeU textureSize,
 	EffectTextureFormat textureFormat,
 	const std::span<uint8_t>& pixelData,
 	uint32_t rowPitch,
@@ -767,7 +618,9 @@ static TakeScreenshotResult ExportScreenshot(
 		screenshotFileName = StrHelper::UTF8ToUTF16(fileNameUtf8);
 	}
 
-	// 加锁以保证后缀的唯一性
+	std::filesystem::path screenshotPath;
+
+	// 加锁并提前创建空文件以保证后缀的唯一性
 	static wil::srwlock lock;
 	{
 		auto lk = lock.lock_exclusive();
@@ -777,26 +630,38 @@ static TakeScreenshotResult ExportScreenshot(
 		screenshotFileName += L'.';
 		screenshotFileName += imgFormat;
 
-		std::filesystem::path screenshotPath = options.screenshotsDir / screenshotFileName;
+		screenshotPath = options.screenshotsDir / screenshotFileName;
 
-		HRESULT hr = TextureHelper::Save(screenshotPath.c_str(), imgSize,
-			textureFormat, pixelData, rowPitch, colorInfo);
-		if (FAILED(hr)) {
-			Logger::Get().ComError("TextureHelper::SaveTexture 失败", hr);
+		CREATEFILE2_EXTENDED_PARAMETERS extendedParams = {
+			.dwSize = sizeof(CREATEFILE2_EXTENDED_PARAMETERS),
+			.dwFileAttributes = FILE_ATTRIBUTE_NORMAL
+		};
+
+		wil::unique_hfile hFile(CreateFile2(
+			screenshotPath.c_str(), GENERIC_WRITE, 0, CREATE_ALWAYS, &extendedParams));
+		if (!hFile) {
+			Logger::Get().Win32Error("CreateFile2 失败");
 			return TakeScreenshotResult::InternalError;
 		}
+	}
+
+	HRESULT hr = TextureHelper::Save(screenshotPath.c_str(), textureSize,
+		textureFormat, pixelData, rowPitch, colorInfo);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("TextureHelper::SaveTexture 失败", hr);
+		return TakeScreenshotResult::InternalError;
 	}
 
 	return TakeScreenshotResult::Success;
 }
 
 void EffectsDrawer::OnProducerFrameCompleted(uint64_t fenceValue) noexcept {
-	for (_ScreenshotData& curData : _screenshotDatas) {
-		if (curData.isExported || curData.fenceValue > fenceValue) {
-			return;
-		}
+	for (int i = (int)_screenshotDatas.size() - 1; i >= 0; --i) {
+		_ScreenshotData& curData = _screenshotDatas[i];
 
-		curData.isExported = true;
+		if (curData.fenceValue > fenceValue) {
+			continue;
+		}
 
 		[&curData, this](winrt::DispatcherQueue dispatcher) -> winrt::fire_and_forget {
 			++_pendingScreenshotCount;
@@ -809,19 +674,31 @@ void EffectsDrawer::OnProducerFrameCompleted(uint64_t fenceValue) noexcept {
 			TakeScreenshotResult result;
 			std::wstring screenshotFileName;
 			{
-				std::vector<uint8_t> pixelData(curData.bufferSize);
-				std::memcpy(pixelData.data(), curData.bufferData, curData.bufferSize);
+				std::vector<uint8_t> pixelData(curData.rowPitch * curData.textureSize.height);
 
-				HWND hwndSrc = ScalingWindow::Get().SrcHandle();
-				SizeU imgSize = curData.textureSize;
-				uint32_t rowPitch = curData.rowPitch;
-				ColorInfo colorInfo = curData.colorInfo;
+				void* pBufferData;
+				HRESULT hr = curData.buffer->Map(0, nullptr, &pBufferData);
+				if (SUCCEEDED(hr)) {
+					std::memcpy(pixelData.data(), pBufferData, pixelData.size());
+					D3D12_RANGE emptyRande{};
+					curData.buffer->Unmap(0, &emptyRande);
 
-				co_await winrt::resume_background();
+					HWND hwndSrc = ScalingWindow::Get().SrcHandle();
+					std::wstring_view imgFormat = curData.tempTexture ? L"png" : L"dds";
+					SizeU textureSize = curData.textureSize;
+					EffectTextureFormat textureFormat = curData.textureFormat;
+					uint32_t rowPitch = curData.rowPitch;
+					ColorInfo colorInfo = curData.colorInfo;
+					
+					// 转到后台导出。从现在开始不要访问 curData
+					co_await winrt::resume_background();
 
-				result = ExportScreenshot(hwndSrc, L"png", imgSize,
-					EffectTextureFormat::R16G16B16A16_UNORM, pixelData,
-					rowPitch, colorInfo, screenshotFileName);
+					result = ExportScreenshot(hwndSrc, imgFormat, textureSize,
+						textureFormat, pixelData, rowPitch, colorInfo, screenshotFileName);
+				} else {
+					Logger::Get().ComError("ID3D12Resource::Map 失败", hr);
+					result = TakeScreenshotResult::InternalError;
+				}
 			}
 			
 			co_await dispatcher;
@@ -846,7 +723,189 @@ void EffectsDrawer::OnProducerFrameCompleted(uint64_t fenceValue) noexcept {
 				);
 			}
 		}(_dispatcher);
+
+		// 释放当前 _ScreenshotData
+		if (curData.descriptorBaseOffset != std::numeric_limits<uint32_t>::max()) {
+			auto& descriptorHeap = _d3d12Context->GetDescriptorHeap();
+			descriptorHeap.Free(curData.descriptorBaseOffset, curData.hasSRV ? 2 : 1);
+		}
+
+		_screenshotDatas.erase(_screenshotDatas.begin() + i);
 	}
+}
+
+HRESULT EffectsDrawer::_DrawScreenshot(
+	ComputeContext& computeContext,
+	uint32_t textureSrvOffset,
+	ID3D12Resource* texture,
+	EffectTextureFormat textureFormat,
+	SizeU textureSize,
+	uint64_t frameFenceValue
+) noexcept {
+	ID3D12Device5* device = _d3d12Context->GetDevice();
+
+	_ScreenshotData& curData = _screenshotDatas.emplace_back();
+
+	curData.fenceValue = frameFenceValue;
+	curData.textureSize = textureSize;
+	curData.textureFormat = EffectTextureFormat::R16G16B16A16_UNORM;
+	curData.colorInfo = _colorInfo;
+	curData.hasSRV = textureSrvOffset == std::numeric_limits<uint32_t>::max();
+
+	const EffectTextureFormatProps& originTextureFormatProps =
+		EFFECT_TEXTURE_FORMAT_PROPS[(uint32_t)textureFormat];
+	const EffectTextureFormatProps& screenshotTextureFormatProps =
+		EFFECT_TEXTURE_FORMAT_PROPS[(uint32_t)curData.textureFormat];
+
+	curData.rowPitch = DirectXHelper::Align(
+		textureSize.width * screenshotTextureFormatProps.texelSize, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
+
+	{
+		CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_READBACK);
+
+		D3D12_HEAP_FLAGS heapFlags = _d3d12Context->IsHeapFlagCreateNotZeroedSupported() ?
+			D3D12_HEAP_FLAG_CREATE_NOT_ZEROED : D3D12_HEAP_FLAG_NONE;
+
+		CD3DX12_RESOURCE_DESC bufferDesc =
+			CD3DX12_RESOURCE_DESC::Buffer((UINT64)curData.rowPitch * textureSize.height);
+
+		HRESULT hr = device->CreateCommittedResource(
+			&heapProps,
+			heapFlags,
+			&bufferDesc,
+			D3D12_RESOURCE_STATE_COPY_DEST,
+			nullptr,
+			IID_PPV_ARGS(&curData.buffer)
+		);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("CreateCommittedResource 失败", hr);
+			return hr;
+		}
+	}
+	
+	// 把要导出的纹理转换为用于导出截图的格式。
+	// SDR: 需做伽马校正
+	// WCG: 需转换为 BT.2020 SDR
+	// HDR: 需转换为 BT.2020/PQ
+	
+	{
+		CD3DX12_RESOURCE_DESC texDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+			screenshotTextureFormatProps.dxgiFormat,
+			textureSize.width, textureSize.height, 1, 1, 1, 0,
+			D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS
+		);
+
+		CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_DEFAULT);
+
+		D3D12_HEAP_FLAGS heapFlags = _d3d12Context->IsHeapFlagCreateNotZeroedSupported() ?
+			D3D12_HEAP_FLAG_CREATE_NOT_ZEROED : D3D12_HEAP_FLAG_NONE;
+
+		HRESULT hr = device->CreateCommittedResource(
+			&heapProps, heapFlags, &texDesc, D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+			nullptr, IID_PPV_ARGS(&curData.tempTexture));
+		if (FAILED(hr)) {
+			Logger::Get().ComError("CreateCommittedResource 失败", hr);
+			return hr;
+		}
+	}
+
+	auto& descriptorHeap = _d3d12Context->GetDescriptorHeap();
+	HRESULT hr = descriptorHeap.Alloc(curData.hasSRV ? 2 : 1, curData.descriptorBaseOffset);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("DescriptorHeap::Alloc 失败", hr);
+		return hr;
+	}
+
+	CD3DX12_CPU_DESCRIPTOR_HANDLE cpuHandle(descriptorHeap.GetCpuHandle(curData.descriptorBaseOffset));
+
+	if (curData.hasSRV) {
+		CD3DX12_SHADER_RESOURCE_VIEW_DESC srvDesc =
+			CD3DX12_SHADER_RESOURCE_VIEW_DESC::Tex2D(originTextureFormatProps.dxgiFormat, 1);
+
+		device->CreateShaderResourceView(texture, &srvDesc, cpuHandle);
+		cpuHandle.Offset(descriptorHeap.GetDescriptorSize());
+	}
+
+	CD3DX12_UNORDERED_ACCESS_VIEW_DESC uavDesc =
+		CD3DX12_UNORDERED_ACCESS_VIEW_DESC::Tex2D(screenshotTextureFormatProps.dxgiFormat);
+	device->CreateUnorderedAccessView(curData.tempTexture.get(), nullptr, &uavDesc, cpuHandle);
+
+	if (!_screenshotRootSignature) {
+		hr = _InitializeScreenshotRootSignature();
+		if (FAILED(hr)) {
+			Logger::Get().ComError("_InitializeScreenshotRootSignature 失败", hr);
+			return hr;
+		}
+	}
+	computeContext.SetRootSignature(_screenshotRootSignature.get());
+
+	if (!_screenshotPSO) {
+		D3D12_SHADER_BYTECODE psByteCode;
+		bool isSM6Supported = _d3d12Context->GetShaderModel() >= D3D_SHADER_MODEL_6_0;
+		if (curData.colorInfo.kind == winrt::AdvancedColorKind::StandardDynamicRange) {
+			psByteCode = DirectXHelper::SelectShader(
+				isSM6Supported, ScreenshotCS, ScreenshotCS_SM5);
+		} else if (curData.colorInfo.kind == winrt::AdvancedColorKind::WideColorGamut) {
+			psByteCode = DirectXHelper::SelectShader(
+				isSM6Supported, ScreenshotCS_WCG, ScreenshotCS_WCG_SM5);
+		} else {
+			psByteCode = DirectXHelper::SelectShader(
+				isSM6Supported, ScreenshotCS_HDR, ScreenshotCS_HDR_SM5);
+		}
+
+		D3D12_COMPUTE_PIPELINE_STATE_DESC psoDesc = {
+			.pRootSignature = _screenshotRootSignature.get(),
+			.CS = psByteCode
+		};
+		hr = _d3d12Context->GetDevice()->CreateComputePipelineState(
+			&psoDesc, IID_PPV_ARGS(&_screenshotPSO));
+		if (FAILED(hr)) {
+			Logger::Get().ComError("CreateComputePipelineState 失败", hr);
+			return hr;
+		}
+	}
+
+	computeContext.SetPipelineState(_screenshotPSO.get());
+
+	if (curData.hasSRV) {
+		computeContext.SetRootDescriptorTable(0, curData.descriptorBaseOffset);
+		computeContext.SetRootDescriptorTable(1, curData.descriptorBaseOffset + 1);
+	} else {
+		computeContext.SetRootDescriptorTable(0, textureSrvOffset);
+		computeContext.SetRootDescriptorTable(1, curData.descriptorBaseOffset);
+	}
+	
+	constexpr uint32_t BLOCK_SIZE = 16;
+	computeContext.Dispatch(
+		(textureSize.width + BLOCK_SIZE - 1) / BLOCK_SIZE,
+		(textureSize.height + BLOCK_SIZE - 1) / BLOCK_SIZE
+	);
+
+	computeContext.InsertTransitionBarrier(
+		curData.tempTexture.get(),
+		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+		D3D12_RESOURCE_STATE_COPY_SOURCE
+	);
+
+	computeContext.CopyTextureRegion(
+		CD3DX12_TEXTURE_COPY_LOCATION(
+			curData.buffer.get(),
+			D3D12_PLACED_SUBRESOURCE_FOOTPRINT{
+				.Footprint = {
+					.Format = screenshotTextureFormatProps.dxgiFormat,
+					.Width = curData.textureSize.width,
+					.Height = curData.textureSize.height,
+					.Depth = 1,
+					.RowPitch = curData.rowPitch
+				}
+			}
+		),
+		0,
+		0,
+		CD3DX12_TEXTURE_COPY_LOCATION(curData.tempTexture.get())
+	);
+
+	return S_OK;
 }
 
 uint32_t EffectsDrawer::_CalcDescriptorCount() const noexcept {

@@ -19,8 +19,8 @@ struct TextureHelper {
 	// 导出 png 时 pixelData 必须是 R16G16B16A16_UNROM 格式。WCG 下使用 BT.2020 色域，HDR 下使用 BT.2020
 	static HRESULT Save(
 		wil::zwstring_view fileName,
-		SizeU size,
-		EffectTextureFormat format,
+		SizeU textureSize,
+		EffectTextureFormat textureFormat,
 		std::span<uint8_t> pixelData,
 		uint32_t rowPitch,
 		const ColorInfo& colorInfo

@@ -614,7 +614,7 @@ static HRESULT EncodeDDSHeader(
 
 static HRESULT SaveToDDSFile(
 	const wchar_t* fileName,
-	SizeU size,
+	SizeU textureSize,
 	DXGI_FORMAT format,
 	std::span<uint8_t> pixelData,
 	uint32_t rowPitch
@@ -623,7 +623,7 @@ static HRESULT SaveToDDSFile(
 	uint8_t header[DDS_DX10_HEADER_SIZE];
 	uint32_t ddsRowPitch;
 	uint32_t ddsSlicePitch;
-	HRESULT hr = EncodeDDSHeader(size.width, size.height, format, header, ddsRowPitch, ddsSlicePitch);
+	HRESULT hr = EncodeDDSHeader(textureSize.width, textureSize.height, format, header, ddsRowPitch, ddsSlicePitch);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("EncodeDDSHeader 失败", hr);
 		return hr;
@@ -656,7 +656,7 @@ static HRESULT SaveToDDSFile(
 
 		const uint8_t* __restrict sPtr = pixelData.data();
 
-		for (uint32_t i = 0; i < size.height; ++i) {
+		for (uint32_t i = 0; i < textureSize.height; ++i) {
 			if (!Win32Helper::WriteFile(hFile.get(), std::span(sPtr, (DWORD)ddsRowPitch))) {
 				Logger::Get().Error("Win32Helper::WriteFile 失败");
 				return E_FAIL;
@@ -825,7 +825,7 @@ static std::array<uint8_t, 36> MakeMDCVChunk(const ColorInfo& colorInfo) noexcep
 
 static HRESULT SavePng(
 	wil::zwstring_view fileName,
-	SizeU size,
+	SizeU imgSize,
 	std::span<uint8_t> pixelData,
 	uint32_t rowPitch,
 	const ColorInfo& colorInfo
@@ -892,7 +892,7 @@ static HRESULT SavePng(
 		return hr;
 	}
 
-	hr = frameEncoder->SetSize(size.width, size.height);
+	hr = frameEncoder->SetSize(imgSize.width, imgSize.height);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("IWICBitmapFrameEncode::SetSize 失败", hr);
 		return hr;
@@ -916,7 +916,7 @@ static HRESULT SavePng(
 	}
 	
 	hr = frameEncoder->WritePixels(
-		size.height,
+		imgSize.height,
 		rowPitch,
 		(UINT)pixelData.size(),
 		pixelData.data()
@@ -997,7 +997,7 @@ static HRESULT SavePng(
 
 HRESULT TextureHelper::Save(
 	wil::zwstring_view fileName,
-	SizeU size,
+	SizeU textureSize,
 	EffectTextureFormat textureFormat,
 	std::span<uint8_t> pixelData,
 	uint32_t rowPitch,
@@ -1007,11 +1007,11 @@ HRESULT TextureHelper::Save(
 		assert(textureFormat > EffectTextureFormat::COLOR_SPACE_ADAPTIVE &&
 			textureFormat < EffectTextureFormat::COUNT);
 		DXGI_FORMAT dxgiFormat = EFFECT_TEXTURE_FORMAT_PROPS[(uint32_t)textureFormat].dxgiFormat;
-		return SaveToDDSFile(fileName.c_str(), size, dxgiFormat, pixelData, rowPitch);
+		return SaveToDDSFile(fileName.c_str(), textureSize, dxgiFormat, pixelData, rowPitch);
 	} else {
 		assert(fileName.ends_with(L".png"));
 		assert(textureFormat == EffectTextureFormat::R16G16B16A16_UNORM);
-		return SavePng(fileName, size, pixelData, rowPitch, colorInfo);
+		return SavePng(fileName, textureSize, pixelData, rowPitch, colorInfo);
 	}
 }
 

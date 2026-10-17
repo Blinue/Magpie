@@ -107,7 +107,11 @@ void ShaderEffectDrawer::Bind(SizeU inputSize, SizeU outputSize, const ColorInfo
 	}
 }
 
-HRESULT ShaderEffectDrawer::Update(EffectDrawerState& state, std::string& message) noexcept {
+HRESULT ShaderEffectDrawer::Update(
+	EffectDrawerState& state,
+	uint32_t& passCount,
+	std::string& message
+) noexcept {
 	if (!_errorMsg.empty()) {
 		state = EffectDrawerState::Error;
 		message = _errorMsg;
@@ -130,6 +134,7 @@ HRESULT ShaderEffectDrawer::Update(EffectDrawerState& state, std::string& messag
 		}
 
 		state = EffectDrawerState::Ready;
+		passCount = (uint32_t)_drawInfo->passes.size();
 		return S_OK;
 	}
 
@@ -163,7 +168,8 @@ HRESULT ShaderEffectDrawer::Draw(
 	ComputeContext& computeContext,
 	uint32_t inputSrvOffset,
 	uint32_t outputUavOffset,
-	int exportPassIdx
+	int exportPassIdx,
+	EffectDrawerExportData& /*exportData*/
 ) noexcept {
 	assert(_drawInfo);
 
@@ -213,10 +219,6 @@ HRESULT ShaderEffectDrawer::Draw(
 	}
 
 	const uint32_t passCount = (uint32_t)_passDatas.size();
-
-	if (exportPassIdx == -1) {
-		exportPassIdx = passCount - 1;
-	}
 
 	for (uint32_t i = 0; i < passCount; ++i) {
 		const _PassData& curPassData = _passDatas[i];

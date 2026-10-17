@@ -802,7 +802,7 @@ static void FillColorCursorRGB(
 	HALF* textureData,
 	uint8_t* pixels,
 	winrt::AdvancedColorKind acKind,
-	float _sdrWhiteLevel,
+	float sdrWhiteLevel,
 	float alpha
 ) noexcept {
 	// 预乘 Alpha 通道并归一化
@@ -814,7 +814,7 @@ static void FillColorCursorRGB(
 		*textureData = XMConvertFloatToHalf(pixels[0] * factor);
 	} else {
 		if (acKind == winrt::AdvancedColorKind::HighDynamicRange) {
-			factor *= _sdrWhiteLevel;
+			factor *= sdrWhiteLevel;
 		}
 
 		*textureData++ = XMConvertFloatToHalf(ColorHelper::SrgbToLinear(pixels[2]) * factor);

@@ -1,5 +1,6 @@
 #pragma once
 #include "CatmullRomDrawer.h"
+#include "EffectTextureFormat.h"
 #include "SmallVector.h"
 
 namespace Magpie {
@@ -41,7 +42,8 @@ public:
 		return _outputSize;
 	}
 
-	// 从缩放线程调用。
+	// 从缩放线程调用。effectIdx 和 passIdx 有最小值限制，但无最大值限制，超
+	// 出范围将取消截图。
 	// effectIdx 的特殊值:
 	// -1: 最终输出画面
 	// -2: 捕获的画面
@@ -56,6 +58,16 @@ public:
 	void OnProducerFrameCompleted(uint64_t fenceValue) noexcept;
 
 private:
+	// 如果提供了 textureSrvOffset 则不需要 texture 和 textureFormat，否则需要
+	HRESULT _DrawScreenshot(
+		ComputeContext& computeContext,
+		uint32_t textureSrvOffset,
+		ID3D12Resource* texture,
+		EffectTextureFormat textureFormat,
+		SizeU textureSize,
+		uint64_t frameFenceValue
+	) noexcept;
+
 	uint32_t _CalcDescriptorCount() const noexcept;
 
 	void _UpdateEffectBindings() noexcept;
@@ -74,6 +86,7 @@ private:
 		std::unique_ptr<EffectDrawerBase> drawer;
 		const EffectInfo* effectInfo = nullptr;
 		SizeU outputSize{};
+		uint32_t passCount = 1;
 		winrt::com_ptr<ID3D12Resource> outputTexture;
 	};
 
@@ -93,9 +106,8 @@ private:
 	struct _ScreenshotData {
 		uint64_t fenceValue = 0;
 		winrt::com_ptr<ID3D12Resource> buffer;
-		void* bufferData = nullptr;
-		uint32_t bufferSize = 0;
 		SizeU textureSize{};
+		EffectTextureFormat textureFormat = EffectTextureFormat::R16G16B16A16_UNORM;
 		uint32_t rowPitch = 0;
 		// 由于导出是异步的需要备份 colorInfo
 		ColorInfo colorInfo;
@@ -104,9 +116,8 @@ private:
 		winrt::com_ptr<ID3D12Resource> tempTexture;
 		uint32_t descriptorBaseOffset = std::numeric_limits<uint32_t>::max();
 		
-		// 通常只需要一个描述符，但导出最终输出画面时需要额外为环形缓冲创建 SRV
-		bool isExportingRingBuffer = false;
-		bool isExported = false;
+		// 通常只需要 tempTexture 的 UAV，但导出最终输出画面时需要额外为环形缓冲创建 SRV
+		bool hasSRV = false;
 	};
 	SmallVector<_ScreenshotData> _screenshotDatas;
 

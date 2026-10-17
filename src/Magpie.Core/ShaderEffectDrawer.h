@@ -17,13 +17,18 @@ public:
 
 	void Bind(SizeU inputSize, SizeU outputSize, const ColorInfo& colorInfo) noexcept override;
 
-	HRESULT Update(EffectDrawerState& state, std::string& message) noexcept override;
+	HRESULT Update(
+		EffectDrawerState& state,
+		uint32_t& passCount,
+		std::string& message
+	) noexcept override;
 
 	HRESULT Draw(
 		ComputeContext& computeContext,
 		uint32_t inputSrvOffset,
 		uint32_t outputUavOffset,
-		int exportPassIdx = -2
+		int exportPassIdx,
+		EffectDrawerExportData& exportData
 	) noexcept override;
 
 private:
