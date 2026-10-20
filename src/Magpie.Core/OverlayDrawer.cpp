@@ -88,8 +88,11 @@ HRESULT OverlayDrawer::Draw(
 	POINT cursorPos,
 	uint32_t fps,
 	uint64_t completedFenceValue,
-	uint64_t frameFenceValue
+	uint64_t frameFenceValue,
+	bool& hasDrawed
 ) noexcept {
+	hasDrawed = false;
+
 	if (!_isImplInitialized) {
 		return S_OK;
 	}
@@ -107,16 +110,20 @@ HRESULT OverlayDrawer::Draw(
 	for (int i = (hasInput ? 2 : 1); i >= 0; --i) {
 		_imguiImpl.NewFrame(_overlayOptions->windows, _dpiScale);
 
-		// 防止 ID 冲突
-		int itemId = 0;
-
-		if (_isToolbarVisible && _DrawToolbar(fps, cursorPos, itemId)) {
-			++i;
+		if (_isToolbarVisible) {
+			if (_DrawToolbar(fps, cursorPos)) {
+				++i;
+			}
+			
+			if (!IsApprox(_lastToolbarAlpha, 0.0f)) {
+				hasDrawed = true;
+			}
 		}
 
 #ifdef _DEBUG
 		if (_isDemoWindowVisible) {
 			ImGui::ShowDemoWindow(&_isDemoWindowVisible);
+			hasDrawed = true;
 		}
 #endif
 
@@ -127,10 +134,12 @@ HRESULT OverlayDrawer::Draw(
 		ScalingWindow::Get().OnCursorOnOverlayCaptionAreaChanged(_isCursorOnCaptionArea);
 	}
 
-	HRESULT hr = _imguiImpl.Draw(graphicsContext, completedFenceValue, frameFenceValue);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("ImGuiImpl::Draw 失败", hr);
-		return hr;
+	if (hasDrawed) {
+		HRESULT hr = _imguiImpl.Draw(graphicsContext, completedFenceValue, frameFenceValue);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("ImGuiImpl::Draw 失败", hr);
+			return hr;
+		}
 	}
 
 	if (!_AnyVisibleWindow()) {
@@ -391,7 +400,7 @@ static std::string IconLabel(ImWchar iconChar) noexcept {
 	return StrHelper::UTF16ToUTF8(text);
 }
 
-bool OverlayDrawer::_DrawToolbar(uint32_t fps, POINT cursorPos, int& /*itemId*/) noexcept {
+bool OverlayDrawer::_DrawToolbar(uint32_t fps, POINT cursorPos) noexcept {
 	bool needRedraw = false;
 
 	const float windowWidth = 360 * _dpiScale;

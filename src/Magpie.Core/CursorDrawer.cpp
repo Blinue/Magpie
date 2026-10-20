@@ -256,7 +256,8 @@ HRESULT CursorDrawer::Draw(
 	uint64_t completedFenceValue,
 	uint64_t frameFenceValue,
 	uint32_t curFrameSrvOffset,
-	ID3D12Resource* backBuffer
+	ID3D12Resource* backBuffer,
+	bool isOverlayVisible
 ) noexcept {
 	if (!_curCursorInfoKeyValue) {
 		return S_OK;
@@ -291,6 +292,8 @@ HRESULT CursorDrawer::Draw(
 			_cursorInfosWithTempResources.push_back(_curCursorInfoKeyValue->first);
 		}
 	}
+
+	graphicsContext.IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 	RECT cursorRect = {
 		.left = _curCursorPos.x - (LONG)cursorFrame.hotspot.x,
@@ -350,22 +353,23 @@ HRESULT CursorDrawer::Draw(
 	if (cursorFrame.type == _CursorType::Color) {
 		graphicsContext.SetRootDescriptorTable(1, cursorFrame.textureSrvOffset);
 	} else {
+		// 掩码光标应考虑叠加层，如果没有叠加层就无需从渲染目标拷贝纹理了
 		DirectXHelper::Constant32 constants[] = {
 			{.uintVal = cursorFrame.resSize.width},
 			{.uintVal = cursorFrame.resSize.height},
 			{.uintVal = cursorInfo.size.width},
 			{.uintVal = cursorInfo.size.height},
-			{.uintVal = backBuffer ? 0u :uint32_t(cursorRect.left - _destRect.left)},
-			{.uintVal = backBuffer ? 0u : uint32_t(cursorRect.top - _destRect.top)},
+			{.uintVal = isOverlayVisible ? 0u : uint32_t(cursorRect.left - _destRect.left)},
+			{.uintVal = isOverlayVisible ? 0u : uint32_t(cursorRect.top - _destRect.top)},
 			// 原始帧需要伽马校正，从渲染目标复制的临时纹理不需要。WCG/HDR 下这个参数有不同的意义
-			{.uintVal = isScRGB ? std::bit_cast<uint32_t>(_sdrWhiteLevel) : (backBuffer ? 0u : 1u)}
+			{.uintVal = isScRGB ? std::bit_cast<uint32_t>(_sdrWhiteLevel) : (isOverlayVisible ? 0u : 1u)}
 		};
 		graphicsContext.SetRoot32BitConstants(1, (UINT)std::size(constants), constants);
 
 		graphicsContext.SetRootDescriptorTable(2, cursorFrame.textureSrvOffset);
 
-		if (backBuffer) {
-			// 掩码光标在叠加层上时需要从渲染目标复制光标下区域到临时纹理
+		if (isOverlayVisible) {
+			// 需要从渲染目标复制光标下区域到临时纹理
 			if (_tempOriginTextureSize.width < cursorInfo.size.width ||
 				_tempOriginTextureSize.height < cursorInfo.size.height
 			) {

@@ -28,13 +28,13 @@ public:
 
 	void PrepareForDraw(HCURSOR hCursor, POINT cursorPos, bool& needRedraw) noexcept;
 
-	// backBuffer 不为空表示掩码光标在叠加层上
 	HRESULT Draw(
 		GraphicsContext& graphicsContext,
 		uint64_t completedFenceValue,
 		uint64_t frameFenceValue,
 		uint32_t curFrameSrvOffset,
-		ID3D12Resource* backBuffer = nullptr
+		ID3D12Resource* backBuffer,
+		bool isOverlayVisible
 	) noexcept;
 
 	void OnCursorVirtualizationChanged(bool value) noexcept {

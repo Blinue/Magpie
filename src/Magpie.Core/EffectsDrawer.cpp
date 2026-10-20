@@ -669,7 +669,7 @@ void EffectsDrawer::OnProducerFrameCompleted(uint64_t fenceValue) noexcept {
 			TakeScreenshotResult result;
 			std::wstring screenshotFileName;
 			{
-				std::vector<uint8_t> pixelData(curData.rowPitch * curData.textureSize.height);
+				std::vector<uint8_t> pixelData(size_t(curData.rowPitch) * curData.textureSize.height);
 
 				void* pBufferData;
 				HRESULT hr = curData.buffer->Map(0, nullptr, &pBufferData);

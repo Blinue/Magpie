@@ -612,16 +612,17 @@ HRESULT Renderer::_RenderImpl(HCURSOR hCursor, POINT cursorPos, bool waitForGpu)
 
 	_graphicsContext.Draw(3);
 
+	bool isOverlayVisible;
 	_overlayDrawer.Draw(_graphicsContext, hCursor, cursorPos,
-		_frameProducer.GetFPS(), completedFenceValue, frameFenceValue);
+		_frameProducer.GetFPS(), completedFenceValue, frameFenceValue, isOverlayVisible);
 
 	// 为了和 OS 保持一致，SDR 下绘制光标时在 sRGB 空间中混合
 	if (_colorInfo.kind == winrt::AdvancedColorKind::StandardDynamicRange) {
 		_graphicsContext.OMSetRenderTarget(rawRtvOffset);
 	}
 
-	HRESULT hr = _cursorDrawer.Draw(
-		_graphicsContext, completedFenceValue, frameFenceValue, curFrameSrvOffset, nullptr);
+	HRESULT hr = _cursorDrawer.Draw(_graphicsContext, completedFenceValue,
+		frameFenceValue, curFrameSrvOffset, backBuffer, isOverlayVisible);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CursorDrawer::Draw 失败", hr);
 		return hr;

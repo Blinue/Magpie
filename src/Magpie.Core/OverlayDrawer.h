@@ -32,7 +32,8 @@ public:
 		POINT cursorPos,
 		uint32_t fps,
 		uint64_t completedFenceValue,
-		uint64_t frameFenceValue
+		uint64_t frameFenceValue,
+		bool& hasDrawed
 	) noexcept;
 
 	ToolbarState GetToolbarState() const noexcept;
@@ -60,7 +61,7 @@ private:
 
 	bool _AnyVisibleWindow() const noexcept;
 
-	bool _DrawToolbar(uint32_t fps, POINT cursorPos, int& itemId) noexcept;
+	bool _DrawToolbar(uint32_t fps, POINT cursorPos) noexcept;
 
 	float _CalcToolbarAlpha(POINT cursorPos) const noexcept;
 
