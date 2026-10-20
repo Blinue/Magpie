@@ -47,8 +47,8 @@ public:
 		return *_mainWindow;
 	}
 
-	bool IsLightTheme() const noexcept {
-		return _isLightTheme.load(std::memory_order_relaxed);
+	bool IsDarkTheme() const noexcept {
+		return _isDarkTheme;
 	}
 
 	static Windows::Globalization::NumberFormatting::INumberFormatter2 DoubleFormatter();
@@ -81,9 +81,10 @@ private:
 	::Magpie::Event<::Magpie::AppTheme>::EventRevoker _themeChangedRevoker;
 	Windows::UI::ViewManagement::UISettings _uiSettings;
 	Windows::UI::ViewManagement::UISettings::ColorValuesChanged_revoker _colorValuesChangedRevoker;
-	std::atomic<bool> _isLightTheme = true;
 
 	::Magpie::Event<bool>::EventRevoker _isShowNotifyIconChangedRevoker;
+
+	bool _isDarkTheme = false;
 
 	////////////////////////////////////////////////////
 	// 

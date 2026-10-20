@@ -140,10 +140,10 @@ private:
 	uint32_t _pendingScreenshotCount = 0;
 
 	// 可由所有线程访问
-	std::atomic<uint64_t> _sharedTextureMutexKey = 0;
+	std::atomic<uint64_t> _sharedTextureMutexKey;
 
 	// INVALID_HANDLE_VALUE 表示后端初始化失败
-	std::atomic<HANDLE> _sharedTextureHandle{ NULL };
+	std::atomic<HANDLE> _sharedTextureHandle;
 	// 下面四个成员由 _sharedTextureHandle 同步
 	winrt::Windows::System::DispatcherQueue _backendThreadDispatcher{ nullptr };
 	ScalingError _backendInitError = ScalingError::NoError;

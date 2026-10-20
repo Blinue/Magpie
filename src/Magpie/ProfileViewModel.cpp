@@ -917,7 +917,7 @@ fire_and_forget ProfileViewModel::_LoadIcon() {
 	constexpr double ICON_SIZE = 32.0;
 
 	if (_canLaunch) {
-		const bool preferLightTheme = App::Get().IsLightTheme();
+		const bool isDarkTheme = App::Get().IsDarkTheme();
 		const bool isPackaged = _data->isPackaged;
 		const std::wstring path = _data->pathRule;
 		const uint32_t iconSize =
@@ -930,8 +930,7 @@ fire_and_forget ProfileViewModel::_LoadIcon() {
 			[[maybe_unused]] bool result = appxReader.Initialize(path);
 			assert(result);
 
-			std::variant<std::wstring, SoftwareBitmap> uwpIcon =
-				appxReader.GetIcon(iconSize, preferLightTheme);
+			std::variant<std::wstring, SoftwareBitmap> uwpIcon = appxReader.GetIcon(iconSize, isDarkTheme);
 			if (uwpIcon.index() == 0) {
 				iconPath = std::get<0>(uwpIcon);
 			} else {

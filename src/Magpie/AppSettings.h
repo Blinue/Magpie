@@ -327,7 +327,7 @@ private:
 
 	phmap::flat_hash_map<std::string, OverlayWindowOption> _overlayWindowOptions;
 
-	std::atomic<bool> _isSaving = false;
+	std::atomic<bool> _isSaving;
 	bool _isPortableMode = false;
 	bool _isAlwaysRunAsAdmin = false;
 	bool _isDeveloperMode = false;

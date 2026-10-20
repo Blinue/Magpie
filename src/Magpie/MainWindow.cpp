@@ -500,7 +500,7 @@ void MainWindow::_DrawBackground(HDC hdc, const RECT& bkgRect) const noexcept {
 
 	// 绘制深色背景时需要注意使用 DwmExtendFrameIntoClientArea 后深色背景会被视为透明。解决方案来自
 	// https://github.com/microsoft/terminal/blob/0ee2c74cd432eda153f3f3e77588164cde95044f/src/cascadia/WindowsTerminal/NonClientIslandWindow.cpp#L1030-L1047
-	if (!App::Get().IsLightTheme() && Win32Helper::GetOSVersion().IsWin10()) {
+	if (App::Get().IsDarkTheme() && Win32Helper::GetOSVersion().IsWin10()) {
 		HDC opaqueDc;
 		BP_PAINTPARAMS params = {
 			.cbSize = sizeof(params),
@@ -632,18 +632,18 @@ void MainWindow::_CreateWindow(POINT& windowPos, SIZE& windowSize, MONITORINFO& 
 void MainWindow::_UpdateTheme() noexcept {
 	assert(Handle());
 
-	const bool isLightTheme = App::Get().IsLightTheme();
+	const bool isDarkTheme = App::Get().IsDarkTheme();
 
 	ThemeHelper::SetWindowTheme(
 		Handle(),
 		// Win10 中始终使用暗色边框，这也是 UWP 窗口的行为
-		!isLightTheme || Win32Helper::GetOSVersion().IsWin10(),
-		!isLightTheme
+		isDarkTheme || Win32Helper::GetOSVersion().IsWin10(),
+		isDarkTheme
 	);
 
 	if (_ShouldDrawBackground()) {
-		_hbrBackground.reset(CreateSolidBrush(isLightTheme ?
-			ThemeHelper::LIGHT_TINT_COLOR : ThemeHelper::DARK_TINT_COLOR));
+		_hbrBackground.reset(CreateSolidBrush(
+			isDarkTheme ? ThemeHelper::DARK_TINT_COLOR : ThemeHelper::LIGHT_TINT_COLOR));
 	} else {
 		// 设置 Mica 背景
 		DWM_SYSTEMBACKDROP_TYPE value = DWMSBT_MAINWINDOW;

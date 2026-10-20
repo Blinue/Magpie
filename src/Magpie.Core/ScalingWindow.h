@@ -167,7 +167,7 @@ private:
 
 	void _DelayedStop(bool onSrcHung = false, bool onSrcRepositioning = false) const noexcept;
 
-	static inline std::atomic<uint32_t> _runId = 0;
+	static inline std::atomic<uint32_t> _runId;
 	static inline winrt::DispatcherQueue _dispatcher{ nullptr };
 
 	RECT _windowRect{};
