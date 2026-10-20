@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "OverlayDrawer.h"
 #include "D3D12Context.h"
+#include "EffectsDrawer.h"
 #include "LocalizationService.h"
 #include "Logger.h"
 #include "OverlayHelper.h"
@@ -23,7 +24,7 @@ static const char* TOOLBAR_WINDOW_ID = "toolbar";
 static const char* PROFILER_WINDOW_ID = "profiler";
 
 static const std::string& GetLocalizedString(const std::wstring_view& key) noexcept {
-	static phmap::flat_hash_map<std::wstring_view, std::string> cache;
+	static phmap::node_hash_map<std::wstring_view, std::string> cache;
 
 	if (auto it = cache.find(key); it != cache.end()) {
 		return it->second;
@@ -50,15 +51,18 @@ static void SetDefaultWindowOptions(
 bool OverlayDrawer::Initialize(
 	D3D12Context& d3d12Context,
 	OverlayOptions& overlayOptions,
+	FrameProducer& frameProducer,
 	const RECT& rendererRect,
 	const RECT& destRect,
 	const ColorInfo& colorInfo
 ) noexcept {
 	_d3d12Context = &d3d12Context;
 	_overlayOptions = &overlayOptions;
+	_frameProducer = &frameProducer;
 	_rendererRect = rendererRect;
 	_destRect = destRect;
-	_colorInfo = colorInfo;
+	_acKind = colorInfo.kind;
+	_sdrWhiteLevel = colorInfo.sdrWhiteLevel;
 
 	// 需要时初始化 ImGui
 	const ScalingOptions& options = ScalingWindow::Get().Options();
@@ -76,6 +80,64 @@ bool OverlayDrawer::Initialize(
 	}
 
 	return true;
+}
+
+HRESULT OverlayDrawer::Draw(
+	GraphicsContext& graphicsContext,
+	bool isCursorOnRenderer,
+	POINT cursorPos,
+	uint32_t fps,
+	uint64_t completedFenceValue,
+	uint64_t frameFenceValue
+) noexcept {
+	if (!_isImplInitialized) {
+		return S_OK;
+	}
+
+	// 所有窗口都不可见则跳过 ImGui 绘制
+	if (!_AnyVisibleWindow()) {
+		return S_OK;
+	}
+
+	_imguiImpl.PrepareNewFrame(isCursorOnRenderer, cursorPos, TOOLBAR_WINDOW_ID, 4 * _dpiScale);
+
+	const bool wasCursorOnCaptionArea = _isCursorOnCaptionArea;
+
+	bool hasInput = std::exchange(_hasMouseInput, false);
+	for (int i = (hasInput ? 2 : 1); i >= 0; --i) {
+		_imguiImpl.NewFrame(_overlayOptions->windows, _dpiScale);
+
+		// 防止 ID 冲突
+		int itemId = 0;
+
+		if (_isToolbarVisible && _DrawToolbar(fps, cursorPos, itemId)) {
+			++i;
+		}
+
+#ifdef _DEBUG
+		if (_isDemoWindowVisible) {
+			ImGui::ShowDemoWindow(&_isDemoWindowVisible);
+		}
+#endif
+
+		ImGui::EndFrame();
+	}
+
+	if (wasCursorOnCaptionArea != _isCursorOnCaptionArea) {
+		ScalingWindow::Get().OnCursorOnOverlayCaptionAreaChanged(_isCursorOnCaptionArea);
+	}
+
+	HRESULT hr = _imguiImpl.Draw(graphicsContext, completedFenceValue, frameFenceValue);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("ImGuiImpl::Draw 失败", hr);
+		return hr;
+	}
+
+	if (!_AnyVisibleWindow()) {
+		_imguiImpl.ClearStates();
+	}
+
+	return S_OK;
 }
 
 ToolbarState OverlayDrawer::GetToolbarState() const noexcept {
@@ -160,67 +222,10 @@ void OverlayDrawer::OnCursorCapturedOnForegroundChanged(bool value) noexcept {
 	}
 }
 
-HRESULT OverlayDrawer::Draw(
-	GraphicsContext& graphicsContext,
-	bool isCursorOnRenderer,
-	POINT cursorPos,
-	uint32_t fps,
-	uint64_t frameFenceValue,
-	uint64_t completedFenceValue
-) noexcept {
-	if (!_isImplInitialized) {
-		return S_OK;
-	}
-
-	// 所有窗口都不可见则跳过 ImGui 绘制
-	if (!_AnyVisibleWindow()) {
-		return S_OK;
-	}
-
-	_imguiImpl.PrepareNewFrame(isCursorOnRenderer, cursorPos, TOOLBAR_WINDOW_ID, 4 * _dpiScale);
-
-	const bool wasCursorOnCaptionArea = _isCursorOnCaptionArea;
-
-	bool hasInput = std::exchange(_hasMouseInput, false);
-	for (int i = (hasInput ? 2 : 1); i >= 0; --i) {
-		_imguiImpl.NewFrame(_overlayOptions->windows, _dpiScale);
-
-		// 防止 ID 冲突
-		int itemId = 0;
-
-		if (_isToolbarVisible && _DrawToolbar(fps, cursorPos, itemId)) {
-			++i;
-		}
-
-#ifdef _DEBUG
-		if (_isDemoWindowVisible) {
-			ImGui::ShowDemoWindow(&_isDemoWindowVisible);
-		}
-#endif
-
-		ImGui::EndFrame();
-	}
-
-	if (wasCursorOnCaptionArea != _isCursorOnCaptionArea) {
-		ScalingWindow::Get().OnCursorOnOverlayCaptionAreaChanged(_isCursorOnCaptionArea);
-	}
-
-	HRESULT hr = _imguiImpl.Draw(graphicsContext, frameFenceValue, completedFenceValue);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("ImGuiImpl::Draw 失败", hr);
-		return hr;
-	}
-
-	if (!_AnyVisibleWindow()) {
-		_imguiImpl.ClearStates();
-	}
-
-	return S_OK;
-}
-
 void OverlayDrawer::OnColorInfoChanged(const ColorInfo& colorInfo) noexcept {
-	_colorInfo = colorInfo;
-
+	_acKind = colorInfo.kind;
+	_sdrWhiteLevel = colorInfo.sdrWhiteLevel;
+	
 	if (_isImplInitialized) {
 		_imguiImpl.OnColorInfoChanged(colorInfo);
 	}
@@ -257,7 +262,7 @@ static const std::wstring& GetSystemFontsFolder() noexcept {
 HRESULT OverlayDrawer::_InitializeImpl() noexcept {
 	SetDefaultWindowOptions(_overlayOptions->windows);
 
-	_imguiImpl.Initialize(*_d3d12Context, _rendererRect, _destRect, _colorInfo);
+	_imguiImpl.Initialize(*_d3d12Context, _rendererRect, _destRect, _acKind, _sdrWhiteLevel);
 
 	_dpiScale = ScalingWindow::Get().GetDpi() / float(USER_DEFAULT_SCREEN_DPI);
 
@@ -504,81 +509,15 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps, POINT cursorPos, int& /*itemId*/)
 #endif
 		ImGui::SameLine();
 		const std::string& screenshotStr = GetLocalizedString(L"Overlay_Toolbar_TakeScreenshot");
-		const std::string& screenshotDescStr = GetLocalizedString(L"Overlay_Toolbar_TakeScreenshot_Description");
 
 		// 提示文字追加快捷键
 		const OverlayOptions& overlayOptions = ScalingWindow::Get().Options().overlayOptions;
 		std::string screenshotButtonStr =
 			StrHelper::Concat(screenshotStr, " (", overlayOptions.takeScreenshotShortcut, ")");
 
-		if (drawButton(OverlayHelper::SegoeIcons::Camera, screenshotButtonStr.c_str(), screenshotDescStr.c_str())) {
+		if (drawButton(OverlayHelper::SegoeIcons::Camera, screenshotButtonStr.c_str())) {
 			ScalingWindow::Get().TakeScreenshot();
 		}
-		// 截图按钮右键菜单
-		/*if (ImGui::BeginPopupContextItem()) {
-			_isCursorOnCaptionArea = false;
-			_isToolbarItemActive = true;
-
-			ImGui::SeparatorText(GetLocalizedString(L"Overlay_Toolbar_TakeScreenshot_PopupTitle").c_str());
-			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 4.0f * _dpiScale);
-			ImGui::PushStyleVarY(ImGuiStyleVar_ItemSpacing, 6.0f * _dpiScale);
-
-			const std::vector<const EffectDesc*>& effectDescs =
-				ScalingWindow::Get().Renderer().ActiveEffectDescs();
-			const uint32_t effectCount = (uint32_t)effectDescs.size();
-
-			const bool isDeveloperMode = ScalingWindow::Get().Options().IsDeveloperMode();
-			for (uint32_t i = 0; i < effectCount; ++i) {
-				const EffectDesc& effectDesc = *effectDescs[i];
-				std::string_view effectName = GetEffectDisplayName(effectDesc);
-
-				if (isDeveloperMode && effectDesc.passes.size() > 1) {
-					// 开发者模式允许保存任意通道的输出
-					ImGui::PushID(itemId++);
-					if (ImGui::BeginMenu(effectName.data())) {
-						const uint32_t passCount = (uint32_t)effectDesc.passes.size();
-						for (uint32_t j = 0; j < passCount; ++j) {
-							const EffectPassDesc& passDesc = effectDesc.passes[j];
-							const uint32_t outputCount = (uint32_t)passDesc.outputs.size();
-
-							if (outputCount == 1) {
-								ImGui::PushID(itemId++);
-								if (ImGui::MenuItem(passDesc.desc.c_str())) {
-									ScalingWindow::Get().Renderer().TakeScreenshot(i, j);
-								}
-								ImGui::PopID();
-							} else {
-								ImGui::PushID(itemId++);
-								if (ImGui::BeginMenu(passDesc.desc.c_str())) {
-									for (uint32_t k = 0; k < outputCount; ++k) {
-										ImGui::PushID(itemId++);
-										if (ImGui::MenuItem(effectDesc.textures[passDesc.outputs[k]].name.c_str())) {
-											ScalingWindow::Get().Renderer().TakeScreenshot(i, j, k);
-										}
-										ImGui::PopID();
-									}
-
-									ImGui::EndMenu();
-								}
-								ImGui::PopID();
-							}
-						}
-
-						ImGui::EndMenu();
-					}
-					ImGui::PopID();
-				} else {
-					ImGui::PushID(itemId++);
-					if (ImGui::MenuItem(effectName.data())) {
-						ScalingWindow::Get().Renderer().TakeScreenshot(i);
-					}
-					ImGui::PopID();
-				}
-			}
-
-			ImGui::PopStyleVar();
-			ImGui::EndPopup();
-		}*/
 		ImGui::SameLine(0, 0);
 
 		const float contentRegionMax = ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x;

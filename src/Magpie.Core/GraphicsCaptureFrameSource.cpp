@@ -253,7 +253,6 @@ bool GraphicsCaptureFrameSource::Initialize(
 		if (!_duplicateFrameChecker->Initialize(
 			_d3d11Device.get(),
 			_d3d11DC.get(),
-			colorInfo,
 			SizeU{ _frameBox.right, _frameBox.bottom },
 			captureFrameCount,
 			!_isDirtyRegionSupported

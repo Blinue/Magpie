@@ -144,9 +144,6 @@
     <ClInclude Include="XamlHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Resources</Filter>
-    </ClInclude>
     <ClInclude Include="AdaptersService.h">
       <Filter>Services</Filter>
     </ClInclude>
@@ -278,6 +275,9 @@
     </None>
     <None Include="BoolToObjectConverter.idl">
       <Filter>Converters</Filter>
+    </None>
+    <None Include="res\BT2020_G24.icc">
+      <Filter>Resources</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -411,7 +411,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Magpie.ico">
+    <Image Include="res\Magpie.ico">
       <Filter>Resources</Filter>
     </Image>
   </ItemGroup>

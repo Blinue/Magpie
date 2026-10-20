@@ -20,6 +20,7 @@ struct EffectsService::_ShaderEffectMemCacheItem {
 	ShaderEffectDrawInfo drawInfo;
 	// 使用计数，归零才能删除
 	uint32_t refCount = 0;
+	bool isFailed = false;
 
 	bool IsInUse() const noexcept {
 		return refCount != 0;
@@ -248,7 +249,7 @@ bool EffectsService::GetTaskResult(
 	auto lk = _shaderEffectCacheLock.lock_shared();
 
 	_ShaderEffectMemCacheItem* cacheItem = _shaderEffectCache.Find(taskKey);
-	if (!cacheItem) {
+	if (!cacheItem || cacheItem->isFailed) {
 		// 编译失败
 		return false;
 	}
@@ -272,7 +273,9 @@ void EffectsService::ReleaseTask(const std::string& taskKey) noexcept {
 	}
 
 	assert(cacheItem->refCount >= 1);
-	--cacheItem->refCount;
+	if (--cacheItem->refCount == 0) {
+		_shaderEffectCache.Remove(taskKey);
+	}
 }
 
 void EffectsService::_WaitForInitialize() noexcept {
@@ -477,7 +480,9 @@ winrt::fire_and_forget EffectsService::_CompileShaderEffectAsync(
 		auto it = _effectsMap.find(effectName);
 		if (it == _effectsMap.end()) {
 			auto lk = _shaderEffectCacheLock.lock_exclusive();
-			_shaderEffectCache.Remove(cacheKey);
+			if (_ShaderEffectMemCacheItem* cacheItem = _shaderEffectCache.Find(cacheKey)) {
+				cacheItem->isFailed = true;
+			}
 			co_return;
 		}
 		const EffectInfo& effectInfo = _effects[it->second];
@@ -498,7 +503,9 @@ winrt::fire_and_forget EffectsService::_CompileShaderEffectAsync(
 		if (!errorMsg.empty()) {
 			// 解析失败
 			auto lk = _shaderEffectCacheLock.lock_exclusive();
-			_shaderEffectCache.Remove(cacheKey);
+			if (_ShaderEffectMemCacheItem* cacheItem = _shaderEffectCache.Find(cacheKey)) {
+				cacheItem->isFailed = true;
+			}
 			co_return;
 		}
 
@@ -751,7 +758,9 @@ winrt::fire_and_forget EffectsService::_CompileShaderEffectAsync(
 			if (!passDesc.byteCode) {
 				// 编译失败
 				auto lk = _shaderEffectCacheLock.lock_exclusive();
-				_shaderEffectCache.Remove(cacheKey);
+				if (_ShaderEffectMemCacheItem* cacheItem = _shaderEffectCache.Find(cacheKey)) {
+					cacheItem->isFailed = true;
+				}
 				co_return;
 			}
 		}

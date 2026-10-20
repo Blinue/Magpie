@@ -16,14 +16,18 @@ public:
 
 	~ImGuiBackend() noexcept;
 
-	void Initialize(D3D12Context& d3d12Context, const ColorInfo& colorInfo) noexcept;
+	void Initialize(
+		D3D12Context& d3d12Context,
+		winrt::AdvancedColorKind acKind,
+		float sdrWhiteLevel
+	) noexcept;
 
 	HRESULT RenderDrawData(
 		const ImDrawData& drawData,
 		POINT viewportOffset,
 		GraphicsContext& graphicsContext,
-		uint64_t frameFenceValue,
-		uint64_t completedFenceValue
+		uint64_t completedFenceValue,
+		uint64_t frameFenceValue
 	) noexcept;
 
 	void OnColorInfoChanged(const ColorInfo& colorInfo) noexcept;
@@ -32,8 +36,8 @@ private:
 	HRESULT _UpdateTexture(
 		ImTextureData& texData,
 		GraphicsContext& graphicsContext,
-		uint64_t frameFenceValue,
-		uint64_t completedFenceValue
+		uint64_t completedFenceValue,
+		uint64_t frameFenceValue
 	) noexcept;
 
 	struct _FrameResource {
@@ -57,7 +61,9 @@ private:
 	HRESULT _CreateImGuiPSO() noexcept;
 
 	D3D12Context* _d3d12Context = nullptr;
-	ColorInfo _colorInfo;
+
+	winrt::AdvancedColorKind _acKind = winrt::AdvancedColorKind::StandardDynamicRange;
+	float _sdrWhiteLevel = 1.0f;
 
 	struct _TextureData {
 		winrt::com_ptr<ID3D12Resource> texture;

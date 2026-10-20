@@ -30,9 +30,14 @@ ImGuiBackend::~ImGuiBackend() noexcept {
 #endif
 }
 
-void ImGuiBackend::Initialize(D3D12Context& d3d12Context, const ColorInfo& colorInfo) noexcept {
+void ImGuiBackend::Initialize(
+	D3D12Context& d3d12Context,
+	winrt::AdvancedColorKind acKind,
+	float sdrWhiteLevel
+) noexcept {
 	_d3d12Context = &d3d12Context;
-	_colorInfo = colorInfo;
+	_acKind = acKind;
+	_sdrWhiteLevel = sdrWhiteLevel;
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.BackendRendererName = "Magpie";
@@ -44,15 +49,15 @@ HRESULT ImGuiBackend::RenderDrawData(
 	const ImDrawData& drawData,
 	POINT viewportOffset,
 	GraphicsContext& graphicsContext,
-	uint64_t frameFenceValue,
-	uint64_t completedFenceValue
+	uint64_t completedFenceValue,
+	uint64_t frameFenceValue
 ) noexcept {
 	// Catch up with texture updates. Most of the times, the list will have 1 element with an OK status, aka nothing to do.
 	// (This almost always points to ImGui::GetPlatformIO().Textures[] but is part of ImDrawData to allow overriding or disabling texture updates).
 	if (drawData.Textures) {
 		for (ImTextureData* texData : *drawData.Textures) {
 			if (texData->Status != ImTextureStatus_OK) {
-				HRESULT hr = _UpdateTexture(*texData, graphicsContext, frameFenceValue, completedFenceValue);
+				HRESULT hr = _UpdateTexture(*texData, graphicsContext, completedFenceValue, frameFenceValue);
 				if (FAILED(hr)) {
 					Logger::Get().ComError("_UpdateTexture 失败", hr);
 					return hr;
@@ -190,16 +195,24 @@ HRESULT ImGuiBackend::RenderDrawData(
 		globalVtxOffset += drawList->VtxBuffer.Size;
 	}
 
+	// 释放空闲的上传缓冲区
+	for (int i = (int)_uploadBuffers.size() - 1; i >= 0; --i) {
+		if (_uploadBuffers[i].fenceValue <= completedFenceValue) {
+			_uploadBuffers.erase(_uploadBuffers.begin() + i);
+		}
+	}
+
 	return S_OK;
 }
 
 void ImGuiBackend::OnColorInfoChanged(const ColorInfo& colorInfo) noexcept {
-	const winrt::AdvancedColorKind oldKind = _colorInfo.kind;
-	_colorInfo = colorInfo;
+	const winrt::AdvancedColorKind oldKind = _acKind;
+	_acKind = colorInfo.kind;
+	_sdrWhiteLevel = colorInfo.sdrWhiteLevel;
 
-	if (colorInfo.kind != oldKind) {
+	if (_acKind != oldKind) {
 		bool wasHDR = oldKind == winrt::AdvancedColorKind::HighDynamicRange;
-		bool isHDR = colorInfo.kind == winrt::AdvancedColorKind::HighDynamicRange;
+		bool isHDR = _acKind == winrt::AdvancedColorKind::HighDynamicRange;
 		if (wasHDR != isHDR) {
 			_imguiRootSignature = nullptr;
 		}
@@ -211,8 +224,8 @@ void ImGuiBackend::OnColorInfoChanged(const ColorInfo& colorInfo) noexcept {
 HRESULT ImGuiBackend::_UpdateTexture(
 	ImTextureData& texData,
 	GraphicsContext& graphicsContext,
-	uint64_t frameFenceValue,
-	uint64_t completedFenceValue
+	uint64_t completedFenceValue,
+	uint64_t frameFenceValue
 ) noexcept {
 	// 只支持 RGBA32
 	assert(texData.Format == ImTextureFormat_RGBA32);
@@ -288,27 +301,22 @@ HRESULT ImGuiBackend::_UpdateTexture(
 		uint32_t uploadRowPitch = DirectXHelper::Align(uploadRowSize, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
 		uint32_t requiredBufferSize = uploadRowPitch * uploadSize.height;
 
-		// 寻找最大的空闲缓冲区
-		SmallVector<uint32_t> freeBuffers;
-		uint32_t maxSizeBufferIdx = std::numeric_limits<uint32_t>::max();
-		uint32_t maxBufferSize = 0;
+		// 寻找空闲且足够大的上传缓冲区
+		uint32_t reuseBufferIdx = std::numeric_limits<uint32_t>::max();
 		for (uint32_t i = 0, end = (uint32_t)_uploadBuffers.size(); i < end; ++i) {
 			if (_uploadBuffers[i].fenceValue > completedFenceValue) {
 				continue;
 			}
 
-			freeBuffers.push_back(i);
-
-			uint32_t curBufferSize = _uploadBuffers[i].size;
-			if (curBufferSize > maxBufferSize && curBufferSize >= requiredBufferSize) {
-				maxBufferSize = curBufferSize;
-				maxSizeBufferIdx = i;
+			if (_uploadBuffers[i].size >= requiredBufferSize) {
+				reuseBufferIdx = i;
+				break;
 			}
 		}
 
 		_UploadBuffer* curBuffer;
 
-		if (maxSizeBufferIdx == std::numeric_limits<uint32_t>::max()) {
+		if (reuseBufferIdx == std::numeric_limits<uint32_t>::max()) {
 			_UploadBuffer newBuffer = {
 				.size = requiredBufferSize
 			};
@@ -342,7 +350,7 @@ HRESULT ImGuiBackend::_UpdateTexture(
 
 			curBuffer = &_uploadBuffers.emplace_back(std::move(newBuffer));
 		} else {
-			curBuffer = &_uploadBuffers[maxSizeBufferIdx];
+			curBuffer = &_uploadBuffers[reuseBufferIdx];
 		}
 
 		curBuffer->fenceValue = frameFenceValue;
@@ -392,13 +400,6 @@ HRESULT ImGuiBackend::_UpdateTexture(
 		);
 
 		backendData.fenceValue = frameFenceValue;
-
-		// 最后释放空闲缓冲区，防止 curBuffer 失效
-		for (auto it = freeBuffers.rbegin(); it != freeBuffers.rend(); ++it) {
-			if (*it != maxSizeBufferIdx) {
-				_uploadBuffers.erase(_uploadBuffers.begin() + *it);
-			}
-		}
 
 		texData.SetStatus(ImTextureStatus_OK);
 	} else if (texData.Status == ImTextureStatus_WantDestroy) {
@@ -463,8 +464,8 @@ HRESULT ImGuiBackend::_SetupRenderState(
 		graphicsContext.SetRoot32BitConstants(0, 2, scale);
 	}
 
-	if (_colorInfo.kind == winrt::AdvancedColorKind::HighDynamicRange) {
-		graphicsContext.SetRoot32BitConstants(1, 1, &_colorInfo.sdrWhiteLevel);
+	if (_acKind == winrt::AdvancedColorKind::HighDynamicRange) {
+		graphicsContext.SetRoot32BitConstants(1, 1, &_sdrWhiteLevel);
 		descriptorTableIdx = 2;
 	} else {
 		descriptorTableIdx = 1;
@@ -475,9 +476,11 @@ HRESULT ImGuiBackend::_SetupRenderState(
 
 HRESULT ImGuiBackend::_CreateImGuiPSO() noexcept {
 	ID3D12Device5* device = _d3d12Context->GetDevice();
-	const bool isScRGB = _colorInfo.kind != winrt::AdvancedColorKind::StandardDynamicRange;
-	const bool isHDR = _colorInfo.kind == winrt::AdvancedColorKind::HighDynamicRange;
+	const bool isScRGB = _acKind != winrt::AdvancedColorKind::StandardDynamicRange;
+	const bool isHDR = _acKind == winrt::AdvancedColorKind::HighDynamicRange;
 
+	// PREFast 错误认为对 rootParams 的访问会越界
+	[[gsl::suppress("28020")]]
 	if (!_imguiRootSignature) {
 		winrt::com_ptr<ID3DBlob> signature;
 		

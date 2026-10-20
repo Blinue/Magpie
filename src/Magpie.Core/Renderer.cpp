@@ -18,13 +18,6 @@
 
 namespace Magpie {
 
-enum class TakeScreenshotResult {
-	Success,
-	InvalidDirectory,
-	InvalidFilenameTemplate,
-	InternalError
-};
-
 // 如果描述符大小为 32 字节，描述符堆消耗 2MiB 显存
 static uint32_t CSU_HEAP_CAPACITY = 65536;
 // 目前只有渲染到后缓冲和缩放光标时需要 RTV
@@ -158,7 +151,9 @@ ScalingError Renderer::Initialize(
 	destRect.right = rendererRect.left + (LONG)_outputRect.right;
 	destRect.bottom = rendererRect.top + (LONG)_outputRect.bottom;
 
-	if (!_overlayDrawer.Initialize(_d3d12Context, overlayOptions, rendererRect, destRect, _colorInfo)) {
+	if (!_overlayDrawer.Initialize(_d3d12Context, overlayOptions,
+		_frameProducer, rendererRect, destRect, _colorInfo))
+	{
 		Logger::Get().Error("OverlayDrawer::Initialize 失败");
 		return ScalingError::ScalingFailedGeneral;
 	}
@@ -191,17 +186,17 @@ ComponentState Renderer::Render(
 	bool needRedraw = false;
 
 	{
-		const uint64_t latestProducerFrameNumber = _frameProducer.GetLatestFrameNumber();
-		if (latestProducerFrameNumber == 0) {
-			if (waitingForFirstFrame && latestProducerFrameNumber == 0) {
+		const uint64_t producerFenceValue = _frameProducer.GetProduerCompletedFenceValue();
+		if (producerFenceValue == 0) {
+			if (waitingForFirstFrame && producerFenceValue == 0) {
 				*waitingForFirstFrame = true;
 			}
 			return _state;
 		}
 
-		if (latestProducerFrameNumber != _lastProducerFrameNumber) {
+		if (producerFenceValue != _lastProducerFenceValue) {
 			needRedraw = true;
-			_lastProducerFrameNumber = latestProducerFrameNumber;
+			_lastProducerFenceValue = producerFenceValue;
 		}
 	}
 
@@ -218,6 +213,10 @@ ComponentState Renderer::Render(
 	}
 
 	return _state;
+}
+
+void Renderer::RequestProducerNewFrame() const noexcept {
+	_frameProducer.RequestNewFrame();
 }
 
 void Renderer::SwitchToolbarState() noexcept {
@@ -250,6 +249,10 @@ void Renderer::SwitchToolbarState() noexcept {
 		fmt::runtime(std::wstring_view(newStateMsg)),
 		std::wstring_view(ls.GetLocalizedString(stateResName))
 	));
+}
+
+void Renderer::TakeScreenshot() noexcept {
+	_frameProducer.ExportAsync(-1);
 }
 
 void Renderer::OnMonitorChanged(HMONITOR hMonitor) noexcept {
@@ -364,6 +367,7 @@ void Renderer::_TryInitDisplayInfo() noexcept {
 	winrt::com_ptr<IDisplayInformationStaticsInterop> interop =
 		winrt::try_get_activation_factory<winrt::DisplayInformation, IDisplayInformationStaticsInterop>();
 	if (!interop) {
+		Logger::Get().Info("不支持 IDisplayInformationStaticsInterop");
 		return;
 	}
 	
@@ -432,14 +436,25 @@ bool Renderer::_UpdateColorInfo() noexcept {
 		winrt::AdvancedColorInfo acInfo = _displayInfo.GetAdvancedColorInfo();
 
 		_colorInfo.kind = acInfo.CurrentAdvancedColorKind();
-		if (_colorInfo.kind == winrt::AdvancedColorKind::HighDynamicRange) {
-			_colorInfo.maxLuminance = acInfo.MaxLuminanceInNits() / SCENE_REFERRED_SDR_WHITE_LEVEL;
-			_colorInfo.sdrWhiteLevel = acInfo.SdrWhiteLevelInNits() / SCENE_REFERRED_SDR_WHITE_LEVEL;
+		if (_colorInfo.kind == winrt::AdvancedColorKind::StandardDynamicRange) {
+			_colorInfo = {};
 		} else {
-			_colorInfo.maxLuminance = 1.0f;
-			_colorInfo.sdrWhiteLevel = 1.0f;
-		}
+			_colorInfo.redPrimary = acInfo.RedPrimary();
+			_colorInfo.greenPrimary = acInfo.GreenPrimary();
+			_colorInfo.bluePrimary = acInfo.BluePrimary();
+			_colorInfo.whitePoint = acInfo.WhitePoint();
 
+			if (_colorInfo.kind == winrt::AdvancedColorKind::HighDynamicRange) {
+				_colorInfo.minLuminance = acInfo.MinLuminanceInNits() / SCENE_REFERRED_SDR_WHITE_LEVEL;
+				_colorInfo.maxLuminance = acInfo.MaxLuminanceInNits() / SCENE_REFERRED_SDR_WHITE_LEVEL;
+				_colorInfo.sdrWhiteLevel = acInfo.SdrWhiteLevelInNits() / SCENE_REFERRED_SDR_WHITE_LEVEL;
+			} else {
+				_colorInfo.minLuminance = 0.0f;
+				_colorInfo.maxLuminance = 1.0f;
+				_colorInfo.sdrWhiteLevel = 1.0f;
+			}
+		}
+		
 		return true;
 	}
 
@@ -461,15 +476,18 @@ bool Renderer::_UpdateColorInfo() noexcept {
 			DXGI_OUTPUT_DESC1 desc;
 			if (SUCCEEDED(output.try_as<IDXGIOutput6>()->GetDesc1(&desc))) {
 				if (desc.Monitor == _hCurMonitor) {
-					// DXGI 将 WCG 视为 SDR
+					// Win11 22H2 前只考虑 SDR 和 HDR，系统支持“自动色彩管理”时才激活 WCG
 					if (desc.ColorSpace == DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020) {
 						_colorInfo.kind = winrt::AdvancedColorKind::HighDynamicRange;
+						_colorInfo.minLuminance = desc.MinLuminance / SCENE_REFERRED_SDR_WHITE_LEVEL;
 						_colorInfo.maxLuminance = desc.MaxLuminance / SCENE_REFERRED_SDR_WHITE_LEVEL;
 						_colorInfo.sdrWhiteLevel = GetSDRWhiteLevel(desc.DeviceName);
+						_colorInfo.redPrimary = { desc.RedPrimary[0], desc.RedPrimary[1] };
+						_colorInfo.greenPrimary = { desc.GreenPrimary[0], desc.GreenPrimary[1] };
+						_colorInfo.bluePrimary = { desc.BluePrimary[0], desc.BluePrimary[1] };
+						_colorInfo.whitePoint = { desc.WhitePoint[0], desc.WhitePoint[1] };
 					} else {
-						_colorInfo.kind = winrt::AdvancedColorKind::StandardDynamicRange;
-						_colorInfo.maxLuminance = 1.0f;
-						_colorInfo.sdrWhiteLevel = 1.0f;
+						_colorInfo = {};
 					}
 
 					return true;
@@ -479,9 +497,7 @@ bool Renderer::_UpdateColorInfo() noexcept {
 	}
 
 	// 未找到视为 SDR
-	_colorInfo.kind = winrt::AdvancedColorKind::StandardDynamicRange;
-	_colorInfo.maxLuminance = 1.0f;
-	_colorInfo.sdrWhiteLevel = 1.0f;
+	_colorInfo = {};
 	return true;
 }
 
@@ -597,7 +613,7 @@ HRESULT Renderer::_RenderImpl(HCURSOR hCursor, POINT cursorPos, bool waitForGpu)
 	_graphicsContext.Draw(3);
 
 	_overlayDrawer.Draw(_graphicsContext, hCursor, cursorPos,
-		_frameProducer.GetFPS(), frameFenceValue, completedFenceValue);
+		_frameProducer.GetFPS(), completedFenceValue, frameFenceValue);
 
 	// 为了和 OS 保持一致，SDR 下绘制光标时在 sRGB 空间中混合
 	if (_colorInfo.kind == winrt::AdvancedColorKind::StandardDynamicRange) {
@@ -605,7 +621,7 @@ HRESULT Renderer::_RenderImpl(HCURSOR hCursor, POINT cursorPos, bool waitForGpu)
 	}
 
 	HRESULT hr = _cursorDrawer.Draw(
-		_graphicsContext, frameFenceValue, completedFenceValue, curFrameSrvOffset, nullptr);
+		_graphicsContext, completedFenceValue, frameFenceValue, curFrameSrvOffset, nullptr);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CursorDrawer::Draw 失败", hr);
 		return hr;
@@ -645,8 +661,12 @@ HRESULT Renderer::_RenderImpl(HCURSOR hCursor, POINT cursorPos, bool waitForGpu)
 }
 
 void Renderer::_UpdateOutputRect(SizeU outputSize) noexcept {
-	// TODO: 窗口模式缩放始终填充画面
 	const SizeU rendererSize = _presenter->GetSize();
+	if (rendererSize == outputSize) {
+		_outputRect = { 0,0,outputSize.width,outputSize.height };
+		return;
+	}
+
 	OutputAlignment alignment = ScalingWindow::Get().Options().outputAlignment;
 
 	using enum OutputAlignment;

@@ -3,6 +3,7 @@
 #include "CommonSharedConstants.h"
 #include "DuplicateFrameChecker.h"
 #include "DescriptorHeap.h"
+#include "EffectDrawerBase.h"
 #include "GraphicsCaptureFrameSource.h"
 #include "Logger.h"
 #include "ScalingWindow.h"
@@ -15,7 +16,7 @@ FrameProducer::~FrameProducer() noexcept {
 		const HANDLE hThread = _producerThread.native_handle();
 
 		if (!wil::handle_wait(hThread, 0)) {
-			const DWORD threadId = GetThreadId(_producerThread.native_handle());
+			const DWORD threadId = _producerThreadId.load(std::memory_order_relaxed);
 
 			while (true) {
 				// 持续尝试直到 _producerThread 创建了消息队列
@@ -29,14 +30,6 @@ FrameProducer::~FrameProducer() noexcept {
 
 		_producerThread.join();
 	}
-
-#ifdef _DEBUG
-	if (_inputSrvBaseOffset != std::numeric_limits<uint32_t>::max()) {
-		auto& descriptorHeap = _d3d12Context.GetDescriptorHeap();
-		uint32_t maxInFlightFrameCount = ScalingWindow::Get().Options().maxProducerInFlightFrames;
-		descriptorHeap.Free(_inputSrvBaseOffset, 3 * maxInFlightFrameCount + 2);
-	}
-#endif
 }
 
 void FrameProducer::InitializeAsync(
@@ -66,8 +59,12 @@ ComponentState FrameProducer::GetState() const noexcept {
 	return _state.load(std::memory_order_relaxed);
 }
 
-uint64_t FrameProducer::GetLatestFrameNumber() const noexcept {
-	return _frameRingBuffer.GetLatestFrameNumber();
+void FrameProducer::ExportAsync(int effectIdx, int passIdx, uint32_t outputIdx) noexcept {
+	_effectsDrawer->ExportAsync(effectIdx, passIdx, outputIdx);
+}
+
+uint64_t FrameProducer::GetProduerCompletedFenceValue() const noexcept {
+	return _frameRingBuffer.GetProduerCompletedFenceValue();
 }
 
 uint32_t FrameProducer::GetFPS() const noexcept {
@@ -97,6 +94,13 @@ HRESULT FrameProducer::ConsumerEndFrame(
 	return _frameRingBuffer.ConsumerEndFrame(commandQueue, fenceValueToSignal);
 }
 
+void FrameProducer::RequestNewFrame() const noexcept {
+	assert(_producerThreadId.load(std::memory_order_relaxed));
+
+	PostThreadMessage(_producerThreadId.load(std::memory_order_relaxed),
+		CommonSharedConstants::WM_PRODUCER_RENDER, 0, 0);
+}
+
 void FrameProducer::OnResizedAsync(
 	SizeU rendererSize,
 	SizeU& outputSize,
@@ -120,7 +124,7 @@ void FrameProducer::OnResizedAsync(
 			return;
 		}
 
-		_effectsDrawer.OnResized(rendererSize, outputSize);
+		_effectsDrawer->OnResized(rendererSize, outputSize);
 
 		hr = _frameRingBuffer.OnResized(outputSize);
 		if (!_CheckResult(hr, "FrameRingBuffer::OnResized 失败")) {
@@ -170,7 +174,7 @@ void FrameProducer::OnColorInfoChangedAsync(
 			return;
 		}
 
-		_effectsDrawer.OnColorInfoChanged(colorInfo);
+		_effectsDrawer->OnColorInfoChanged(colorInfo);
 
 		hr = _frameRingBuffer.OnColorInfoChanged(colorInfo);
 		if (!_CheckResult(hr, "FrameRingBuffer::OnColorInfoChanged 失败")) {
@@ -219,6 +223,7 @@ void FrameProducer::OnSystemCursorVisibilityChanged(bool isVisible, bool onDesto
 	});
 }
 
+// colorInfo 确保在初始化完成前有效，可以传递引用
 void FrameProducer::_ProducerThreadProc(
 	const ColorInfo& colorInfo,
 	HMONITOR hMonSrc,
@@ -231,8 +236,10 @@ void FrameProducer::_ProducerThreadProc(
 	SetThreadDescription(GetCurrentThread(), L"Magpie-缩放生产者线程");
 #endif
 
+	_producerThreadId.store(GetCurrentThreadId(), std::memory_order_relaxed);
+
 	if (_Initialize(colorInfo, hMonSrc, srcRect, rendererSize, outputSize)) {
-		// 同步 outputSize
+		// 同步 _producerThreadId 和 outputSize
 		initializeTask.SetResult(true, std::memory_order_release);
 	} else {
 		Logger::Get().Error("_Initialize 失败");
@@ -254,14 +261,16 @@ void FrameProducer::_ProducerThreadProc(
 		);
 
 		if (fpsUpdated) {
-			// FPS 变化时要求前端重新渲染以更新叠加层
-			PostMessage(ScalingWindow::Get().Handle(),
-				CommonSharedConstants::WM_FRONTEND_RENDER, 0, 0);
+			// FPS 变化时要求消费者重新渲染以更新叠加层
+			ScalingWindow::Get().RequestNewFrame();
 		}
 
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 			if (msg.message == WM_QUIT) {
 				break;
+			} else if (msg.message == CommonSharedConstants::WM_PRODUCER_RENDER) {
+				stepTimerStatus = StepTimerStatus::ForceNewFrame;
+				continue;
 			}
 
 			DispatchMessage(&msg);
@@ -294,28 +303,21 @@ void FrameProducer::_ProducerThreadProc(
 		}
 	}
 
+	_monitorThreadExitEvent.SetEvent();
+
 	_d3d12Context.WaitForGpu();
-	// 必须在创建线程释放
+	_effectsDrawer.reset();
 	_frameSource.reset();
 
-	if (_monitorThread.joinable()) {
-		const HANDLE hThread = _monitorThread.native_handle();
+	_monitorThread.join();
 
-		if (!wil::handle_wait(hThread, 0)) {
-			const DWORD threadId = GetThreadId(_monitorThread.native_handle());
-
-			while (true) {
-				// 持续尝试直到创建了消息队列
-				PostThreadMessage(threadId, WM_QUIT, 0, 0);
-
-				if (wil::handle_wait(hThread, 1)) {
-					break;
-				}
-			}
-		}
-
-		_monitorThread.join();
+#ifdef _DEBUG
+	if (_inputSrvBaseOffset != std::numeric_limits<uint32_t>::max()) {
+		auto& descriptorHeap = _d3d12Context.GetDescriptorHeap();
+		uint32_t maxInFlightFrameCount = ScalingWindow::Get().Options().maxProducerInFlightFrames;
+		descriptorHeap.Free(_inputSrvBaseOffset, 3 * maxInFlightFrameCount + 2);
 	}
+#endif
 }
 
 bool FrameProducer::_Initialize(
@@ -373,7 +375,10 @@ bool FrameProducer::_Initialize(
 			uint32_t(srcRect.bottom - srcRect.top)
 		};
 
-		if (!_effectsDrawer.Initialize(_d3d12Context, colorInfo, inputSize, rendererSize, outputSize)) {
+		_effectsDrawer.emplace();
+		if (!_effectsDrawer->Initialize(_d3d12Context, _dispatcher,
+			colorInfo, inputSize, rendererSize, outputSize))
+		{
 			Logger::Get().Error("EffectsDrawer::Initialize 失败");
 			return false;
 		}
@@ -403,6 +408,11 @@ bool FrameProducer::_Initialize(
 		_CreateOutputDescriptors();
 	}
 
+	if (!_monitorThreadExitEvent.try_create(wil::EventOptions::None, nullptr)) {
+		Logger::Get().Win32Error("创建事件失败");
+		return false;
+	}
+
 	_monitorThread = std::thread(&FrameProducer::_MonitorThreadProc, this);
 
 	if (options.IsBenchmarkMode()) {
@@ -417,6 +427,9 @@ bool FrameProducer::_Initialize(
 		Logger::Get().Error("GraphicsCaptureFrameSource::Start 失败");
 		return false;
 	}
+
+	// 等待 _monitorThread 初始化完成
+	_isMonitorThreadInitialized.wait(false);
 
 	return true;
 }
@@ -474,7 +487,10 @@ HRESULT FrameProducer::_Render() noexcept {
 	ID3D12CommandQueue* commandQueue = _d3d12Context.GetCommandQueue();
 
 	uint32_t frameRingBufferIdx;
-	hr = _frameRingBuffer.ProducerBeginFrame(commandQueue, frameRingBufferIdx);
+	uint64_t completedFenceValue;
+	uint64_t frameFenceValue;
+	hr = _frameRingBuffer.ProducerBeginFrame(
+		commandQueue, frameRingBufferIdx, completedFenceValue, frameFenceValue);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("FrameRingBuffer::ProducerBeginFrame 失败", hr);
 		return hr;
@@ -494,30 +510,20 @@ HRESULT FrameProducer::_Render() noexcept {
 	ID3D12Resource* inputResource = _frameSource->GetOutput(frameSourceOutputIdx);
 	ID3D12Resource* outputResource = _frameRingBuffer.GetBuffer(frameRingBufferIdx);
 
-	_computeContext.InsertTransitionBarrier(
-		outputResource,
-		D3D12_RESOURCE_STATE_COMMON,
-		D3D12_RESOURCE_STATE_UNORDERED_ACCESS
-	);
-
-	hr = _effectsDrawer.Draw(
+	hr = _effectsDrawer->Draw(
 		_computeContext,
 		frameIndex,
 		inputResource,
 		outputResource,
 		_inputSrvBaseOffset + frameSourceOutputIdx,
-		_outputUavBaseOffset + frameRingBufferIdx
+		_outputUavBaseOffset + frameRingBufferIdx,
+		completedFenceValue,
+		frameFenceValue
 	);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("EffectsDrawer::Draw 失败", hr);
 		return hr;
 	}
-
-	_computeContext.InsertTransitionBarrier(
-		outputResource,
-		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-		D3D12_RESOURCE_STATE_COMMON
-	);
 
 	_computeContext.Execute(commandQueue);
 
@@ -537,42 +543,49 @@ HRESULT FrameProducer::_Render() noexcept {
 }
 
 void FrameProducer::_MonitorThreadProc() noexcept {
-	wil::unique_event_nothrow event;
-	if (!event.try_create(wil::EventOptions::None, nullptr)) {
-		Logger::Get().Win32Error("创建事件失败");
-		return;
-	}
+	wil::unique_event_nothrow newFrameEvent;
+	uint64_t producerFenceValue = 1;
 
-	uint64_t frameNumber = 1;
+	{
+		auto se = wil::scope_exit([this] {
+			_isMonitorThreadInitialized.store(true, std::memory_order_relaxed);
+			_isMonitorThreadInitialized.notify_one();
+		});
 
-	// 绑定新帧渲染完成时触发的事件
-	HRESULT hr = _frameRingBuffer.SetEventOnNewFrame(frameNumber, event.get());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("FrameRingBuffer::SetEventOnNewFrame 失败", hr);
-		return;
-	}
-
-	MSG msg;
-	while (true) {
-		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-			if (msg.message == WM_QUIT) {
-				return;
-			}
-
-			DispatchMessage(&msg);
+		if (!newFrameEvent.try_create(wil::EventOptions::None, nullptr)) {
+			Logger::Get().Win32Error("创建事件失败");
+			return;
 		}
 
-		// 有新帧可用时返回 WAIT_OBJECT_0，有新消息时返回 WAIT_OBJECT_0 + 1
-		HANDLE hEvent = event.get();
-		if (MsgWaitForMultipleObjectsEx(1, &hEvent, INFINITE, QS_ALLINPUT, MWMO_INPUTAVAILABLE) == WAIT_OBJECT_0) {
-			// 通知消费者渲染
-			PostMessage(ScalingWindow::Get().Handle(), CommonSharedConstants::WM_FRONTEND_RENDER, 0, 0);
+		// 绑定新帧渲染完成时触发的事件
+		HRESULT hr = _frameRingBuffer.SetEventOnNewFrame(producerFenceValue, newFrameEvent.get());
+		if (FAILED(hr)) {
+			Logger::Get().ComError("FrameRingBuffer::SetEventOnNewFrame 失败", hr);
+			return;
+		}
+	}
+	
+	while (true) {
+		// 有新帧可用时返回 WAIT_OBJECT_0，需退出时返回 WAIT_OBJECT_0 + 1
+		HANDLE events[] = { newFrameEvent.get(), _monitorThreadExitEvent.get() };
+		
+		if (WaitForMultipleObjects((DWORD)std::size(events), events, FALSE, INFINITE) != WAIT_OBJECT_0) {
+			return;
+		}
 
-			hr = _frameRingBuffer.SetEventOnNewFrame(frameNumber, event.get());
-			if (FAILED(hr)) {
-				Logger::Get().ComError("FrameRingBuffer::SetEventOnNewFrame 失败", hr);
-				return;
+		// 通知消费者渲染
+		ScalingWindow::Get().RequestNewFrame();
+
+		_dispatcher.TryEnqueue([this, runId(ScalingWindow::RunId())] {
+			if (runId == ScalingWindow::RunId()) {
+				_effectsDrawer->OnProducerFrameCompleted(_frameRingBuffer.GetProduerCompletedFenceValue());
 			}
+		});
+		
+		HRESULT hr = _frameRingBuffer.SetEventOnNewFrame(producerFenceValue, newFrameEvent.get());
+		if (FAILED(hr)) {
+			Logger::Get().ComError("FrameRingBuffer::SetEventOnNewFrame 失败", hr);
+			return;
 		}
 	}
 }

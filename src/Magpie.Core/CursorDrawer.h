@@ -31,8 +31,8 @@ public:
 	// backBuffer 不为空表示掩码光标在叠加层上
 	HRESULT Draw(
 		GraphicsContext& graphicsContext,
-		uint64_t frameFenceValue,
 		uint64_t completedFenceValue,
+		uint64_t frameFenceValue,
 		uint32_t curFrameSrvOffset,
 		ID3D12Resource* backBuffer = nullptr
 	) noexcept;
@@ -180,7 +180,9 @@ private:
 	SizeU _srcSize{};
 	RECT _rendererRect{};
 	RECT _destRect{};
-	ColorInfo _colorInfo;
+
+	winrt::AdvancedColorKind _acKind = winrt::AdvancedColorKind::StandardDynamicRange;
+	float _sdrWhiteLevel = 1.0f;
 
 	// 监控“指针大小”选项变化
 	wil::unique_registry_watcher_nothrow _regWatcher;

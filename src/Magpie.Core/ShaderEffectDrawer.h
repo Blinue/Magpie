@@ -17,12 +17,13 @@ public:
 
 	void Bind(SizeU inputSize, SizeU outputSize, const ColorInfo& colorInfo) noexcept override;
 
-	HRESULT Update(EffectDrawerState& state, std::string& message) noexcept override;
+	HRESULT Update(EffectDrawerState& state, EffectDebugInfo& debugInfo) noexcept override;
 
 	HRESULT Draw(
 		ComputeContext& computeContext,
 		uint32_t inputSrvOffset,
-		uint32_t outputUavOffset
+		uint32_t outputUavOffset,
+		EffectDrawerExportData& exportData
 	) noexcept override;
 
 private:
@@ -38,10 +39,13 @@ private:
 
 	SizeU _inputSize{};
 	SizeU _outputSize{};
-	ColorInfo _colorInfo;
+
+	winrt::AdvancedColorKind _acKind = winrt::AdvancedColorKind::StandardDynamicRange;
+	float _maxLuminance = 1.0f;
+	float _sdrWhiteLevel = 1.0f;
+
 	std::string _compilationTaskId;
 	const ShaderEffectDrawInfo* _drawInfo = nullptr;
-	std::string _errorMsg;
 
 	struct _PassData {
 		winrt::com_ptr<ID3D12RootSignature> rootSignature;
@@ -72,6 +76,21 @@ private:
 	// 从 0 开始。虽然可以用额外字段区分 SRV 和 UAV，但这里想尽可能避免堆分配，因此 UAV
 	// 的索引都加上 _textures.size() 作为区分。
 	SmallVector<uint32_t> _textureDescriptorMap;
+
+	struct _UploadBuffer {
+		winrt::com_ptr<ID3D12Resource> buffer;
+		void* bufferData = nullptr;
+		uint32_t size = 0;
+		uint64_t fenceValue = 0;
+	};
+	SmallVector<_UploadBuffer> _uploadBuffers;
+
+	enum _Error {
+		NoError,
+		CompilationFailed,
+		InvalidTextureSize,
+		InvalidTextureSource
+	} _error = _Error::NoError;
 
 	bool _shouldUpdateSizeDependentResources = false;
 	bool _shouldUpdateConstantBuffer = false;

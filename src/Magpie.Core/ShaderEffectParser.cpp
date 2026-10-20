@@ -845,13 +845,13 @@ static bool ResolveTextureFormat(
 	}
 
 	static const auto formatMap = [] {
-		phmap::flat_hash_map<std::string, ShaderEffectTextureFormat> result;
+		phmap::flat_hash_map<std::string, EffectTextureFormat> result;
 
 		// UNKNOWN 不可用
-		constexpr size_t formatCount = std::size(SHADER_TEXTURE_FORMAT_PROPS) - 1;
+		constexpr size_t formatCount = std::size(EFFECT_TEXTURE_FORMAT_PROPS) - 1;
 		result.reserve(formatCount);
-		for (size_t i = 1; i < std::size(SHADER_TEXTURE_FORMAT_PROPS); ++i) {
-			result.emplace(SHADER_TEXTURE_FORMAT_PROPS[i].name, (ShaderEffectTextureFormat)i);
+		for (size_t i = 1; i < std::size(EFFECT_TEXTURE_FORMAT_PROPS); ++i) {
+			result.emplace(EFFECT_TEXTURE_FORMAT_PROPS[i].name, (EffectTextureFormat)i);
 		}
 		return result;
 	}();
@@ -908,7 +908,7 @@ static bool ResolveTextureBlock(
 	if (token == "INPUT" || token == "OUTPUT") {
 		// INPUT 和 OUTPUT 不允许有属性
 		if (!desc.widthExpr.empty() || !desc.heightExpr.empty() ||
-			desc.format != ShaderEffectTextureFormat::UNKNOWN || !desc.source.empty())
+			desc.format != EffectTextureFormat::UNKNOWN || !desc.source.empty())
 		{
 			state.errorMsg = "INPUT 和 OUTPUT 不允许有属性";
 			return false;
@@ -916,7 +916,7 @@ static bool ResolveTextureBlock(
 	} else {
 		desc.name = token;
 
-		if (desc.format == ShaderEffectTextureFormat::UNKNOWN) {
+		if (desc.format == EffectTextureFormat::UNKNOWN) {
 			state.errorMsg = "缺少 FORMAT 属性";
 			return false;
 		}
@@ -940,16 +940,16 @@ static bool ResolveTextureBlock(
 			}
 
 			// SOURCE 和 COLOR_SPACE_ADAPTIVE 格式冲突
-			if (desc.format == ShaderEffectTextureFormat::COLOR_SPACE_ADAPTIVE) {
+			if (desc.format == EffectTextureFormat::COLOR_SPACE_ADAPTIVE) {
 				state.errorMsg = "SOURCE 和 COLOR_SPACE_ADAPTIVE 格式冲突";
 				return false;
 			}
 
 			// 从图片加载纹理时格式存在限制
 			if (!desc.source.ends_with(".dds") &&
-				desc.format != ShaderEffectTextureFormat::R8G8B8A8_UNORM &&
-				desc.format != ShaderEffectTextureFormat::R16G16B16A16_FLOAT &&
-				desc.format != ShaderEffectTextureFormat::R32G32B32A32_FLOAT)
+				desc.format != EffectTextureFormat::R8G8B8A8_UNORM &&
+				desc.format != EffectTextureFormat::R16G16B16A16_FLOAT &&
+				desc.format != EffectTextureFormat::R32G32B32A32_FLOAT)
 			{
 				state.errorMsg = "从图片加载纹理时格式只支持 R8G8B8A8_UNORM、R16G16B16A16_FLOAT 和 R32G32B32A32_FLOAT";
 				return false;
@@ -1547,9 +1547,9 @@ static std::string_view GetTextureTexelType(
 	if (outputTextureIdx <= 1) {
 		return "MF4";
 	} else {
-		ShaderEffectTextureFormat format =
+		EffectTextureFormat format =
 			drawInfo.textures[size_t(outputTextureIdx - 2)].format;
-		return SHADER_TEXTURE_FORMAT_PROPS[(uint32_t)format].texelType;
+		return EFFECT_TEXTURE_FORMAT_PROPS[(uint32_t)format].texelType;
 	}
 }
 
@@ -1735,7 +1735,7 @@ static void GenerateShaderSources(
 				source.append("Texture2D<MF4> INPUT : register(t0);\n");
 			} else {
 				const ShaderEffectTextureDesc& texDesc = drawInfo.textures[size_t(curInput - 2)];
-				const char* texelType = SHADER_TEXTURE_FORMAT_PROPS[(uint32_t)texDesc.format].texelType;
+				const char* texelType = EFFECT_TEXTURE_FORMAT_PROPS[(uint32_t)texDesc.format].texelType;
 				source.append(fmt::format("Texture2D<{}> {} : register(t{});\n", texelType, texDesc.name, i));
 			}
 		}
@@ -1750,7 +1750,7 @@ static void GenerateShaderSources(
 				source.append(fmt::format("RWTexture2D<MF4> OUTPUT : register(u0);\n"));
 			} else {
 				const ShaderEffectTextureDesc& texDesc = drawInfo.textures[size_t(curOutput - 2)];
-				const char* texelType = SHADER_TEXTURE_FORMAT_PROPS[(uint32_t)texDesc.format].uavTexelType;
+				const char* texelType = EFFECT_TEXTURE_FORMAT_PROPS[(uint32_t)texDesc.format].uavTexelType;
 				source.append(fmt::format("RWTexture2D<{}> {} : register(u{});\n", texelType, texDesc.name, i));
 			}
 		}

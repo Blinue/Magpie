@@ -19,7 +19,8 @@ public:
 		D3D12Context& d3d12Context,
 		const RECT& rendererRect,
 		const RECT& destRect,
-		const ColorInfo& colorInfo
+		winrt::AdvancedColorKind acKind,
+		float sdrWhiteLevel
 	) noexcept;
 
 	void PrepareNewFrame(

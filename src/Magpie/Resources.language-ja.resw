@@ -916,12 +916,6 @@
   <data name="Message_ScreenshotSaved" xml:space="preserve">
     <value>スクリーンショットを保存 {}</value>
   </data>
-  <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
-    <value>右クリックで中間結果を出力</value>
-  </data>
-  <data name="Overlay_Toolbar_TakeScreenshot_PopupTitle" xml:space="preserve">
-    <value>中間結果を出力</value>
-  </data>
   <data name="Profile_WindowedScaling.Header" xml:space="preserve">
     <value>ウィンドウ・スケーリング</value>
   </data>

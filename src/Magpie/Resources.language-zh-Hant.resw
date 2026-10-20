@@ -919,12 +919,6 @@
   <data name="Message_ScreenshotSaved" xml:space="preserve">
     <value>已儲存截圖 {}</value>
   </data>
-  <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
-    <value>右鍵以匯出中間結果</value>
-  </data>
-  <data name="Overlay_Toolbar_TakeScreenshot_PopupTitle" xml:space="preserve">
-    <value>匯出中間結果</value>
-  </data>
   <data name="Profile_WindowedScaling.Header" xml:space="preserve">
     <value>視窗模式縮放</value>
   </data>

@@ -82,9 +82,6 @@
     <ClInclude Include="EffectDrawerBase.h">
       <Filter>EffectDrawer</Filter>
     </ClInclude>
-    <ClInclude Include="CatmullRomDrawer.h">
-      <Filter>EffectDrawer</Filter>
-    </ClInclude>
     <ClInclude Include="DuplicateFrameChecker.h">
       <Filter>Capture</Filter>
     </ClInclude>
@@ -125,7 +122,6 @@
     <ClInclude Include="Renderer.h">
       <Filter>Render</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderEffectDrawInfo.h" />
     <ClInclude Include="TextureHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
@@ -159,6 +155,21 @@
     <ClInclude Include="LruMemoryCache.h" />
     <ClInclude Include="OverlayHelper.h">
       <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectTextureFormat.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="include\resource.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderEffectDrawInfo.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="MemStream.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="CatmullRomDrawer.h">
+      <Filter>Render</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -198,9 +209,6 @@
     <ClCompile Include="FrameRingBuffer.cpp">
       <Filter>Render</Filter>
     </ClCompile>
-    <ClCompile Include="CatmullRomDrawer.cpp">
-      <Filter>EffectDrawer</Filter>
-    </ClCompile>
     <ClCompile Include="DuplicateFrameChecker.cpp">
       <Filter>Capture</Filter>
     </ClCompile>
@@ -235,7 +243,6 @@
     <ClCompile Include="TextureHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
-    <ClCompile Include="WICImageLoader.cpp" />
     <ClCompile Include="AppFolderManager.cpp" />
     <ClCompile Include="OverlayDrawer.cpp">
       <Filter>Render</Filter>
@@ -254,6 +261,12 @@
     </ClCompile>
     <ClCompile Include="AppXReader.cpp">
       <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="WICImageLoader.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="CatmullRomDrawer.cpp">
+      <Filter>Render</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -297,6 +310,15 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="shaders\ImGuiPS_HDR.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\ScreenshotCS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\ScreenshotCS_HDR.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\ScreenshotCS_WCG.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

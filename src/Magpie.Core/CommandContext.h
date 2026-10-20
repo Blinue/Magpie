@@ -59,6 +59,8 @@ public:
 		D3D12_RESOURCE_STATES stateBefore,
 		D3D12_RESOURCE_STATES stateAfter
 	) noexcept {
+		assert(resource && stateBefore != stateAfter);
+
 #ifdef _DEBUG
 		// 检查是否存在冗余的状态转换
 		auto it = std::find_if(

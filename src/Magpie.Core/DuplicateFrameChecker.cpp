@@ -26,7 +26,6 @@ DuplicateFrameChecker::DuplicateFrameChecker() noexcept :
 bool DuplicateFrameChecker::Initialize(
 	ID3D11Device5* d3d11Device,
 	ID3D11DeviceContext4* d3d11DC,
-	const ColorInfo& colorInfo,
 	SizeU frameSize,
 	uint32_t captureFrameCount,
 	bool disableBoundsChecking
@@ -36,7 +35,6 @@ bool DuplicateFrameChecker::Initialize(
 
 	_device = d3d11Device;
 	_deviceContext = d3d11DC;
-	_isScRGB = colorInfo.kind != winrt::AdvancedColorKind::StandardDynamicRange;
 	_frameSize = frameSize;
 #ifdef _DEBUG
 	_isBoundsCheckingDisabled = disableBoundsChecking;

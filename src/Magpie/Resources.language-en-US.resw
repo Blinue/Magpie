@@ -940,12 +940,6 @@
   <data name="Message_ScreenshotFailed_InternalError" xml:space="preserve">
     <value>An internal error occurred. Please refer to the logs for more details.</value>
   </data>
-  <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
-    <value>Right-click to export intermediate result</value>
-  </data>
-  <data name="Overlay_Toolbar_TakeScreenshot_PopupTitle" xml:space="preserve">
-    <value>Export intermediate result</value>
-  </data>
   <data name="Profile_WindowedScaling.Header" xml:space="preserve">
     <value>Windowed scaling</value>
   </data>
