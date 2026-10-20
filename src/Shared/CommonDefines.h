@@ -53,4 +53,39 @@ uint32_t Measure(const Fn& func) noexcept {
 	return (uint32_t)dura.count();
 }
 
+struct SizeU {
+	uint32_t width;
+	uint32_t height;
+
+	bool operator==(const SizeU&) const noexcept = default;
+
+	explicit operator SIZE() const noexcept {
+		return { (LONG)width,(LONG)height };
+	}
+};
+
+struct PointU {
+	uint32_t x;
+	uint32_t y;
+
+	bool operator==(const PointU&) const noexcept = default;
+
+	explicit operator POINT() const noexcept {
+		return { (LONG)x,(LONG)y };
+	}
+};
+
+struct RectU {
+	uint32_t left;
+	uint32_t top;
+	uint32_t right;
+	uint32_t bottom;
+
+	bool operator==(const RectU& other) const = default;
+
+	explicit operator RECT() const noexcept {
+		return { (LONG)left,(LONG)top,(LONG)right,(LONG)bottom };
+	}
+};
+
 }

@@ -4,6 +4,7 @@
 #include "SettingsViewModel.g.cpp"
 #endif
 #include "App.h"
+#include "AppFolderManager.h"
 #include "AppSettings.h"
 #include "AutoStartHelper.h"
 #include "CommonSharedConstants.h"
@@ -102,23 +103,20 @@ void SettingsViewModel::IsRunAtStartup(bool value) {
 }
 
 bool SettingsViewModel::IsPortableMode() const noexcept {
-	return AppSettings::Get().IsPortableMode();
+	return AppFolderManager::Get().IsPortableMode();
 }
 
-void SettingsViewModel::IsPortableMode(bool value) {
-	AppSettings& settings = AppSettings::Get();
-
-	if (settings.IsPortableMode() == value) {
-		return;
-	}
-
-	settings.IsPortableMode(value);
+void SettingsViewModel::IsPortableMode(bool /*value*/) {
+	// TODO
 	RaisePropertyChanged(L"IsPortableMode");
 }
 
 fire_and_forget SettingsViewModel::OpenConfigLocation() const noexcept {
-	std::filesystem::path configPath =
-		AppSettings::Get().ConfigDir() / CommonSharedConstants::CONFIG_FILENAME;
+	// OpenFolderAndSelectFile 需要绝对路径
+	std::wstring configPath = StrHelper::Concat(
+		AppFolderManager::Get().GetWorkingDir().native(), L"\\",
+		AppFolderManager::Get().GetConfigDir(), L"\\", CommonSharedConstants::CONFIG_FILENAME);
+
 	co_await resume_background();
 	Win32Helper::OpenFolderAndSelectFile(configPath.c_str());
 }

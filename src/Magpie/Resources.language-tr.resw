@@ -513,9 +513,6 @@
   <data name="Profile_Cursor_DrawCursor_Interpolation.Header" xml:space="preserve">
     <value>İnterpolasyon algoritması</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
-    <value>Çift doğrusal</value>
-  </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
     <value>En yakın</value>
   </data>
@@ -733,9 +730,6 @@
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
     <value>Asla</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
-    <value>Dinamik algılama için istatistikleri etkinleştir</value>
-  </data>
   <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
     <value>Dinamik algılama</value>
   </data>
@@ -924,12 +918,6 @@
   </data>
   <data name="Message_ScreenshotSaved" xml:space="preserve">
     <value>Ekran görüntüsü {} olarak kaydedildi</value>
-  </data>
-  <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
-    <value>Ara sonucu dışa aktarmak için sağ tıklayın</value>
-  </data>
-  <data name="Overlay_Toolbar_TakeScreenshot_PopupTitle" xml:space="preserve">
-    <value>Ara sonucu dışa aktar</value>
   </data>
   <data name="Profile_WindowedScaling.Header" xml:space="preserve">
     <value>Pencereli ölçeklendirme</value>

@@ -18,23 +18,19 @@ struct CommonSharedConstants {
 	static constexpr const wchar_t* TOUCH_HELPER_HOLE_WINDOW_CLASS_NAME = L"Magpie_TouchHelperHole";
 	static constexpr const wchar_t* TOAST_WINDOW_CLASS_NAME = L"Magpie_Toast";
 
-	static constexpr const wchar_t* LOGS_DIR = L"logs";
-	static constexpr const wchar_t* LOG_PATH = L"logs\\magpie.log";
-	static constexpr const wchar_t* REGISTER_TOUCH_HELPER_LOG_PATH = L"logs\\register_touch_helper.log";
+	static constexpr const wchar_t* LOG_NAME = L"magpie.log";
+	static constexpr const wchar_t* REGISTER_TOUCH_HELPER_LOG_NAME = L"register_touch_helper.log";
 	static constexpr const wchar_t* TOUCH_HELPER_LOG_NAME = L"magpie_touch_helper.log";
 	static constexpr const wchar_t* UPDATER_LOG_NAME = L"magpie_updater.log";
 
-	static constexpr const wchar_t* CONFIG_DIR = L"config";
 	static constexpr const wchar_t* CONFIG_FILENAME = L"config.json";
-	static constexpr const wchar_t* SOURCES_DIR = L"sources";
-	static constexpr const wchar_t* EFFECTS_DIR = L"effects";
-	static constexpr const wchar_t* CACHE_DIR = L"cache";
 	static constexpr const wchar_t* UPDATE_DIR = L"update";
 
 	static constexpr const wchar_t* OPTION_LAUNCH_WITHOUT_WINDOW = L"-t";
 
 	static constexpr UINT WM_NOTIFY_ICON = WM_USER;
-	static constexpr UINT WM_FRONTEND_RENDER = WM_USER + 1;
+	static constexpr UINT WM_PRODUCER_RENDER = WM_USER + 1;
+	static constexpr UINT WM_CONSUMER_RENDER = WM_USER + 2;
 
 	static constexpr const wchar_t* WM_MAGPIE_SHOWME = L"WM_MAGPIE_SHOWME";
 	static constexpr const wchar_t* WM_MAGPIE_QUIT = L"WM_MAGPIE_QUIT";

@@ -1325,13 +1325,13 @@ namespace std {
 
 /// Implement std::swap in terms of SmallVector swap.
 template <typename T>
-inline void swap(::Magpie::SmallVectorImpl<T>& LHS, ::Magpie::SmallVectorImpl<T>& RHS) {
+inline void swap(::Magpie::SmallVectorImpl<T>& LHS, ::Magpie::SmallVectorImpl<T>& RHS) noexcept {
 	LHS.swap(RHS);
 }
 
 /// Implement std::swap in terms of SmallVector swap.
 template <typename T, unsigned N>
-inline void swap(::Magpie::SmallVector<T, N>& LHS, ::Magpie::SmallVector<T, N>& RHS) {
+inline void swap(::Magpie::SmallVector<T, N>& LHS, ::Magpie::SmallVector<T, N>& RHS) noexcept {
 	LHS.swap(RHS);
 }
 

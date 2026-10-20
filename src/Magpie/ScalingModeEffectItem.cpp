@@ -26,7 +26,7 @@ ScalingModeEffectItem::ScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t e
 {
 	EffectItem& data = _Data();
 
-	_effectInfo = EffectsService::Get().GetEffect(data.name);
+	_effectInfo = EffectsService::Get().GetEffect(StrHelper::UTF16ToUTF8(data.name));
 
 	if (_effectInfo) {
 		_name = EffectHelper::GetDisplayName(data.name);
@@ -71,7 +71,7 @@ bool ScalingModeEffectItem::CanScale() const noexcept {
 		return false;
 	}
 
-	return _effectInfo && _effectInfo->CanScale();
+	return _effectInfo && _effectInfo->scaleFactor == 0;
 }
 
 bool ScalingModeEffectItem::HasParameters() const noexcept {

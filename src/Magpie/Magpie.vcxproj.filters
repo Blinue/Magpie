@@ -31,9 +31,6 @@
     <ClCompile Include="AutoStartHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
-    <ClCompile Include="EffectsService.cpp">
-      <Filter>Services</Filter>
-    </ClCompile>
     <ClCompile Include="ScalingModesService.cpp">
       <Filter>Services</Filter>
     </ClCompile>
@@ -113,9 +110,6 @@
     <ClInclude Include="ScalingMode.h">
       <Filter>Models</Filter>
     </ClInclude>
-    <ClInclude Include="EffectsService.h">
-      <Filter>Services</Filter>
-    </ClInclude>
     <ClInclude Include="ScalingModesService.h">
       <Filter>Services</Filter>
     </ClInclude>
@@ -149,9 +143,6 @@
     </ClInclude>
     <ClInclude Include="XamlHelper.h">
       <Filter>Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Resources</Filter>
     </ClInclude>
     <ClInclude Include="AdaptersService.h">
       <Filter>Services</Filter>
@@ -285,6 +276,9 @@
     <None Include="BoolToObjectConverter.idl">
       <Filter>Converters</Filter>
     </None>
+    <None Include="res\BT2020_G24.icc">
+      <Filter>Resources</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="HomePage.xaml">
@@ -417,7 +411,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Magpie.ico">
+    <Image Include="res\Magpie.ico">
       <Filter>Resources</Filter>
     </Image>
   </ItemGroup>

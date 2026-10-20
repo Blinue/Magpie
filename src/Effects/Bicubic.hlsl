@@ -2,7 +2,8 @@
 // 移植自 https://github.com/ActualMandM/cemu_graphic_packs/blob/468d165cf27dae13a06e8bdc3d588d0af775ad91/Filters/Bicubic/output.glsl
 
 //!MAGPIE EFFECT
-//!VERSION 4
+//!VERSION 5
+//!CAPABILITY AdvancedColor
 
 #include "StubDefs.hlsli"
 
@@ -73,7 +74,7 @@ float4 Pass1(float2 pos) {
 
 	float4 rowtaps = weight4(1 - f.x);
 	float4 coltaps = weight4(1 - f.y);
-	
+
 	float2 uv1 = pos1 * inputPt;
 	float2 uv0 = uv1 - inputPt;
 	float2 uv2 = uv1 + inputPt;
