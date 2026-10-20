@@ -70,7 +70,7 @@ private:
 	};
 	std::shared_ptr<_StopSource> _stopSource = std::make_shared<_StopSource>();
 	
-	std::atomic<bool> _initialized = false;
+	std::atomic<bool> _initialized;
 	bool _initializedCache = false;
 };
 

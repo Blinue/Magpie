@@ -23,7 +23,7 @@ public:
 	
 	std::variant<std::wstring, winrt::Windows::Graphics::Imaging::SoftwareBitmap> GetIcon(
 		uint32_t preferredSize,
-		bool isLightTheme,
+		bool isDarkTheme,
 		bool noPath = false
 	) noexcept;
 

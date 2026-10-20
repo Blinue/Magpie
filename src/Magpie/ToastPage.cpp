@@ -285,14 +285,14 @@ fire_and_forget ToastPage::ShowMessageOnWindow(std::wstring title, std::wstring 
 }
 
 void ToastPage::_UpdateTheme() {
-	const bool isLightTheme = App::Get().IsLightTheme();
+	const bool isDarkTheme = App::Get().IsDarkTheme();
 
-	if (IsLoaded() && (ActualTheme() == ElementTheme::Light) == isLightTheme) {
+	if (IsLoaded() && (ActualTheme() == ElementTheme::Dark) == isDarkTheme) {
 		// 无需切换
 		return;
 	}
 
-	ElementTheme newTheme = isLightTheme ? ElementTheme::Light : ElementTheme::Dark;
+	ElementTheme newTheme = isDarkTheme ? ElementTheme::Dark : ElementTheme::Light;
 	RequestedTheme(newTheme);
 
 	XamlHelper::UpdateThemeOfXamlPopups(XamlRoot(), newTheme);
