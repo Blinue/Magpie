@@ -341,8 +341,7 @@ HRESULT ImGuiBackend::_UpdateTexture(
 			)
 		);
 
-		gpuResourceManager.RetireResource(
-			std::move(uploadBufferAllocation), frameFenceValue, true);
+		gpuResourceManager.RetireResource(std::move(uploadBufferAllocation), true);
 
 		graphicsContext.InsertTransitionBarrier(
 			backendData.textureAllocation->GetResource(),

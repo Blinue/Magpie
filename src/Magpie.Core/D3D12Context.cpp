@@ -14,14 +14,14 @@ bool D3D12Context::Initialize(
 	uint32_t maxInFlightFrameCount,
 	D3D12_COMMAND_QUEUE_PRIORITY priority,
 	D3D12_COMMAND_LIST_TYPE commandListType,
-	GpuResourceManager& gpuResourceManager,
 	DescriptorHeap& csuDescriptorHeap,
 	DescriptorHeap& rtvDescriptorHeap,
+	GpuResourceManager& gpuResourceManager,
 	bool disableFrameFenceTracking
 ) noexcept {
-	_gpuResourceManager = &gpuResourceManager;
 	_csuDescriptorHeap = &csuDescriptorHeap;
 	_rtvDescriptorHeap = &rtvDescriptorHeap;
+	_gpuResourceManager = &gpuResourceManager;
 	
 	HRESULT hr = _CreateDXGIFactory();
 	if (FAILED(hr)) {
@@ -119,9 +119,9 @@ bool D3D12Context::Initialize(
 }
 
 void D3D12Context::CopyDevice(const D3D12Context& other) {
-	_gpuResourceManager = other._gpuResourceManager;
 	_csuDescriptorHeap = other._csuDescriptorHeap;
 	_rtvDescriptorHeap = other._rtvDescriptorHeap;
+	_gpuResourceManager = other._gpuResourceManager;
 	_device = other._device;
 	_shaderModel = other._shaderModel;
 	_rootSignatureVersion = other._rootSignatureVersion;

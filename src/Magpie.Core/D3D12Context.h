@@ -17,9 +17,9 @@ public:
 		uint32_t maxInFlightFrameCount,
 		D3D12_COMMAND_QUEUE_PRIORITY priority,
 		D3D12_COMMAND_LIST_TYPE commandListType,
-		GpuResourceManager& gpuResourceManager,
 		DescriptorHeap& csuDescriptorHeap,
 		DescriptorHeap& rtvDescriptorHeap,
+		GpuResourceManager& gpuResourceManager,
 		bool disableFrameFenceTracking = false
 	) noexcept;
 
@@ -32,12 +32,12 @@ public:
 		bool disableFrameTracking = false
 	) noexcept;
 
-	GpuResourceManager& GetGpuResourceManager() const noexcept {
-		return *_gpuResourceManager;
-	}
-
 	DescriptorHeap& GetDescriptorHeap(bool rtv = false) const noexcept {
 		return rtv ? *_rtvDescriptorHeap : *_csuDescriptorHeap;
+	}
+
+	GpuResourceManager& GetGpuResourceManager() const noexcept {
+		return *_gpuResourceManager;
 	}
 
 	IDXGIFactory7* GetDXGIFactory() const noexcept {
@@ -132,9 +132,9 @@ private:
 
 	void _LogDeviceInfo() noexcept;
 
-	GpuResourceManager* _gpuResourceManager = nullptr;
 	DescriptorHeap* _csuDescriptorHeap = nullptr;
 	DescriptorHeap* _rtvDescriptorHeap = nullptr;
+	GpuResourceManager* _gpuResourceManager = nullptr;
 	
 	winrt::com_ptr<IDXGIFactory7> _dxgiFactory;
 	winrt::com_ptr<IDXGIAdapter4> _dxgiAdapter;

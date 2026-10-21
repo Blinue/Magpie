@@ -93,10 +93,10 @@ private:
 
 	RectU _outputRect{};
 
-	// GpuResourceManager 和 DescriptorHeap 由多个 D3D12Context 共享
-	GpuResourceManager _gpuResourceManager;
+	// DescriptorHeap 和 GpuResourceManager 由多个 D3D12Context 共享
 	DescriptorHeap _csuDescriptorHeap;
 	DescriptorHeap _rtvDescriptorHeap;
+	GpuResourceManager _gpuResourceManager;
 	D3D12Context _d3d12Context;
 	GraphicsContext _graphicsContext;
 	FrameProducer _frameProducer;

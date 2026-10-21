@@ -1,13 +1,19 @@
 #include "pch.h"
 #include "GpuResourceManager.h"
+#include "DescriptorHeap.h"
 #include "Logger.h"
 
 namespace Magpie {
 
 bool GpuResourceManager::Initialize(
 	ID3D12Device5* device,
-	IDXGIAdapter4* dxgiAdapter
+	IDXGIAdapter4* dxgiAdapter,
+	DescriptorHeap& csuDescriptorHeap,
+	DescriptorHeap& rtvDescriptorHeap
 ) noexcept {
+	_csuDescriptorHeap = &csuDescriptorHeap;
+	_rtvDescriptorHeap = &rtvDescriptorHeap;
+
 	D3D12MA::ALLOCATOR_DESC allocatorDesc = {
 		.Flags = (D3D12MA::ALLOCATOR_FLAGS)D3D12MA_RECOMMENDED_ALLOCATOR_FLAGS,
 		.pDevice = device,
@@ -75,22 +81,43 @@ HRESULT GpuResourceManager::CreateTexture(
 
 void GpuResourceManager::RetireResource(
 	winrt::com_ptr<D3D12MA::Allocation>&& allocation,
-	uint64_t fenceValue,
 	bool isConsumer
 ) noexcept {
 	SmallVectorImpl<_RetiredResource>& retiredResources =
 		isConsumer ? _consumerRetiredResources : _producerRetiredResources;
+	uint64_t curFrameFenceValue = isConsumer ? _curConsumerFrameFenceValue : _curProducerFrameFenceValue;
 
 	// fenceValue 不能减小
-	assert(retiredResources.empty() || fenceValue >= retiredResources.back().fenceValue);
-	retiredResources.emplace_back(std::move(allocation), fenceValue);
+	assert(retiredResources.empty() || curFrameFenceValue >= retiredResources.back().fenceValue);
+	retiredResources.emplace_back(std::move(allocation), curFrameFenceValue);
+}
+
+void GpuResourceManager::RetireDescriptor(
+	uint32_t offset,
+	uint32_t count,
+	bool isRtv,
+	bool isConsumer
+) noexcept {
+	SmallVectorImpl<_RetiredDescriptor>& retiredDescriptors =
+		isConsumer ? _consumerRetiredDescriptors : _producerRetiredDescriptors;
+	uint64_t curFrameFenceValue = isConsumer ? _curConsumerFrameFenceValue : _curProducerFrameFenceValue;
+
+	// fenceValue 不能减小
+	assert(retiredDescriptors.empty() || curFrameFenceValue >= retiredDescriptors.back().fenceValue);
+	retiredDescriptors.emplace_back(offset, count, isRtv, curFrameFenceValue);
+}
+
+void GpuResourceManager::OnFrameBegan(uint64_t frameFenceValue, bool isConsumer) noexcept {
+	(isConsumer ? _curConsumerFrameFenceValue : _curProducerFrameFenceValue) = frameFenceValue;
 }
 
 void GpuResourceManager::OnFrameCompleted(uint64_t completedFenceValue, bool isConsumer) noexcept {
 	SmallVectorImpl<_RetiredResource>& retiredResources =
 		isConsumer ? _consumerRetiredResources : _producerRetiredResources;
+	SmallVectorImpl<_RetiredDescriptor>& retiredDescriptors =
+		isConsumer ? _consumerRetiredDescriptors : _producerRetiredDescriptors;
 
-	// retiredResources 中 fenceValue 按升序排列
+	// retiredResources 和 retiredDescriptors 中 fenceValue 按升序排列
 	auto it = std::upper_bound(
 		retiredResources.begin(),
 		retiredResources.end(),
@@ -101,6 +128,21 @@ void GpuResourceManager::OnFrameCompleted(uint64_t completedFenceValue, bool isC
 	);
 	if (it != retiredResources.begin()) {
 		retiredResources.erase(retiredResources.begin(), it);
+	}
+
+	auto it1 = std::upper_bound(
+		retiredDescriptors.begin(),
+		retiredDescriptors.end(),
+		completedFenceValue,
+		[](uint64_t completedFenceValue, const _RetiredDescriptor& res) {
+			return completedFenceValue < res.fenceValue;
+		}
+	);
+	if (it1 != retiredDescriptors.begin()) {
+		for (auto it2 = retiredDescriptors.begin(); it2 < it1; ++it2) {
+			(it2->isRtv ? _rtvDescriptorHeap : _csuDescriptorHeap)->Free(it2->offset, it2->count);
+		}
+		retiredDescriptors.erase(retiredDescriptors.begin(), it1);
 	}
 }
 

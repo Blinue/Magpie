@@ -97,14 +97,8 @@ private:
 		winrt::com_ptr<D3D12MA::Allocation> textureAllocation;
 		SizeU resSize{};
 		ByteBuffer resTextureData;
-		// 这两个资源使用完毕后在 _ClearRetiredResources 中释放
-		winrt::com_ptr<D3D12MA::Allocation> uploadBufferAllocation;
-		winrt::com_ptr<D3D12MA::Allocation> resTextureAllocation;
-		uint64_t tempResourcesFenceValue = 0;
 
 		uint32_t textureSrvOffset = std::numeric_limits<uint32_t>::max();
-		uint32_t textureRtvOffset = std::numeric_limits<uint32_t>::max();
-		uint32_t resTextureSrvOffset = std::numeric_limits<uint32_t>::max();
 	};
 
 	struct _CursorInfo {
@@ -122,10 +116,7 @@ private:
 			return IsAnimated() ? frameSequence[seqIdx].first : 0;
 		}
 		
-		void FreeDescriptors(
-			DescriptorHeap& csuDescriptorHeap,
-			DescriptorHeap& rtvDescriptorHeap
-		) const noexcept;
+		void FreeDescriptors(DescriptorHeap& csuDescriptorHeap) const noexcept;
 	};
 
 	std::pair<const _CursorInfoKey, _CursorInfo>* _ResolveCursor(
@@ -190,12 +181,6 @@ private:
 
 	phmap::flat_hash_map<_CursorInfoKey, _CursorInfo> _cursorInfos;
 
-	// 保存临时资源未被释放的 _CursorInfo。保存键而不是指针，以防 _cursorInfos 扩容后失效
-	SmallVector<_CursorInfoKey, 1> _cursorInfosWithTempResources;
-
-	// 保存 _cursorBaseSize 改变后失效的 _CursorInfo
-	SmallVector<_CursorInfo, 0> _retiredCursorInfos;
-
 	// 保存解析失败的光标以避免重复尝试
 	phmap::flat_hash_set<HCURSOR> _unresolvableCursors;
 
@@ -213,13 +198,6 @@ private:
 	winrt::com_ptr<D3D12MA::Allocation> _tempOriginTextureAllocation;
 	SizeU _tempOriginTextureSize{};
 	uint32_t _tempOriginTextureSrvOffset = std::numeric_limits<uint32_t>::max();
-	
-	struct _RetiredTempOriginTexture {
-		winrt::com_ptr<D3D12MA::Allocation> textureAllocation;
-		uint64_t fenceValue;
-		uint32_t srvOffset;
-	};
-	SmallVector<_RetiredTempOriginTexture, 1> _retiredTempOriginTextures;
 
 	winrt::com_ptr<ID3D12RootSignature> _colorRootSignature;
 	winrt::com_ptr<ID3D12PipelineState> _colorPSO;

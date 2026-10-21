@@ -59,9 +59,9 @@ ScalingError Renderer::Initialize(
 		options.Is3DGameMode() ? 2 : 6,
 		D3D12_COMMAND_QUEUE_PRIORITY_HIGH,
 		D3D12_COMMAND_LIST_TYPE_DIRECT,
-		_gpuResourceManager,
 		_csuDescriptorHeap,
-		_rtvDescriptorHeap
+		_rtvDescriptorHeap,
+		_gpuResourceManager
 	)) {
 		Logger::Get().Error("初始化 D3D12Context 失败");
 		return ScalingError::ScalingFailedGeneral;
@@ -99,11 +99,6 @@ ScalingError Renderer::Initialize(
 	}
 #endif
 
-	if (!_gpuResourceManager.Initialize(_d3d12Context.GetDevice(), _d3d12Context.GetDXGIAdapter())) {
-		Logger::Get().Error("GpuResourceManager::Initialize 失败");
-		return ScalingError::ScalingFailedGeneral;
-	}
-
 	if (!_csuDescriptorHeap.Initialize(
 		device, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, CSU_HEAP_CAPACITY)
 	) {
@@ -115,6 +110,16 @@ ScalingError Renderer::Initialize(
 		device, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, RTV_HEAP_CAPACITY)
 	) {
 		Logger::Get().Error("DescriptorHeap::Initialize 失败");
+		return ScalingError::ScalingFailedGeneral;
+	}
+
+	if (!_gpuResourceManager.Initialize(
+		_d3d12Context.GetDevice(),
+		_d3d12Context.GetDXGIAdapter(),
+		_csuDescriptorHeap,
+		_rtvDescriptorHeap
+	)) {
+		Logger::Get().Error("GpuResourceManager::Initialize 失败");
 		return ScalingError::ScalingFailedGeneral;
 	}
 
@@ -560,7 +565,9 @@ HRESULT Renderer::_RenderImpl(HCURSOR hCursor, POINT cursorPos, bool waitForGpu)
 		return S_OK;
 	}
 
-	_d3d12Context.GetGpuResourceManager().OnFrameCompleted(completedFenceValue, true);
+	auto& gpuResourceManager = _d3d12Context.GetGpuResourceManager();
+	gpuResourceManager.OnFrameCompleted(completedFenceValue, true);
+	gpuResourceManager.OnFrameBegan(frameFenceValue, true);
 
 	// SwapChain::BeginFrame 和 D3D12Context::BeginFrame 无顺序要求，不过
 	// 前者通常等待时间更久，将它放在前面可以减少等待次数。

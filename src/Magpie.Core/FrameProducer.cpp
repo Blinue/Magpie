@@ -497,6 +497,8 @@ HRESULT FrameProducer::_Render() noexcept {
 		return hr;
 	}
 
+	_d3d12Context.GetGpuResourceManager().OnFrameBegan(frameFenceValue, true);
+
 	uint32_t frameSourceOutputIdx;
 	hr = _frameSource->Update(frameSourceOutputIdx);
 	if (FAILED(hr)) {
