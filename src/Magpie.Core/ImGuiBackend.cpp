@@ -3,6 +3,7 @@
 #include "D3D12Context.h"
 #include "DescriptorHeap.h"
 #include "DirectXHelper.h"
+#include "GpuResourceManager.h"
 #include "ImGuiBackend.h"
 #include "Logger.h"
 #include "shaders/ImGuiVS.h"
@@ -52,8 +53,8 @@ HRESULT ImGuiBackend::RenderDrawData(
 	uint64_t completedFenceValue,
 	uint64_t frameFenceValue
 ) noexcept {
-	// Catch up with texture updates. Most of the times, the list will have 1 element with an OK status, aka nothing to do.
-	// (This almost always points to ImGui::GetPlatformIO().Textures[] but is part of ImDrawData to allow overriding or disabling texture updates).
+	// Catch up with textureAllocation updates. Most of the times, the list will have 1 element with an OK status, aka nothing to do.
+	// (This almost always points to ImGui::GetPlatformIO().Textures[] but is part of ImDrawData to allow overriding or disabling textureAllocation updates).
 	if (drawData.Textures) {
 		for (ImTextureData* texData : *drawData.Textures) {
 			if (texData->Status != ImTextureStatus_OK) {
@@ -66,7 +67,8 @@ HRESULT ImGuiBackend::RenderDrawData(
 		}
 	}
 
-	ID3D12Device5* device = _d3d12Context->GetDevice();
+	auto& gpuResourceManager = _d3d12Context->GetGpuResourceManager();
+
 	_FrameResource* curFrameResource = nullptr;
 
 	// UI 渲染允许很多帧并行以降低延迟，因此按需创建 _FrameResource
@@ -82,65 +84,55 @@ HRESULT ImGuiBackend::RenderDrawData(
 
 	curFrameResource->fenceValue = frameFenceValue;
 
+	D3D12MA::ALLOCATION_DESC allocDesc = {
+		.HeapType = D3D12_HEAP_TYPE_UPLOAD
+	};
+
 	// 按需创建和增长顶点和索引缓冲区
-	if (!curFrameResource->vertexBuffer || curFrameResource->vertexBufferSize < drawData.TotalVtxCount) {
-		curFrameResource->vertexBufferSize = drawData.TotalVtxCount + 5000;
+	if (!curFrameResource->vertexBufferAllocation ||
+		curFrameResource->vertexCount < drawData.TotalVtxCount)
+	{
+		curFrameResource->vertexCount = drawData.TotalVtxCount + 5000;
 
-		CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_UPLOAD);
-
-		D3D12_HEAP_FLAGS heapFlags = _d3d12Context->IsHeapFlagCreateNotZeroedSupported() ?
-			D3D12_HEAP_FLAG_CREATE_NOT_ZEROED : D3D12_HEAP_FLAG_NONE;
-
-		CD3DX12_RESOURCE_DESC desc =
-			CD3DX12_RESOURCE_DESC::Buffer(curFrameResource->vertexBufferSize * sizeof(ImDrawVert));
-
-		HRESULT hr = device->CreateCommittedResource(
-			&heapProps,
-			heapFlags,
-			&desc,
+		HRESULT hr = gpuResourceManager.CreateBuffer(
+			D3D12_HEAP_TYPE_UPLOAD,
+			curFrameResource->vertexCount * sizeof(ImDrawVert),
 			D3D12_RESOURCE_STATE_GENERIC_READ,
-			nullptr,
-			IID_PPV_ARGS(&curFrameResource->vertexBuffer)
+			curFrameResource->vertexBufferAllocation.put()
 		);
 		if (FAILED(hr)) {
-			Logger::Get().ComError("CreateCommittedResource 失败", hr);
+			Logger::Get().ComError("GpuResourceManager::CreateBuffer 失败", hr);
 			return hr;
 		}
 
 		D3D12_RANGE readRange{};
-		hr = curFrameResource->vertexBuffer->Map(0, &readRange, &curFrameResource->vertexBufferData);
+		hr = curFrameResource->vertexBufferAllocation->GetResource()->Map(
+			0, &readRange, &curFrameResource->vertexBufferData);
 		if (FAILED(hr)) {
 			Logger::Get().ComError("ID3D12Resource::Map 失败", hr);
 			return hr;
 		}
 	}
 
-	if (!curFrameResource->indexBuffer || curFrameResource->indexBufferSize < drawData.TotalIdxCount) {
-		curFrameResource->indexBufferSize = drawData.TotalIdxCount + 10000;
+	if (!curFrameResource->indexBufferAllocation ||
+		curFrameResource->indexCount < drawData.TotalIdxCount)
+	{
+		curFrameResource->indexCount = drawData.TotalIdxCount + 10000;
 
-		CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_UPLOAD);
-
-		D3D12_HEAP_FLAGS heapFlags = _d3d12Context->IsHeapFlagCreateNotZeroedSupported() ?
-			D3D12_HEAP_FLAG_CREATE_NOT_ZEROED : D3D12_HEAP_FLAG_NONE;
-
-		CD3DX12_RESOURCE_DESC desc =
-			CD3DX12_RESOURCE_DESC::Buffer(curFrameResource->indexBufferSize * sizeof(ImDrawIdx));
-
-		HRESULT hr = device->CreateCommittedResource(
-			&heapProps,
-			heapFlags,
-			&desc,
+		HRESULT hr = gpuResourceManager.CreateBuffer(
+			D3D12_HEAP_TYPE_UPLOAD,
+			curFrameResource->indexCount * sizeof(ImDrawIdx),
 			D3D12_RESOURCE_STATE_GENERIC_READ,
-			nullptr,
-			IID_PPV_ARGS(&curFrameResource->indexBuffer)
+			curFrameResource->indexBufferAllocation.put()
 		);
 		if (FAILED(hr)) {
-			Logger::Get().ComError("CreateCommittedResource 失败", hr);
+			Logger::Get().ComError("GpuResourceManager::CreateBuffer 失败", hr);
 			return hr;
 		}
 
 		D3D12_RANGE readRange{};
-		hr = curFrameResource->indexBuffer->Map(0, &readRange, &curFrameResource->indexBufferData);
+		hr = curFrameResource->indexBufferAllocation->GetResource()->Map(
+			0, &readRange, &curFrameResource->indexBufferData);
 		if (FAILED(hr)) {
 			Logger::Get().ComError("ID3D12Resource::Map 失败", hr);
 			return hr;
@@ -186,20 +178,18 @@ HRESULT ImGuiBackend::RenderDrawData(
 				(LONG)clipMax.y + viewportOffset.y
 			});
 
-			graphicsContext.SetRootDescriptorTable(descriptorTableIdx, drawCmd.GetTexID());
+			ImU32 texId = drawCmd.GetTexID();
+			graphicsContext.SetRootDescriptorTable(descriptorTableIdx, texId);
+
+			assert(_textureDatas.contains(texId));
+			_textureDatas[texId].fenceValue = frameFenceValue;
+
 			graphicsContext.DrawIndexed(drawCmd.ElemCount,
 				drawCmd.IdxOffset + globalIdxOffset, drawCmd.VtxOffset + globalVtxOffset);
 		}
 		
 		globalIdxOffset += drawList->IdxBuffer.Size;
 		globalVtxOffset += drawList->VtxBuffer.Size;
-	}
-
-	// 释放空闲的上传缓冲区
-	for (int i = (int)_uploadBuffers.size() - 1; i >= 0; --i) {
-		if (_uploadBuffers[i].fenceValue <= completedFenceValue) {
-			_uploadBuffers.erase(_uploadBuffers.begin() + i);
-		}
 	}
 
 	return S_OK;
@@ -231,6 +221,7 @@ HRESULT ImGuiBackend::_UpdateTexture(
 	assert(texData.Format == ImTextureFormat_RGBA32);
 	
 	ID3D12Device5* device = _d3d12Context->GetDevice();
+	auto& gpuResourceManager = _d3d12Context->GetGpuResourceManager();
 
 	if (texData.Status == ImTextureStatus_WantCreate) {
 		auto& descriptorHeap = _d3d12Context->GetDescriptorHeap();
@@ -246,44 +237,34 @@ HRESULT ImGuiBackend::_UpdateTexture(
 
 		_TextureData& backendData = _textureDatas.emplace(texData.GetTexID(), _TextureData{}).first->second;
 
-		CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_DEFAULT);
-
-		D3D12_HEAP_FLAGS heapFlags = _d3d12Context->IsHeapFlagCreateNotZeroedSupported() ?
-			D3D12_HEAP_FLAG_CREATE_NOT_ZEROED : D3D12_HEAP_FLAG_NONE;
-
-		CD3DX12_RESOURCE_DESC texDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+		hr = gpuResourceManager.CreateTexture(
+			D3D12_HEAP_TYPE_DEFAULT,
 			DXGI_FORMAT_R8G8B8A8_UNORM,
-			texData.Width,
-			texData.Height,
-			1, 1, 1, 0,
-			D3D12_RESOURCE_FLAG_NONE
-		);
-
-		hr = device->CreateCommittedResource(
-			&heapProps,
-			heapFlags,
-			&texDesc,
+			SizeU{ (uint32_t)texData.Width, (uint32_t)texData.Height },
+			D3D12_RESOURCE_FLAG_NONE,
 			D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-			nullptr,
-			IID_PPV_ARGS(&backendData.texture)
+			backendData.textureAllocation.put()
 		);
 		if (FAILED(hr)) {
-			Logger::Get().ComError("CreateCommittedResource 失败", hr);
+			Logger::Get().ComError("GpuResourceManager::CreateTexture 失败", hr);
 			return hr;
 		}
 
 		CD3DX12_SHADER_RESOURCE_VIEW_DESC srvDesc =
-			CD3DX12_SHADER_RESOURCE_VIEW_DESC::Tex2D(texDesc.Format, 1);
-		device->CreateShaderResourceView(backendData.texture.get(), &srvDesc,
-			descriptorHeap.GetCpuHandle(srvOffset));
+			CD3DX12_SHADER_RESOURCE_VIEW_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM, 1);
+		device->CreateShaderResourceView(
+			backendData.textureAllocation->GetResource(),
+			&srvDesc,
+			descriptorHeap.GetCpuHandle(srvOffset)
+		);
 		// We don't set tex->Status to ImTextureStatus_OK to let the code fallthrough below.
 	}
 
 	if (texData.Status == ImTextureStatus_WantCreate || texData.Status == ImTextureStatus_WantUpdates) {
 		assert(_textureDatas.contains(texData.GetTexID()));
-		_TextureData& backendData = _textureDatas.find(texData.GetTexID())->second;
+		_TextureData& backendData = _textureDatas[texData.GetTexID()];
 
-		// We could use the smaller rect on _WantCreate but using the full rect allows us to clear the texture.
+		// We could use the smaller rect on _WantCreate but using the full rect allows us to clear the textureAllocation.
 		// FIXME-OPT: Uploading single box even when using ImTextureStatus_WantUpdates. Could use tex->Updates[]
 		// - Copy all blocks contiguously in upload buffer.
 		// - Barrier before copy, submit all CopyTextureRegion(), barrier after copy.
@@ -299,70 +280,37 @@ HRESULT ImGuiBackend::_UpdateTexture(
 
 		uint32_t uploadRowSize = uploadSize.width * (uint32_t)texData.BytesPerPixel;
 		uint32_t uploadRowPitch = DirectXHelper::Align(uploadRowSize, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
-		uint32_t requiredBufferSize = uploadRowPitch * uploadSize.height;
+		uint32_t bufferSize = uploadRowPitch * uploadSize.height;
 
-		// 寻找空闲且足够大的上传缓冲区
-		uint32_t reuseBufferIdx = std::numeric_limits<uint32_t>::max();
-		for (uint32_t i = 0, end = (uint32_t)_uploadBuffers.size(); i < end; ++i) {
-			if (_uploadBuffers[i].fenceValue > completedFenceValue) {
-				continue;
-			}
+		winrt::com_ptr<D3D12MA::Allocation> uploadBufferAllocation;
+		void* uploadBufferData;
 
-			if (_uploadBuffers[i].size >= requiredBufferSize) {
-				reuseBufferIdx = i;
-				break;
-			}
+		HRESULT hr = gpuResourceManager.CreateBuffer(
+			D3D12_HEAP_TYPE_UPLOAD,
+			bufferSize,
+			D3D12_RESOURCE_STATE_GENERIC_READ,
+			uploadBufferAllocation.put()
+		);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("GpuResourceManager::CreateBuffer 失败", hr);
+			return hr;
 		}
-
-		_UploadBuffer* curBuffer;
-
-		if (reuseBufferIdx == std::numeric_limits<uint32_t>::max()) {
-			_UploadBuffer newBuffer = {
-				.size = requiredBufferSize
-			};
-
-			CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_UPLOAD);
-
-			D3D12_HEAP_FLAGS heapFlags = _d3d12Context->IsHeapFlagCreateNotZeroedSupported() ?
-				D3D12_HEAP_FLAG_CREATE_NOT_ZEROED : D3D12_HEAP_FLAG_NONE;
-
-			CD3DX12_RESOURCE_DESC bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(newBuffer.size);
-
-			HRESULT hr = device->CreateCommittedResource(
-				&heapProps,
-				heapFlags,
-				&bufferDesc,
-				D3D12_RESOURCE_STATE_GENERIC_READ,
-				nullptr,
-				IID_PPV_ARGS(&newBuffer.buffer)
-			);
-			if (FAILED(hr)) {
-				Logger::Get().ComError("CreateCommittedResource 失败", hr);
-				return hr;
-			}
-
-			D3D12_RANGE readRange{};
-			hr = newBuffer.buffer->Map(0, &readRange, &newBuffer.bufferData);
-			if (FAILED(hr)) {
-				Logger::Get().ComError("ID3D12Resource::Map 失败", hr);
-				return hr;
-			}
-
-			curBuffer = &_uploadBuffers.emplace_back(std::move(newBuffer));
-		} else {
-			curBuffer = &_uploadBuffers[reuseBufferIdx];
+		
+		D3D12_RANGE readRange{};
+		hr = uploadBufferAllocation->GetResource()->Map(0, &readRange, &uploadBufferData);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("ID3D12Resource::Map 失败", hr);
+			return hr;
 		}
-
-		curBuffer->fenceValue = frameFenceValue;
 
 		// 如果需要复制整行且对齐相同则可以简化成一个 memcpy
 		if (uploadSize.width == (uint32_t)texData.Width && uploadRowSize == uploadRowPitch) {
 			assert(uploadPt.x == 0);
-			std::memcpy(curBuffer->bufferData, texData.GetPixelsAt(0, uploadPt.y), requiredBufferSize);
+			std::memcpy(uploadBufferData, texData.GetPixelsAt(0, uploadPt.y), bufferSize);
 		} else {
 			for (uint32_t i = 0; i < uploadSize.height; ++i) {
 				std::memcpy(
-					(uint8_t*)curBuffer->bufferData + uploadRowPitch * i,
+					(uint8_t*)uploadBufferData + uploadRowPitch * i,
 					texData.GetPixelsAt(uploadPt.x, uploadPt.y + i),
 					uploadRowSize
 				);
@@ -370,17 +318,17 @@ HRESULT ImGuiBackend::_UpdateTexture(
 		}
 
 		graphicsContext.InsertTransitionBarrier(
-			backendData.texture.get(),
+			backendData.textureAllocation->GetResource(),
 			D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
 			D3D12_RESOURCE_STATE_COPY_DEST
 		);
 
 		graphicsContext.CopyTextureRegion(
-			CD3DX12_TEXTURE_COPY_LOCATION(backendData.texture.get()),
+			CD3DX12_TEXTURE_COPY_LOCATION(backendData.textureAllocation->GetResource()),
 			uploadPt.x,
 			uploadPt.y,
 			CD3DX12_TEXTURE_COPY_LOCATION(
-				curBuffer->buffer.get(),
+				uploadBufferAllocation->GetResource(),
 				D3D12_PLACED_SUBRESOURCE_FOOTPRINT{
 					.Footprint = {
 						.Format = DXGI_FORMAT_R8G8B8A8_UNORM,
@@ -393,8 +341,11 @@ HRESULT ImGuiBackend::_UpdateTexture(
 			)
 		);
 
+		gpuResourceManager.RetireResource(
+			std::move(uploadBufferAllocation), frameFenceValue, true);
+
 		graphicsContext.InsertTransitionBarrier(
-			backendData.texture.get(),
+			backendData.textureAllocation->GetResource(),
 			D3D12_RESOURCE_STATE_COPY_DEST,
 			D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
 		);
@@ -447,14 +398,14 @@ HRESULT ImGuiBackend::_SetupRenderState(
 	graphicsContext.IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	graphicsContext.IASetVertexBuffer(D3D12_VERTEX_BUFFER_VIEW{
-		.BufferLocation = curFrameResource.vertexBuffer->GetGPUVirtualAddress(),
-		.SizeInBytes = curFrameResource.vertexBufferSize * (UINT)sizeof(ImDrawVert),
+		.BufferLocation = curFrameResource.vertexBufferAllocation->GetResource()->GetGPUVirtualAddress(),
+		.SizeInBytes = curFrameResource.vertexCount * (UINT)sizeof(ImDrawVert),
 		.StrideInBytes = sizeof(ImDrawVert)
 	});
 
 	graphicsContext.IASetIndexBuffer(D3D12_INDEX_BUFFER_VIEW{
-		.BufferLocation = curFrameResource.indexBuffer->GetGPUVirtualAddress(),
-		.SizeInBytes = curFrameResource.indexBufferSize * (UINT)sizeof(ImDrawIdx),
+		.BufferLocation = curFrameResource.indexBufferAllocation->GetResource()->GetGPUVirtualAddress(),
+		.SizeInBytes = curFrameResource.indexCount * (UINT)sizeof(ImDrawIdx),
 		.Format = DXGI_FORMAT_R16_UINT
 	});
 

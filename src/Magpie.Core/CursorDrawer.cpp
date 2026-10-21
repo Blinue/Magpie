@@ -7,6 +7,7 @@
 #include "D3D12Context.h"
 #include "DescriptorHeap.h"
 #include "DirectXHelper.h"
+#include "GpuResourceManager.h"
 #include "Logger.h"
 #include "ScalingWindow.h"
 #include "shaders/CursorResizerPS.h"
@@ -272,9 +273,9 @@ HRESULT CursorDrawer::Draw(
 	// 可能会清理 _CursorInfo，但这不会导致 cursorInfo 失效
 	_ClearRetiredResources(completedFenceValue);
 
-	if (!cursorFrame.texture) {
+	if (!cursorFrame.textureAllocation) {
 		HRESULT hr = _InitializeCursorTexture(
-			graphicsContext , cursorInfo, cursorFrameIdx, completedFenceValue);
+			graphicsContext , cursorInfo, cursorFrameIdx);
 		if (FAILED(hr)) {
 			Logger::Get().ComError("_InitializeCursorTexture 失败", hr);
 			return hr;
@@ -287,7 +288,7 @@ HRESULT CursorDrawer::Draw(
 		if (std::all_of(
 			cursorInfo.frames.begin(),
 			cursorInfo.frames.end(),
-			[](const _CursorFrame& frame) { return frame.texture != nullptr; }
+			[](const _CursorFrame& frame) { return frame.textureAllocation != nullptr; }
 		)) {
 			_cursorInfosWithTempResources.push_back(_curCursorInfoKeyValue->first);
 		}
@@ -373,9 +374,9 @@ HRESULT CursorDrawer::Draw(
 			if (_tempOriginTextureSize.width < cursorInfo.size.width ||
 				_tempOriginTextureSize.height < cursorInfo.size.height
 			) {
-				if (_tempOriginTexture) {
+				if (_tempOriginTextureAllocation) {
 					_retiredTempOriginTextures.emplace_back(_RetiredTempOriginTexture{
-						.texture = std::move(_tempOriginTexture),
+						.textureAllocation = std::move(_tempOriginTextureAllocation),
 						.fenceValue = frameFenceValue,
 						.srvOffset = _tempOriginTextureSrvOffset
 					});
@@ -386,34 +387,24 @@ HRESULT CursorDrawer::Draw(
 				_tempOriginTextureSize.height = (cursorInfo.size.height + 31) & ~31;
 
 				ID3D12Device5* device = _d3d12Context->GetDevice();
+				auto& gpuResourceManager = _d3d12Context->GetGpuResourceManager();
+				auto& descriptorHeap = _d3d12Context->GetDescriptorHeap();
 
-				CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_DEFAULT);
+				DXGI_FORMAT textureFormat =
+					isScRGB ? DXGI_FORMAT_R16G16B16A16_FLOAT : DXGI_FORMAT_R8G8B8A8_UNORM;
 
-				D3D12_HEAP_FLAGS heapFlags = _d3d12Context->IsHeapFlagCreateNotZeroedSupported() ?
-					D3D12_HEAP_FLAG_CREATE_NOT_ZEROED : D3D12_HEAP_FLAG_NONE;
-
-				CD3DX12_RESOURCE_DESC texDesc = CD3DX12_RESOURCE_DESC::Tex2D(
-					isScRGB ? DXGI_FORMAT_R16G16B16A16_FLOAT : DXGI_FORMAT_R8G8B8A8_UNORM,
-					_tempOriginTextureSize.width,
-					_tempOriginTextureSize.height,
-					1, 1, 1, 0,
-					D3D12_RESOURCE_FLAG_NONE
-				);
-
-				HRESULT hr = device->CreateCommittedResource(
-					&heapProps,
-					heapFlags,
-					&texDesc,
+				HRESULT hr = gpuResourceManager.CreateTexture(
+					D3D12_HEAP_TYPE_DEFAULT,
+					textureFormat,
+					_tempOriginTextureSize,
+					D3D12_RESOURCE_FLAG_NONE,
 					D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-					nullptr,
-					IID_PPV_ARGS(&_tempOriginTexture)
+					_tempOriginTextureAllocation.put()
 				);
 				if (FAILED(hr)) {
-					Logger::Get().ComError("CreateCommittedResource 失败", hr);
+					Logger::Get().ComError("GpuResourceManager::CreateTexture 失败", hr);
 					return hr;
 				}
-				
-				auto& descriptorHeap = _d3d12Context->GetDescriptorHeap();
 
 				hr = descriptorHeap.Alloc(1, _tempOriginTextureSrvOffset);
 				if (FAILED(hr)) {
@@ -422,13 +413,13 @@ HRESULT CursorDrawer::Draw(
 				}
 
 				CD3DX12_SHADER_RESOURCE_VIEW_DESC srvDesc =
-					CD3DX12_SHADER_RESOURCE_VIEW_DESC::Tex2D(texDesc.Format, 1);
-				device->CreateShaderResourceView(_tempOriginTexture.get(), &srvDesc,
-					descriptorHeap.GetCpuHandle(_tempOriginTextureSrvOffset));
+					CD3DX12_SHADER_RESOURCE_VIEW_DESC::Tex2D(textureFormat, 1);
+				device->CreateShaderResourceView(_tempOriginTextureAllocation->GetResource(),
+					&srvDesc, descriptorHeap.GetCpuHandle(_tempOriginTextureSrvOffset));
 			}
 
 			graphicsContext.InsertTransitionBarrier(
-				_tempOriginTexture.get(),
+				_tempOriginTextureAllocation->GetResource(),
 				D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
 				D3D12_RESOURCE_STATE_COPY_DEST
 			);
@@ -456,11 +447,11 @@ HRESULT CursorDrawer::Draw(
 				assert(destTop + srcBox.bottom - srcBox.top <= cursorInfo.size.height);
 
 				graphicsContext.CopyTextureRegion(
-					_tempOriginTexture.get(), destLeft, destTop, backBuffer, &srcBox);
+					_tempOriginTextureAllocation->GetResource(), destLeft, destTop, backBuffer, &srcBox);
 			}
 			
 			graphicsContext.InsertTransitionBarrier(
-				_tempOriginTexture.get(),
+				_tempOriginTextureAllocation->GetResource(),
 				D3D12_RESOURCE_STATE_COPY_DEST,
 				D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
 			);
@@ -508,7 +499,7 @@ void CursorDrawer::OnColorInfoChanged(const ColorInfo& colorInfo) noexcept {
 
 	if (wasScRGB != isScRGB) {
 		// 渲染目标纹理格式变了
-		_tempOriginTexture = nullptr;
+		_tempOriginTextureAllocation = nullptr;
 		_tempOriginTextureSize = {};
 
 		if (_tempOriginTextureSrvOffset != std::numeric_limits<uint32_t>::max()) {
@@ -992,87 +983,51 @@ bool CursorDrawer::_ResolveCursorFramePixels(
 HRESULT CursorDrawer::_InitializeCursorTexture(
 	GraphicsContext& graphicsContext,
 	_CursorInfo& cursorInfo,
-	uint32_t cursorFrameIdx,
-	uint64_t completedFenceValue
+	uint32_t cursorFrameIdx
 ) noexcept {
 	ID3D12Device5* device = _d3d12Context->GetDevice();
+	auto& gpuResourceManager = _d3d12Context->GetGpuResourceManager();
+	auto& descriptorHeap = _d3d12Context->GetDescriptorHeap();
+
 	_CursorFrame& curCursorFrame = cursorInfo.frames[cursorFrameIdx];
 
-	// 尝试复用旧帧的临时资源。基本上动态光标的所有帧都是相同类型和尺寸，因此能复用的概率很高
-	for (_CursorFrame& frame : cursorInfo.frames) {
-		if (frame.uploadBuffer &&
-			frame.tempResourcesFenceValue <= completedFenceValue &&
-			frame.resSize == curCursorFrame.resSize &&
-			frame.type == curCursorFrame.type
-		) {
-			curCursorFrame.uploadBuffer = std::move(frame.uploadBuffer);
-			curCursorFrame.resTexture = std::move(frame.resTexture);
-			std::swap(curCursorFrame.resTextureSrvOffset, frame.resTextureSrvOffset);
-			break;
-		}
-	}
-
-	CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_UPLOAD);
-
-	D3D12_HEAP_FLAGS heapFlags = _d3d12Context->IsHeapFlagCreateNotZeroedSupported() ?
-		D3D12_HEAP_FLAG_CREATE_NOT_ZEROED : D3D12_HEAP_FLAG_NONE;
-
-	CD3DX12_RESOURCE_DESC texDesc = CD3DX12_RESOURCE_DESC::Tex2D(
-		curCursorFrame.type == _CursorType::Color ? DXGI_FORMAT_R16G16B16A16_FLOAT :
-		(curCursorFrame.type == _CursorType::Monochrome ? DXGI_FORMAT_R8_UINT : DXGI_FORMAT_R8G8B8A8_UNORM),
-		curCursorFrame.resSize.width, curCursorFrame.resSize.height, 1, 1);
+	DXGI_FORMAT textureFormat = curCursorFrame.type == _CursorType::Color ?
+		DXGI_FORMAT_R16G16B16A16_FLOAT : (curCursorFrame.type == _CursorType::Monochrome ?
+			DXGI_FORMAT_R8_UINT : DXGI_FORMAT_R8G8B8A8_UNORM);
 
 	uint32_t textureRowSize = curCursorFrame.resSize.width *
 		(curCursorFrame.type == _CursorType::Color ? 8 :
 			(curCursorFrame.type == _CursorType::Monochrome ? 1 : 4));
 	uint32_t textureRowPitch = DirectXHelper::Align(textureRowSize, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
-	uint32_t bufferSize = textureRowPitch * texDesc.Height;
+	uint32_t bufferSize = textureRowPitch * curCursorFrame.resSize.height;
 
-	if (!curCursorFrame.uploadBuffer) {
-		CD3DX12_RESOURCE_DESC bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
-
-		HRESULT hr = device->CreateCommittedResource(
-			&heapProps,
-			heapFlags,
-			&bufferDesc,
-			D3D12_RESOURCE_STATE_GENERIC_READ,
-			nullptr,
-			IID_PPV_ARGS(&curCursorFrame.uploadBuffer)
-		);
-		if (FAILED(hr)) {
-			Logger::Get().ComError("CreateCommittedResource 失败", hr);
-			return hr;
-		}
+	HRESULT hr = gpuResourceManager.CreateBuffer(
+		D3D12_HEAP_TYPE_UPLOAD,
+		bufferSize,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		curCursorFrame.uploadBufferAllocation.put()
+	);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("GpuResourceManager::CreateBuffer 失败", hr);
+		return hr;
 	}
 
-	heapProps.Type = D3D12_HEAP_TYPE_DEFAULT;
-
-	if (curCursorFrame.resTexture) {
-		// 如果可以复用 resTexture 说明执行了缩放，resTexture 目前处于
-		// PIXEL_SHADER_RESOURCE 状态。
-		graphicsContext.InsertTransitionBarrier(
-			curCursorFrame.resTexture.get(),
-			D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-			D3D12_RESOURCE_STATE_COPY_DEST
-		);
-	} else {
-		HRESULT hr = device->CreateCommittedResource(
-			&heapProps,
-			heapFlags,
-			&texDesc,
-			D3D12_RESOURCE_STATE_COPY_DEST,
-			nullptr,
-			IID_PPV_ARGS(&curCursorFrame.resTexture)
-		);
-		if (FAILED(hr)) {
-			Logger::Get().ComError("CreateCommittedResource 失败", hr);
-			return hr;
-		}
+	hr = gpuResourceManager.CreateTexture(
+		D3D12_HEAP_TYPE_DEFAULT,
+		textureFormat,
+		curCursorFrame.resSize,
+		D3D12_RESOURCE_FLAG_NONE,
+		D3D12_RESOURCE_STATE_COPY_DEST,
+		curCursorFrame.resTextureAllocation.put()
+	);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("GpuResourceManager::CreateTexture 失败", hr);
+		return hr;
 	}
 
 	CD3DX12_RANGE emptyRange{};
 	void* pData;
-	HRESULT hr = curCursorFrame.uploadBuffer->Map(0, &emptyRange, &pData);
+	hr = curCursorFrame.uploadBufferAllocation->GetResource()->Map(0, &emptyRange, &pData);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("ID3D12Resource::Map 失败", hr);
 		return hr;
@@ -1090,21 +1045,21 @@ HRESULT CursorDrawer::_InitializeCursorTexture(
 		}
 	}
 
-	curCursorFrame.uploadBuffer->Unmap(0, nullptr);
+	curCursorFrame.uploadBufferAllocation->GetResource()->Unmap(0, nullptr);
 
 	curCursorFrame.resTextureData.Clear();
 
 	graphicsContext.CopyTextureRegion(
-		CD3DX12_TEXTURE_COPY_LOCATION(curCursorFrame.resTexture.get()),
+		CD3DX12_TEXTURE_COPY_LOCATION(curCursorFrame.resTextureAllocation->GetResource()),
 		0,
 		0,
 		CD3DX12_TEXTURE_COPY_LOCATION(
-			curCursorFrame.uploadBuffer.get(),
+			curCursorFrame.uploadBufferAllocation->GetResource(),
 			D3D12_PLACED_SUBRESOURCE_FOOTPRINT{
 				.Footprint = {
-					.Format = texDesc.Format,
-					.Width = (UINT)texDesc.Width,
-					.Height = texDesc.Height,
+					.Format = textureFormat,
+					.Width = curCursorFrame.resSize.width,
+					.Height = curCursorFrame.resSize.height,
 					.Depth = 1,
 					.RowPitch = textureRowPitch
 				}
@@ -1113,12 +1068,10 @@ HRESULT CursorDrawer::_InitializeCursorTexture(
 	);
 
 	graphicsContext.InsertTransitionBarrier(
-		curCursorFrame.resTexture.get(),
+		curCursorFrame.resTextureAllocation->GetResource(),
 		D3D12_RESOURCE_STATE_COPY_DEST,
 		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
 	);
-
-	auto& descriptorHeap = _d3d12Context->GetDescriptorHeap();
 
 	// * 单色光标和彩色掩码光标始终使用最近邻采样
 	// * 不需要缩放时执行最近邻采样
@@ -1129,29 +1082,24 @@ HRESULT CursorDrawer::_InitializeCursorTexture(
 		(cursorInfo.size.width > curCursorFrame.resSize.width &&
 			ScalingWindow::Get().Options().cursorInterpolationMode == CursorInterpolationMode::Bicubic))
 	) {
-		// SDR 色域下由于预乘 alpha 无法在线性空间插值
-		texDesc.Width = cursorInfo.size.width;
-		texDesc.Height = cursorInfo.size.height;
-		texDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
-
-		hr = device->CreateCommittedResource(
-			&heapProps,
-			heapFlags,
-			&texDesc,
+		// TODO
+		// 当前在预乘 alpha 空间插值
+		hr = gpuResourceManager.CreateTexture(
+			D3D12_HEAP_TYPE_DEFAULT,
+			textureFormat,
+			cursorInfo.size,
+			D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET,
 			D3D12_RESOURCE_STATE_RENDER_TARGET,
-			nullptr,
-			IID_PPV_ARGS(&curCursorFrame.texture)
+			curCursorFrame.textureAllocation.put()
 		);
 		if (FAILED(hr)) {
-			Logger::Get().ComError("CreateCommittedResource 失败", hr);
+			Logger::Get().ComError("GpuResourceManager::CreateTexture 失败", hr);
 			return hr;
 		}
 
 		// 以 D3D12_HEAP_FLAG_CREATE_NOT_ZEROED 创建的资源作为渲染目标需先
 		// Discard/Clear/Copy。
-		if (heapFlags & D3D12_HEAP_FLAG_CREATE_NOT_ZEROED) {
-			graphicsContext.DiscardResource(curCursorFrame.texture.get());
-		}
+		graphicsContext.DiscardResource(curCursorFrame.textureAllocation->GetResource());
 
 		auto& rtvDescriptorHeap = _d3d12Context->GetDescriptorHeap(true);
 
@@ -1171,9 +1119,9 @@ HRESULT CursorDrawer::_InitializeCursorTexture(
 
 		{
 			CD3DX12_SHADER_RESOURCE_VIEW_DESC srvDesc =
-				CD3DX12_SHADER_RESOURCE_VIEW_DESC::Tex2D(texDesc.Format, 1);
+				CD3DX12_SHADER_RESOURCE_VIEW_DESC::Tex2D(textureFormat, 1);
 			device->CreateShaderResourceView(
-				curCursorFrame.resTexture.get(),
+				curCursorFrame.resTextureAllocation->GetResource(),
 				&srvDesc,
 				descriptorHeap.GetCpuHandle(curCursorFrame.resTextureSrvOffset)
 			);
@@ -1181,11 +1129,11 @@ HRESULT CursorDrawer::_InitializeCursorTexture(
 
 		{
 			D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {
-				.Format = texDesc.Format,
+				.Format = textureFormat,
 				.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D
 			};
 			device->CreateRenderTargetView(
-				curCursorFrame.texture.get(),
+				curCursorFrame.textureAllocation->GetResource(),
 				&rtvDesc,
 				rtvDescriptorHeap.GetCpuHandle(curCursorFrame.textureRtvOffset)
 			);
@@ -1226,12 +1174,12 @@ HRESULT CursorDrawer::_InitializeCursorTexture(
 		graphicsContext.OMSetRenderTarget(oldRtvOffset);
 
 		graphicsContext.InsertTransitionBarrier(
-			curCursorFrame.texture.get(),
+			curCursorFrame.textureAllocation->GetResource(),
 			D3D12_RESOURCE_STATE_RENDER_TARGET,
 			D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
 		);
 	} else {
-		curCursorFrame.texture = std::move(curCursorFrame.resTexture);
+		curCursorFrame.textureAllocation = std::move(curCursorFrame.resTextureAllocation);
 	}
 
 	hr = descriptorHeap.Alloc(1, curCursorFrame.textureSrvOffset);
@@ -1241,9 +1189,12 @@ HRESULT CursorDrawer::_InitializeCursorTexture(
 	}
 
 	CD3DX12_SHADER_RESOURCE_VIEW_DESC srvDesc =
-		CD3DX12_SHADER_RESOURCE_VIEW_DESC::Tex2D(texDesc.Format, 1);
-	device->CreateShaderResourceView(curCursorFrame.texture.get(), &srvDesc,
-		descriptorHeap.GetCpuHandle(curCursorFrame.textureSrvOffset));
+		CD3DX12_SHADER_RESOURCE_VIEW_DESC::Tex2D(textureFormat, 1);
+	device->CreateShaderResourceView(
+		curCursorFrame.textureAllocation->GetResource(),
+		&srvDesc,
+		descriptorHeap.GetCpuHandle(curCursorFrame.textureSrvOffset)
+	);
 
 	return S_OK;
 }
@@ -1584,7 +1535,7 @@ void CursorDrawer::_ClearRetiredResources(uint64_t completedFenceValue) noexcept
 
 				// 所有帧都已初始化才会进入 _cursorInfosWithTempResources
 				assert(std::all_of(frames.begin(), frames.end(), [](const _CursorFrame& frame) {
-					return frame.texture != nullptr;
+					return frame.textureAllocation != nullptr;
 				}));
 
 				if (std::any_of(frames.begin(), frames.end(), [&](const _CursorFrame& frame) {
@@ -1594,8 +1545,8 @@ void CursorDrawer::_ClearRetiredResources(uint64_t completedFenceValue) noexcept
 				}
 
 				for (_CursorFrame& frame : frames) {
-					frame.uploadBuffer = nullptr;
-					frame.resTexture = nullptr;
+					frame.uploadBufferAllocation = nullptr;
+					frame.resTextureAllocation = nullptr;
 
 					if (frame.textureRtvOffset != std::numeric_limits<uint32_t>::max()) {
 						rtvDescriptorHeap.Free(frame.textureRtvOffset, 1);

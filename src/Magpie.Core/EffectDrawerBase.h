@@ -1,6 +1,7 @@
 #pragma once
 #include "EffectTextureFormat.h"
 #include "SmallVector.h"
+#include <D3D12MemAlloc.h>
 
 namespace Magpie {
 
@@ -28,18 +29,18 @@ struct EffectDrawerExportData {
 	int passIdx = -1;
 	uint32_t outputIdx = 0;
 
-	winrt::com_ptr<ID3D12Resource> readbackBuffer;
+	winrt::com_ptr<D3D12MA::Allocation> readbackBufferAllocation;
 	SizeU textureSize{};
 	EffectTextureFormat textureFormat = EffectTextureFormat::UNKNOWN;
 	uint32_t rowPitch = 0;
 
 	bool IsValid() const noexcept {
-		return readbackBuffer &&
+		return readbackBufferAllocation &&
 			textureSize != SizeU{} &&
 			textureFormat > EffectTextureFormat::COLOR_SPACE_ADAPTIVE &&
 			textureFormat < EffectTextureFormat::COUNT &&
 			textureSize.width * EFFECT_TEXTURE_FORMAT_PROPS[(uint32_t)textureFormat].texelSize <= rowPitch &&
-			rowPitch * textureSize.height <= (uint32_t)readbackBuffer->GetDesc().Width;
+			rowPitch * textureSize.height <= (uint32_t)readbackBufferAllocation->GetResource()->GetDesc().Width;
 	}
 };
 

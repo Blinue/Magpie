@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "FrameRingBuffer.h"
 #include "D3D12Context.h"
+#include "GpuResourceManager.h"
 #include "Logger.h"
 #include "ScalingWindow.h"
 #include "DebugInfo.h"
@@ -47,7 +48,7 @@ bool FrameRingBuffer::Initialize(
 
 ID3D12Resource* FrameRingBuffer::GetBuffer(uint32_t index) noexcept {
 	auto lk = _lock.lock_shared();
-	return _slots[index].resource.get();
+	return _slots[index].textureAllocation->GetResource();
 }
 
 HRESULT FrameRingBuffer::ProducerBeginFrame(
@@ -164,7 +165,7 @@ bool FrameRingBuffer::ConsumerBeginFrame(
 	curSlot.consumerFenceValue = fenceValueToSignal;
 
 	bufferIdx = _curConsumerIdx;
-	frame = curSlot.resource.get();
+	frame = curSlot.textureAllocation->GetResource();
 	completedFenceValue = _consumerFence->GetCompletedValue();
 
 	return true;
@@ -239,26 +240,22 @@ HRESULT FrameRingBuffer::OnColorInfoChanged(const ColorInfo& colorInfo) noexcept
 }
 
 HRESULT FrameRingBuffer::_CreateBuffers() noexcept {
-	ID3D12Device5* device = _d3d12Context->GetDevice();
+	auto& gpuResourceManager = _d3d12Context->GetGpuResourceManager();
 
-	CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_DEFAULT);
-
-	D3D12_HEAP_FLAGS heapFlags = _d3d12Context->IsHeapFlagCreateNotZeroedSupported() ?
-		D3D12_HEAP_FLAG_CREATE_NOT_ZEROED : D3D12_HEAP_FLAG_NONE;
-
-	CD3DX12_RESOURCE_DESC texDesc = CD3DX12_RESOURCE_DESC::Tex2D(
-		_isScRGB ? DXGI_FORMAT_R16G16B16A16_FLOAT : DXGI_FORMAT_R8G8B8A8_UNORM,
-		_size.width,
-		_size.height,
-		1, 1, 1, 0,
-		D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS
-	);
+	DXGI_FORMAT textureFormat =
+		_isScRGB ? DXGI_FORMAT_R16G16B16A16_FLOAT : DXGI_FORMAT_R8G8B8A8_UNORM;
 
 	for (_FrameResourceSlot& slot : _slots) {
-		HRESULT hr = device->CreateCommittedResource(&heapProps, heapFlags,
-			&texDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&slot.resource));
+		HRESULT hr = gpuResourceManager.CreateTexture(
+			D3D12_HEAP_TYPE_DEFAULT,
+			textureFormat,
+			_size,
+			D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+			D3D12_RESOURCE_STATE_COMMON,
+			slot.textureAllocation.put()
+		);
 		if (FAILED(hr)) {
-			Logger::Get().ComError("CreateCommittedResource 失败", hr);
+			Logger::Get().ComError("GpuResourceManager::CreateTexture 失败", hr);
 			return hr;
 		}
 	}

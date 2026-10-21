@@ -1,8 +1,10 @@
 #pragma once
 #include "CatmullRomDrawer.h"
+#include "D3D12Context.h"
 #include "EffectDrawerBase.h"
 #include "EffectTextureFormat.h"
 #include "SmallVector.h"
+#include <D3D12MemAlloc.h>
 
 namespace Magpie {
 
@@ -58,7 +60,7 @@ public:
 	void OnProducerFrameCompleted(uint64_t fenceValue) noexcept;
 
 private:
-	// 如果提供了 textureSrvOffset 则不需要 texture 和 textureFormat，否则需要
+	// 如果提供了 textureSrvOffset 则不需要 textureAllocation 和 textureFormat，否则需要
 	HRESULT _DrawScreenshot(
 		ComputeContext& computeContext,
 		uint32_t textureSrvOffset,
@@ -111,7 +113,7 @@ private:
 
 	struct _ScreenshotData {
 		uint64_t fenceValue = 0;
-		winrt::com_ptr<ID3D12Resource> buffer;
+		winrt::com_ptr<D3D12MA::Allocation> readbackBufferAllocation;
 		SizeU textureSize{};
 		EffectTextureFormat textureFormat = EffectTextureFormat::R16G16B16A16_UNORM;
 		uint32_t rowPitch = 0;
@@ -119,7 +121,7 @@ private:
 		ColorInfo colorInfo;
 
 		// 用于把要导出的纹理转换为 R16G16B16A16_FLOAT 格式
-		winrt::com_ptr<ID3D12Resource> tempTexture;
+		winrt::com_ptr<D3D12MA::Allocation> tempTextureAllocation;
 		uint32_t descriptorBaseOffset = std::numeric_limits<uint32_t>::max();
 		
 		// 通常只需要 tempTexture 的 UAV，但导出最终输出画面时需要额外为环形缓冲创建 SRV

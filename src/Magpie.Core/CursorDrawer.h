@@ -1,8 +1,9 @@
 #pragma once
-#include "ByteBuffer.h"
-#include "SmallVector.h"
+#include <D3D12MemAlloc.h>
 #include <parallel_hashmap/phmap.h>
 #include <wil/registry.h>
+#include "ByteBuffer.h"
+#include "SmallVector.h"
 
 namespace Magpie {
 
@@ -93,12 +94,12 @@ private:
 		_CursorType type = _CursorType::Color;
 		PointU hotspot{};
 
-		winrt::com_ptr<ID3D12Resource> texture;
+		winrt::com_ptr<D3D12MA::Allocation> textureAllocation;
 		SizeU resSize{};
 		ByteBuffer resTextureData;
 		// 这两个资源使用完毕后在 _ClearRetiredResources 中释放
-		winrt::com_ptr<ID3D12Resource> uploadBuffer;
-		winrt::com_ptr<ID3D12Resource> resTexture;
+		winrt::com_ptr<D3D12MA::Allocation> uploadBufferAllocation;
+		winrt::com_ptr<D3D12MA::Allocation> resTextureAllocation;
 		uint64_t tempResourcesFenceValue = 0;
 
 		uint32_t textureSrvOffset = std::numeric_limits<uint32_t>::max();
@@ -156,8 +157,7 @@ private:
 	HRESULT _InitializeCursorTexture(
 		GraphicsContext& graphicsContext,
 		_CursorInfo& cursorInfo,
-		uint32_t cursorFrameIdx,
-		uint64_t completedFenceValue
+		uint32_t cursorFrameIdx
 	) noexcept;
 
 	// 只能在同步 GPU 后调用
@@ -210,12 +210,12 @@ private:
 	std::chrono::steady_clock::time_point _curFrameSeqEndTime;
 
 	// 用于从渲染目标复制光标下区域
-	winrt::com_ptr<ID3D12Resource> _tempOriginTexture;
+	winrt::com_ptr<D3D12MA::Allocation> _tempOriginTextureAllocation;
 	SizeU _tempOriginTextureSize{};
 	uint32_t _tempOriginTextureSrvOffset = std::numeric_limits<uint32_t>::max();
 	
 	struct _RetiredTempOriginTexture {
-		winrt::com_ptr<ID3D12Resource> texture;
+		winrt::com_ptr<D3D12MA::Allocation> textureAllocation;
 		uint64_t fenceValue;
 		uint32_t srvOffset;
 	};

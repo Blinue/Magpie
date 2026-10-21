@@ -59,6 +59,7 @@ ScalingError Renderer::Initialize(
 		options.Is3DGameMode() ? 2 : 6,
 		D3D12_COMMAND_QUEUE_PRIORITY_HIGH,
 		D3D12_COMMAND_LIST_TYPE_DIRECT,
+		_gpuResourceManager,
 		_csuDescriptorHeap,
 		_rtvDescriptorHeap
 	)) {
@@ -97,6 +98,11 @@ ScalingError Renderer::Initialize(
 #endif
 	}
 #endif
+
+	if (!_gpuResourceManager.Initialize(_d3d12Context.GetDevice(), _d3d12Context.GetDXGIAdapter())) {
+		Logger::Get().Error("GpuResourceManager::Initialize 失败");
+		return ScalingError::ScalingFailedGeneral;
+	}
 
 	if (!_csuDescriptorHeap.Initialize(
 		device, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, CSU_HEAP_CAPACITY)
@@ -553,6 +559,8 @@ HRESULT Renderer::_RenderImpl(HCURSOR hCursor, POINT cursorPos, bool waitForGpu)
 		assert(false);
 		return S_OK;
 	}
+
+	_d3d12Context.GetGpuResourceManager().OnFrameCompleted(completedFenceValue, true);
 
 	// SwapChain::BeginFrame 和 D3D12Context::BeginFrame 无顺序要求，不过
 	// 前者通常等待时间更久，将它放在前面可以减少等待次数。

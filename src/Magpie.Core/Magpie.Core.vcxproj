@@ -52,6 +52,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="EffectTextureFormat.h" />
+    <ClInclude Include="GpuResourceManager.h" />
     <ClInclude Include="include\AppXReader.h" />
     <ClInclude Include="include\resource.h" />
     <ClInclude Include="include\ScreenshotFilenameTemplateHelper.h" />
@@ -106,6 +107,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AppXReader.cpp" />
+    <ClCompile Include="GpuResourceManager.cpp" />
     <ClCompile Include="KeepScreenOnHelper.cpp" />
     <ClCompile Include="AppFolderManager.cpp" />
     <ClCompile Include="CatmullRomDrawer.cpp" />

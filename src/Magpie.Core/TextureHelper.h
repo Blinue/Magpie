@@ -14,9 +14,8 @@ struct TextureHelper {
 		SizeU& textureSize
 	) noexcept;
 
-	// 中间纹理导出为 dds，否则导出为 png。
-	// dds 不使用 acKind。
-	// 导出 png 时 pixelData 必须是 R16G16B16A16_UNROM 格式。WCG 下使用 BT.2020 色域，HDR 下使用 BT.2020
+	// 导出 png 时 pixelData 必须是 R16G16B16A16_UNROM 格式。WCG 下使用 BT.2020 SDR，
+	// HDR 下使用 BT.2020/PQ。
 	static HRESULT Save(
 		wil::zwstring_view fileName,
 		SizeU textureSize,

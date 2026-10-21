@@ -4,6 +4,7 @@
 #include "DescriptorHeap.h"
 #include "DirectXHelper.h"
 #include "EffectsService.h"
+#include "GpuResourceManager.h"
 #include "Logger.h"
 #include "TextureHelper.h"
 #include "ScalingOptions.h"
@@ -303,7 +304,7 @@ HRESULT ShaderEffectDrawer::Draw(
 			uint32_t exportTexIdx = curPassDesc.outputs[exportData.outputIdx] - 2;
 			ID3D12Resource* exportTexture = _textures[exportTexIdx].get();
 
-			ID3D12Device5* device = _d3d12Context->GetDevice();
+			auto& gpuResourceManager = _d3d12Context->GetGpuResourceManager();
 
 			{
 				D3D12_RESOURCE_DESC desc = exportTexture->GetDesc();
@@ -320,36 +321,24 @@ HRESULT ShaderEffectDrawer::Draw(
 				D3D12_TEXTURE_DATA_PITCH_ALIGNMENT
 			);
 
-			{
-				CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_READBACK);
-
-				D3D12_HEAP_FLAGS heapFlags = _d3d12Context->IsHeapFlagCreateNotZeroedSupported() ?
-					D3D12_HEAP_FLAG_CREATE_NOT_ZEROED : D3D12_HEAP_FLAG_NONE;
-
-				CD3DX12_RESOURCE_DESC bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(
-					(UINT64)exportData.rowPitch * exportData.textureSize.height);
-
-				HRESULT hr = device->CreateCommittedResource(
-					&heapProps,
-					heapFlags,
-					&bufferDesc,
-					D3D12_RESOURCE_STATE_COPY_DEST,
-					nullptr,
-					IID_PPV_ARGS(&exportData.readbackBuffer)
-				);
-				if (FAILED(hr)) {
-					Logger::Get().ComError("CreateCommittedResource 失败", hr);
-					return hr;
-				}
+			HRESULT hr = gpuResourceManager.CreateBuffer(
+				D3D12_HEAP_TYPE_READBACK,
+				(UINT64)exportData.rowPitch* exportData.textureSize.height,
+				D3D12_RESOURCE_STATE_COPY_DEST,
+				exportData.readbackBufferAllocation.put()
+			);
+			if (FAILED(hr)) {
+				Logger::Get().ComError("GpuResourceManager::CreateBuffer 失败", hr);
+				return hr;
 			}
-
+			
 			computeContext.InsertTransitionBarrier(exportTexture,
 				D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
 			_textureStates[exportTexIdx] = D3D12_RESOURCE_STATE_COPY_SOURCE;
 
 			computeContext.CopyTextureRegion(
 				CD3DX12_TEXTURE_COPY_LOCATION(
-					exportData.readbackBuffer.get(),
+					exportData.readbackBufferAllocation->GetResource(),
 					D3D12_PLACED_SUBRESOURCE_FOOTPRINT{
 						.Footprint = {
 							.Format = textureFormatProps.dxgiFormat,

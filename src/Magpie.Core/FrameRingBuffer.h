@@ -1,5 +1,6 @@
 #pragma once
 #include "SmallVector.h"
+#include <D3D12MemAlloc.h>
 
 namespace Magpie {
 
@@ -61,12 +62,12 @@ private:
 		// 1. 文档说：当一个资源在某个队列上转换到了可写状态时，该资源被视为由该队列独占拥有。在该
 		// 资源被另一个队列访问之前，它必须先转换到只读或 COMMON 状态。
 		// 2. 消费者使用共享纹理的频率比生产者更高，因此选择对消费者更友好的 COPY_SOURCE 状态。
-		winrt::com_ptr<ID3D12Resource> resource;
+		winrt::com_ptr<D3D12MA::Allocation> textureAllocation;
 		uint64_t consumerFenceValue = 0;
 		uint64_t producerFenceValue = 1;
 	};
-
-	std::vector<_FrameResourceSlot> _slots;
+	// 最多同时渲染 3 帧，因此 4 个槽位足够
+	SmallVector<_FrameResourceSlot, 4> _slots;
 	uint32_t _curConsumerIdx = 0;
 	uint32_t _curProducerIdx = 0;
 

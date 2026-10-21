@@ -4,6 +4,7 @@
 #include "DuplicateFrameChecker.h"
 #include "DescriptorHeap.h"
 #include "EffectDrawerBase.h"
+#include "GpuResourceManager.h"
 #include "GraphicsCaptureFrameSource.h"
 #include "Logger.h"
 #include "ScalingWindow.h"
@@ -483,7 +484,7 @@ HRESULT FrameProducer::_Render() noexcept {
 		Logger::Get().ComError("D3D12Context::BeginFrame 失败", hr);
 		return hr;
 	}
-	
+
 	ID3D12CommandQueue* commandQueue = _d3d12Context.GetCommandQueue();
 
 	uint32_t frameRingBufferIdx;
@@ -577,9 +578,13 @@ void FrameProducer::_MonitorThreadProc() noexcept {
 		ScalingWindow::Get().RequestNewFrame();
 
 		_dispatcher.TryEnqueue([this, runId(ScalingWindow::RunId())] {
-			if (runId == ScalingWindow::RunId()) {
-				_effectsDrawer->OnProducerFrameCompleted(_frameRingBuffer.GetProduerCompletedFenceValue());
+			if (runId != ScalingWindow::RunId()) {
+				return;
 			}
+
+			uint64_t completedFenceValue = _frameRingBuffer.GetProduerCompletedFenceValue();
+			_d3d12Context.GetGpuResourceManager().OnFrameCompleted(completedFenceValue, false);
+			_effectsDrawer->OnProducerFrameCompleted(completedFenceValue);
 		});
 		
 		HRESULT hr = _frameRingBuffer.SetEventOnNewFrame(producerFenceValue, newFrameEvent.get());

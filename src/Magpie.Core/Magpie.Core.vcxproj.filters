@@ -171,6 +171,9 @@
     <ClInclude Include="CatmullRomDrawer.h">
       <Filter>Render</Filter>
     </ClInclude>
+    <ClInclude Include="GpuResourceManager.h">
+      <Filter>Render</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -266,6 +269,9 @@
       <Filter>Helpers</Filter>
     </ClCompile>
     <ClCompile Include="CatmullRomDrawer.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="GpuResourceManager.cpp">
       <Filter>Render</Filter>
     </ClCompile>
   </ItemGroup>

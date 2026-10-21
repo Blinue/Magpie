@@ -4,6 +4,7 @@
 namespace Magpie {
 
 class DescriptorHeap;
+class GpuResourceManager;
 
 class D3D12Context {
 public:
@@ -16,6 +17,7 @@ public:
 		uint32_t maxInFlightFrameCount,
 		D3D12_COMMAND_QUEUE_PRIORITY priority,
 		D3D12_COMMAND_LIST_TYPE commandListType,
+		GpuResourceManager& gpuResourceManager,
 		DescriptorHeap& csuDescriptorHeap,
 		DescriptorHeap& rtvDescriptorHeap,
 		bool disableFrameFenceTracking = false
@@ -29,6 +31,10 @@ public:
 		D3D12_COMMAND_LIST_TYPE commandListType,
 		bool disableFrameTracking = false
 	) noexcept;
+
+	GpuResourceManager& GetGpuResourceManager() const noexcept {
+		return *_gpuResourceManager;
+	}
 
 	DescriptorHeap& GetDescriptorHeap(bool rtv = false) const noexcept {
 		return rtv ? *_rtvDescriptorHeap : *_csuDescriptorHeap;
@@ -126,9 +132,10 @@ private:
 
 	void _LogDeviceInfo() noexcept;
 
+	GpuResourceManager* _gpuResourceManager = nullptr;
 	DescriptorHeap* _csuDescriptorHeap = nullptr;
 	DescriptorHeap* _rtvDescriptorHeap = nullptr;
-
+	
 	winrt::com_ptr<IDXGIFactory7> _dxgiFactory;
 	winrt::com_ptr<IDXGIAdapter4> _dxgiAdapter;
 	winrt::com_ptr<ID3D12Device5> _device;
@@ -145,7 +152,7 @@ private:
 
 	D3D_SHADER_MODEL _shaderModel = D3D_SHADER_MODEL_5_1;
 	D3D_ROOT_SIGNATURE_VERSION _rootSignatureVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
-	
+
 	bool _isUMA = false;
 	bool _isHeapFlagCreateNotZeroedSupported = false;
 	bool _isGPUUploadHeapSupported = false;

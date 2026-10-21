@@ -6,6 +6,7 @@
 #include "DescriptorHeap.h"
 #include "DirectXHelper.h"
 #include "EffectInfo.h"
+#include "GpuResourceManager.h"
 #include "LocalizationService.h"
 #include "Logger.h"
 #include "ScalingWindow.h"
@@ -375,7 +376,7 @@ HRESULT EffectsDrawer::Draw(
 			if (exportData.IsValid()) {
 				_screenshotDatas.push_back(_ScreenshotData{
 					.fenceValue = frameFenceValue,
-					.buffer = std::move(exportData.readbackBuffer),
+					.readbackBufferAllocation = std::move(exportData.readbackBufferAllocation),
 					.textureSize = exportData.textureSize,
 					.textureFormat = exportData.textureFormat,
 					.rowPitch = exportData.rowPitch,
@@ -672,14 +673,15 @@ void EffectsDrawer::OnProducerFrameCompleted(uint64_t fenceValue) noexcept {
 				std::vector<uint8_t> pixelData(size_t(curData.rowPitch) * curData.textureSize.height);
 
 				void* pBufferData;
-				HRESULT hr = curData.buffer->Map(0, nullptr, &pBufferData);
+				HRESULT hr = curData.readbackBufferAllocation->GetResource()->Map(0, nullptr, &pBufferData);
 				if (SUCCEEDED(hr)) {
 					std::memcpy(pixelData.data(), pBufferData, pixelData.size());
-					D3D12_RANGE emptyRande{};
-					curData.buffer->Unmap(0, &emptyRande);
+					D3D12_RANGE emptyRange{};
+					curData.readbackBufferAllocation->GetResource()->Unmap(0, &emptyRange);
 
 					HWND hwndSrc = ScalingWindow::Get().SrcHandle();
-					std::wstring_view imgFormat = curData.tempTexture ? L"png" : L"dds";
+					// 中间纹理导出为 dds，否则导出为 png
+					std::wstring_view imgFormat = curData.tempTextureAllocation ? L"png" : L"dds";
 					SizeU textureSize = curData.textureSize;
 					EffectTextureFormat textureFormat = curData.textureFormat;
 					uint32_t rowPitch = curData.rowPitch;
@@ -738,6 +740,8 @@ HRESULT EffectsDrawer::_DrawScreenshot(
 	uint64_t frameFenceValue
 ) noexcept {
 	ID3D12Device5* device = _d3d12Context->GetDevice();
+	auto& gpuResourceManager = _d3d12Context->GetGpuResourceManager();
+	auto& descriptorHeap = _d3d12Context->GetDescriptorHeap();
 
 	_ScreenshotData& curData = _screenshotDatas.emplace_back();
 
@@ -755,27 +759,15 @@ HRESULT EffectsDrawer::_DrawScreenshot(
 	curData.rowPitch = DirectXHelper::Align(
 		textureSize.width * screenshotTextureFormatProps.texelSize, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
 
-	{
-		CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_READBACK);
-
-		D3D12_HEAP_FLAGS heapFlags = _d3d12Context->IsHeapFlagCreateNotZeroedSupported() ?
-			D3D12_HEAP_FLAG_CREATE_NOT_ZEROED : D3D12_HEAP_FLAG_NONE;
-
-		CD3DX12_RESOURCE_DESC bufferDesc =
-			CD3DX12_RESOURCE_DESC::Buffer((UINT64)curData.rowPitch * textureSize.height);
-
-		HRESULT hr = device->CreateCommittedResource(
-			&heapProps,
-			heapFlags,
-			&bufferDesc,
-			D3D12_RESOURCE_STATE_COPY_DEST,
-			nullptr,
-			IID_PPV_ARGS(&curData.buffer)
-		);
-		if (FAILED(hr)) {
-			Logger::Get().ComError("CreateCommittedResource 失败", hr);
-			return hr;
-		}
+	HRESULT hr = gpuResourceManager.CreateBuffer(
+		D3D12_HEAP_TYPE_READBACK,
+		(UINT64)curData.rowPitch * textureSize.height,
+		D3D12_RESOURCE_STATE_COPY_DEST,
+		curData.readbackBufferAllocation.put()
+	);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("GpuResourceManager::CreateBuffer 失败", hr);
+		return hr;
 	}
 	
 	// 把要导出的纹理转换为用于导出截图的格式。
@@ -783,48 +775,42 @@ HRESULT EffectsDrawer::_DrawScreenshot(
 	// WCG: 需转换为 BT.2020 SDR
 	// HDR: 需转换为 BT.2020/PQ
 	
-	{
-		CD3DX12_RESOURCE_DESC texDesc = CD3DX12_RESOURCE_DESC::Tex2D(
-			screenshotTextureFormatProps.dxgiFormat,
-			textureSize.width, textureSize.height, 1, 1, 1, 0,
-			D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS
-		);
-
-		CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_DEFAULT);
-
-		D3D12_HEAP_FLAGS heapFlags = _d3d12Context->IsHeapFlagCreateNotZeroedSupported() ?
-			D3D12_HEAP_FLAG_CREATE_NOT_ZEROED : D3D12_HEAP_FLAG_NONE;
-
-		HRESULT hr = device->CreateCommittedResource(
-			&heapProps, heapFlags, &texDesc, D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-			nullptr, IID_PPV_ARGS(&curData.tempTexture));
-		if (FAILED(hr)) {
-			Logger::Get().ComError("CreateCommittedResource 失败", hr);
-			return hr;
-		}
+	hr = gpuResourceManager.CreateTexture(
+		D3D12_HEAP_TYPE_DEFAULT,
+		screenshotTextureFormatProps.dxgiFormat,
+		textureSize,
+		D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+		curData.tempTextureAllocation.put()
+	);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("GpuResourceManager::CreateBuffer 失败", hr);
+		return hr;
 	}
 
-	auto& descriptorHeap = _d3d12Context->GetDescriptorHeap();
-	HRESULT hr = descriptorHeap.Alloc(curData.hasSRV ? 2 : 1, curData.descriptorBaseOffset);
+	hr = descriptorHeap.Alloc(curData.hasSRV ? 2 : 1, curData.descriptorBaseOffset);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("DescriptorHeap::Alloc 失败", hr);
 		return hr;
 	}
 
-	CD3DX12_CPU_DESCRIPTOR_HANDLE cpuHandle(descriptorHeap.GetCpuHandle(curData.descriptorBaseOffset));
+	{
+		CD3DX12_CPU_DESCRIPTOR_HANDLE cpuHandle(descriptorHeap.GetCpuHandle(curData.descriptorBaseOffset));
 
-	if (curData.hasSRV) {
-		CD3DX12_SHADER_RESOURCE_VIEW_DESC srvDesc =
-			CD3DX12_SHADER_RESOURCE_VIEW_DESC::Tex2D(originTextureFormatProps.dxgiFormat, 1);
+		if (curData.hasSRV) {
+			CD3DX12_SHADER_RESOURCE_VIEW_DESC srvDesc =
+				CD3DX12_SHADER_RESOURCE_VIEW_DESC::Tex2D(originTextureFormatProps.dxgiFormat, 1);
 
-		device->CreateShaderResourceView(texture, &srvDesc, cpuHandle);
-		cpuHandle.Offset(descriptorHeap.GetDescriptorSize());
+			device->CreateShaderResourceView(texture, &srvDesc, cpuHandle);
+			cpuHandle.Offset(descriptorHeap.GetDescriptorSize());
+		}
+
+		CD3DX12_UNORDERED_ACCESS_VIEW_DESC uavDesc =
+			CD3DX12_UNORDERED_ACCESS_VIEW_DESC::Tex2D(screenshotTextureFormatProps.dxgiFormat);
+		device->CreateUnorderedAccessView(
+			curData.tempTextureAllocation->GetResource(), nullptr, &uavDesc, cpuHandle);
 	}
-
-	CD3DX12_UNORDERED_ACCESS_VIEW_DESC uavDesc =
-		CD3DX12_UNORDERED_ACCESS_VIEW_DESC::Tex2D(screenshotTextureFormatProps.dxgiFormat);
-	device->CreateUnorderedAccessView(curData.tempTexture.get(), nullptr, &uavDesc, cpuHandle);
-
+	
 	if (!_screenshotRootSignature) {
 		hr = _InitializeScreenshotRootSignature();
 		if (FAILED(hr)) {
@@ -877,14 +863,14 @@ HRESULT EffectsDrawer::_DrawScreenshot(
 	);
 
 	computeContext.InsertTransitionBarrier(
-		curData.tempTexture.get(),
+		curData.tempTextureAllocation->GetResource(),
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
 		D3D12_RESOURCE_STATE_COPY_SOURCE
 	);
 
 	computeContext.CopyTextureRegion(
 		CD3DX12_TEXTURE_COPY_LOCATION(
-			curData.buffer.get(),
+			curData.readbackBufferAllocation->GetResource(),
 			D3D12_PLACED_SUBRESOURCE_FOOTPRINT{
 				.Footprint = {
 					.Format = screenshotTextureFormatProps.dxgiFormat,
@@ -897,7 +883,7 @@ HRESULT EffectsDrawer::_DrawScreenshot(
 		),
 		0,
 		0,
-		CD3DX12_TEXTURE_COPY_LOCATION(curData.tempTexture.get())
+		CD3DX12_TEXTURE_COPY_LOCATION(curData.tempTextureAllocation->GetResource())
 	);
 
 	return S_OK;

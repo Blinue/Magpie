@@ -4,6 +4,7 @@
 #include "D3D12Context.h"
 #include "DescriptorHeap.h"
 #include "FrameProducer.h"
+#include "GpuResourceManager.h"
 #include "OverlayDrawer.h"
 #include "ScalingOptions.h"
 
@@ -92,7 +93,8 @@ private:
 
 	RectU _outputRect{};
 
-	// 由多个 D3D12Context 共享
+	// GpuResourceManager 和 DescriptorHeap 由多个 D3D12Context 共享
+	GpuResourceManager _gpuResourceManager;
 	DescriptorHeap _csuDescriptorHeap;
 	DescriptorHeap _rtvDescriptorHeap;
 	D3D12Context _d3d12Context;
