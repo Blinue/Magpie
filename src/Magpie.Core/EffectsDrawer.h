@@ -88,7 +88,7 @@ private:
 		std::unique_ptr<EffectDrawerBase> drawer;
 		const EffectInfo* effectInfo = nullptr;
 		SizeU outputSize{};
-		winrt::com_ptr<ID3D12Resource> outputTexture;
+		winrt::com_ptr<D3D12MA::Allocation> outputTextureAllocation;
 		EffectDebugInfo debugInfo;
 	};
 
@@ -99,7 +99,7 @@ private:
 	uint32_t _descriptorBaseOffset = std::numeric_limits<uint32_t>::max();
 
 	winrt::com_ptr<ID3D12QueryHeap> _queryHeap;
-	winrt::com_ptr<ID3D12Resource> _queryResultBuffer;
+	winrt::com_ptr<D3D12MA::Allocation> _queryResultBufferAllocation;
 	UINT64 _timestampFrequency = 0;
 
 	struct _ExportTask {
@@ -114,9 +114,11 @@ private:
 	struct _ScreenshotData {
 		uint64_t fenceValue = 0;
 		winrt::com_ptr<D3D12MA::Allocation> readbackBufferAllocation;
+		void* readbackBufferData = nullptr;
 		SizeU textureSize{};
 		EffectTextureFormat textureFormat = EffectTextureFormat::R16G16B16A16_UNORM;
 		uint32_t rowPitch = 0;
+		uint64_t bufferSize = 0;
 		// 由于导出是异步的需要备份 colorInfo
 		ColorInfo colorInfo;
 

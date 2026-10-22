@@ -40,7 +40,29 @@ struct DirectXHelper {
 	}
 
 	static uint32_t Align(uint32_t value, uint32_t alignment) noexcept {
-		return (value + alignment - 1u) & ~(alignment - 1u);
+		return (value + alignment - 1) & ~(alignment - 1);
+	}
+
+	static uint64_t Align(uint64_t value, uint64_t alignment) noexcept {
+		return (value + alignment - 1) & ~(alignment - 1);
+	}
+
+	static void ComputeBufferLayout(
+		SizeU textureSize,
+		uint32_t texelSize,
+		uint32_t& rowSize,
+		uint32_t& rowPitch,
+		uint64_t& bufferSize
+	) noexcept {
+		assert(textureSize != SizeU{});
+		assert(textureSize.width <= D3D12_REQ_TEXTURE2D_U_OR_V_DIMENSION);
+		assert(textureSize.height <= D3D12_REQ_TEXTURE2D_U_OR_V_DIMENSION);
+		assert(texelSize > 0);
+
+		rowSize = textureSize.width * texelSize;
+		rowPitch = DirectXHelper::Align(rowSize, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
+		// 最后一行不包含填充位
+		bufferSize = rowPitch * uint64_t(textureSize.height - 1) + rowSize;
 	}
 };
 

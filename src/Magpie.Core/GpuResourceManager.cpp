@@ -83,13 +83,11 @@ void GpuResourceManager::RetireResource(
 	winrt::com_ptr<D3D12MA::Allocation>&& allocation,
 	bool isConsumer
 ) noexcept {
-	SmallVectorImpl<_RetiredResource>& retiredResources =
-		isConsumer ? _consumerRetiredResources : _producerRetiredResources;
-	uint64_t curFrameFenceValue = isConsumer ? _curConsumerFrameFenceValue : _curProducerFrameFenceValue;
-
-	// fenceValue 不能减小
-	assert(retiredResources.empty() || curFrameFenceValue >= retiredResources.back().fenceValue);
-	retiredResources.emplace_back(std::move(allocation), curFrameFenceValue);
+	if (isConsumer) {
+		_consumerRetiredResources.emplace_back(std::move(allocation), _curConsumerFrameFenceValue);
+	} else {
+		_producerRetiredResources.emplace_back(std::move(allocation), _curProducerFrameFenceValue);
+	}
 }
 
 void GpuResourceManager::RetireDescriptor(
@@ -98,17 +96,23 @@ void GpuResourceManager::RetireDescriptor(
 	bool isRtv,
 	bool isConsumer
 ) noexcept {
-	SmallVectorImpl<_RetiredDescriptor>& retiredDescriptors =
-		isConsumer ? _consumerRetiredDescriptors : _producerRetiredDescriptors;
-	uint64_t curFrameFenceValue = isConsumer ? _curConsumerFrameFenceValue : _curProducerFrameFenceValue;
+	assert(offset != std::numeric_limits<uint32_t>::max());
 
-	// fenceValue 不能减小
-	assert(retiredDescriptors.empty() || curFrameFenceValue >= retiredDescriptors.back().fenceValue);
-	retiredDescriptors.emplace_back(offset, count, isRtv, curFrameFenceValue);
+	if (isConsumer) {
+		_consumerRetiredDescriptors.emplace_back(offset, count, isRtv, _curConsumerFrameFenceValue);
+	} else {
+		_producerRetiredDescriptors.emplace_back(offset, count, isRtv, _curProducerFrameFenceValue);
+	}
 }
 
 void GpuResourceManager::OnFrameBegan(uint64_t frameFenceValue, bool isConsumer) noexcept {
-	(isConsumer ? _curConsumerFrameFenceValue : _curProducerFrameFenceValue) = frameFenceValue;
+	if (isConsumer) {
+		assert(frameFenceValue > _curConsumerFrameFenceValue);
+		_curConsumerFrameFenceValue = frameFenceValue;
+	} else {
+		assert(frameFenceValue > _curProducerFrameFenceValue);
+		_curProducerFrameFenceValue = frameFenceValue;
+	}
 }
 
 void GpuResourceManager::OnFrameCompleted(uint64_t completedFenceValue, bool isConsumer) noexcept {

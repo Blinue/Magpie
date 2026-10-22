@@ -33,15 +33,6 @@ struct EffectDrawerExportData {
 	SizeU textureSize{};
 	EffectTextureFormat textureFormat = EffectTextureFormat::UNKNOWN;
 	uint32_t rowPitch = 0;
-
-	bool IsValid() const noexcept {
-		return readbackBufferAllocation &&
-			textureSize != SizeU{} &&
-			textureFormat > EffectTextureFormat::COLOR_SPACE_ADAPTIVE &&
-			textureFormat < EffectTextureFormat::COUNT &&
-			textureSize.width * EFFECT_TEXTURE_FORMAT_PROPS[(uint32_t)textureFormat].texelSize <= rowPitch &&
-			rowPitch * textureSize.height <= (uint32_t)readbackBufferAllocation->GetResource()->GetDesc().Width;
-	}
 };
 
 class EffectDrawerBase {

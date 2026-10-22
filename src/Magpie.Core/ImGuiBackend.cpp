@@ -278,9 +278,11 @@ HRESULT ImGuiBackend::_UpdateTexture(
 			uploadSize = { texData.UpdateRect.w, texData.UpdateRect.h };
 		}
 
-		uint32_t uploadRowSize = uploadSize.width * (uint32_t)texData.BytesPerPixel;
-		uint32_t uploadRowPitch = DirectXHelper::Align(uploadRowSize, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
-		uint32_t bufferSize = uploadRowPitch * uploadSize.height;
+		uint32_t uploadRowSize;
+		uint32_t uploadRowPitch;
+		uint64_t bufferSize;
+		DirectXHelper::ComputeBufferLayout(
+			uploadSize, (uint32_t)texData.BytesPerPixel, uploadRowSize, uploadRowPitch, bufferSize);
 
 		winrt::com_ptr<D3D12MA::Allocation> uploadBufferAllocation;
 		void* uploadBufferData;

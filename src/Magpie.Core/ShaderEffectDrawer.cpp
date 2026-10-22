@@ -194,11 +194,14 @@ HRESULT ShaderEffectDrawer::Draw(
 	if (_shouldUpdateConstantBuffer) {
 		_shouldUpdateConstantBuffer = false;
 
-		computeContext.CopyBufferRegion(_constantBuffer.get(), 0,
-			_constantUploadBuffer.get(), 0, _constantsDataSize, false);
+		computeContext.CopyBufferRegion(
+			_constantBufferAllocation->GetResource(), 0,
+			_constantUploadBufferAllocation->GetResource(), 0,
+			_constantsDataSize, false
+		);
 
 		computeContext.InsertTransitionBarrier(
-			_constantBuffer.get(),
+			_constantBufferAllocation->GetResource(),
 			D3D12_RESOURCE_STATE_COPY_DEST,
 			D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER
 		);
@@ -221,14 +224,14 @@ HRESULT ShaderEffectDrawer::Draw(
 				&textureLayout, nullptr, nullptr, nullptr);
 
 			computeContext.CopyTextureRegion(
-				CD3DX12_TEXTURE_COPY_LOCATION(_textures[sourceData.targetTextureIdx].get()),
+				CD3DX12_TEXTURE_COPY_LOCATION(_textures[sourceData.targetTextureIdx]->GetResource()),
 				0,
 				0,
-				CD3DX12_TEXTURE_COPY_LOCATION(sourceData.uploadBuffer.get(), textureLayout)
+				CD3DX12_TEXTURE_COPY_LOCATION(sourceData.uploadBufferAllocation->GetResource(), textureLayout)
 			);
 
 			computeContext.InsertTransitionBarrier(
-				_textures[sourceData.targetTextureIdx].get(),
+				_textures[sourceData.targetTextureIdx]->GetResource(),
 				D3D12_RESOURCE_STATE_COPY_DEST,
 				D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE
 			);
@@ -255,7 +258,7 @@ HRESULT ShaderEffectDrawer::Draw(
 				D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 			if (oldState != D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE) {
 				computeContext.InsertTransitionBarrier(
-					_textures[size_t(input - 2)].get(),
+					_textures[size_t(input - 2)]->GetResource(),
 					oldState,
 					D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE
 				);
@@ -271,14 +274,15 @@ HRESULT ShaderEffectDrawer::Draw(
 				D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 			if (oldState != D3D12_RESOURCE_STATE_UNORDERED_ACCESS) {
 				computeContext.InsertTransitionBarrier(
-					_textures[size_t(output - 2)].get(),
+					_textures[size_t(output - 2)]->GetResource(),
 					oldState,
 					D3D12_RESOURCE_STATE_UNORDERED_ACCESS
 				);
 			}
 		}
 
-		computeContext.SetComputeRootConstantBufferView(0, _constantBuffer->GetGPUVirtualAddress());
+		computeContext.SetComputeRootConstantBufferView(
+			0, _constantBufferAllocation->GetResource()->GetGPUVirtualAddress());
 
 		uint32_t rootParameterIndex = 1;
 
@@ -302,7 +306,7 @@ HRESULT ShaderEffectDrawer::Draw(
 			// 不会导出最后一个通道，因此只会导出中间纹理
 			assert(curPassDesc.outputs[exportData.outputIdx] >= 2);
 			uint32_t exportTexIdx = curPassDesc.outputs[exportData.outputIdx] - 2;
-			ID3D12Resource* exportTexture = _textures[exportTexIdx].get();
+			ID3D12Resource* exportTexture = _textures[exportTexIdx]->GetResource();
 
 			auto& gpuResourceManager = _d3d12Context->GetGpuResourceManager();
 
@@ -316,14 +320,14 @@ HRESULT ShaderEffectDrawer::Draw(
 			const EffectTextureFormatProps& textureFormatProps =
 				EFFECT_TEXTURE_FORMAT_PROPS[(uint32_t)exportData.textureFormat];
 
-			exportData.rowPitch = DirectXHelper::Align(
-				exportData.textureSize.width * textureFormatProps.texelSize,
-				D3D12_TEXTURE_DATA_PITCH_ALIGNMENT
-			);
+			uint32_t rowSize;
+			size_t bufferSize;
+			DirectXHelper::ComputeBufferLayout(exportData.textureSize,
+				textureFormatProps.texelSize, rowSize, exportData.rowPitch, bufferSize);
 
 			HRESULT hr = gpuResourceManager.CreateBuffer(
 				D3D12_HEAP_TYPE_READBACK,
-				(UINT64)exportData.rowPitch* exportData.textureSize.height,
+				bufferSize,
 				D3D12_RESOURCE_STATE_COPY_DEST,
 				exportData.readbackBufferAllocation.put()
 			);
@@ -615,7 +619,9 @@ HRESULT ShaderEffectDrawer::_CreateDeviceResources() noexcept {
 	}
 
 	// 常量缓冲区可以复用
-	if (!_constantBuffer) {
+	if (!_constantBufferAllocation) {
+		auto& gpuResourceManager = _d3d12Context->GetGpuResourceManager();
+
 		// 10 个内置常量
 		uint32_t paramCount = 10;
 		// PS 样式需要额外常量，除了最后一个通道
@@ -630,46 +636,35 @@ HRESULT ShaderEffectDrawer::_CreateDeviceResources() noexcept {
 		if (!options.IsInlineParams()) {
 			paramCount += (uint32_t)_effectInfo->params.size();
 		}
-		
-		D3D12_HEAP_FLAGS heapFlag = _d3d12Context->IsHeapFlagCreateNotZeroedSupported() ?
-			D3D12_HEAP_FLAG_CREATE_NOT_ZEROED : D3D12_HEAP_FLAG_NONE;
 
-		CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_UPLOAD);
+		uint32_t uploadBufferSize = paramCount * 4;
 
-		CD3DX12_RESOURCE_DESC bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(UINT64(paramCount * 4));
-
-		HRESULT hr = device->CreateCommittedResource(
-			&heapProperties,
-			heapFlag,
-			&bufferDesc,
+		HRESULT hr = gpuResourceManager.CreateBuffer(
+			D3D12_HEAP_TYPE_UPLOAD,
+			uploadBufferSize,
 			D3D12_RESOURCE_STATE_GENERIC_READ,
-			nullptr,
-			IID_PPV_ARGS(&_constantUploadBuffer)
+			_constantUploadBufferAllocation.put()
 		);
 		if (FAILED(hr)) {
-			Logger::Get().ComError("CreateCommittedResource 失败", hr);
+			Logger::Get().ComError("GpuResourceManager::CreateBuffer 失败", hr);
 			return hr;
 		}
 
-		heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
-		// 常量缓冲区必须对齐到 256 字节
-		bufferDesc.Width = (bufferDesc.Width + 255) & ~255;
-		hr = device->CreateCommittedResource(
-			&heapProperties,
-			heapFlag,
-			&bufferDesc,
+		hr = gpuResourceManager.CreateBuffer(
+			D3D12_HEAP_TYPE_DEFAULT,
+			DirectXHelper::Align(uploadBufferSize, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT),
 			D3D12_RESOURCE_STATE_COMMON,
-			nullptr,
-			IID_PPV_ARGS(&_constantBuffer)
+			_constantBufferAllocation.put()
 		);
 		if (FAILED(hr)) {
-			Logger::Get().ComError("CreateCommittedResource 失败", hr);
+			Logger::Get().ComError("GpuResourceManager::CreateBuffer 失败", hr);
 			return hr;
 		}
 
 		// 无需解除映射
 		D3D12_RANGE readRange{};
-		hr = _constantUploadBuffer->Map(0, &readRange, &_constantUploadBufferData);
+		hr = _constantUploadBufferAllocation->GetResource()->Map(
+			0, &readRange, &_constantUploadBufferData);
 		if (FAILED(hr)) {
 			Logger::Get().ComError("ID3D12Resource::Map 失败", hr);
 			return hr;
@@ -706,10 +701,10 @@ HRESULT ShaderEffectDrawer::_CreateDeviceResources() noexcept {
 // [...]
 // 此方法只更新 _constantUploadBuffer，_constantBuffer 将在 Draw 中更新。
 void ShaderEffectDrawer::_UpdateConstants() noexcept {
-	assert(_constantBuffer);
+	assert(_constantBufferAllocation);
 
 	using Constant32 = DirectXHelper::Constant32;
-	// SmallVector 中数据地址偏移量是 16 字节，alignas(16) 使 SmallVector
+	// SmallVector<Constant32> 中数据地址偏移量是 16 字节，alignas(16) 使 SmallVector
 	// 和其中数据都对齐到 16 字节边界。
 	alignas(16) SmallVector<Constant32, 32> constants;
 	assert((uint8_t*)constants.data() - (uint8_t*)&constants == 16);
@@ -733,7 +728,7 @@ void ShaderEffectDrawer::_UpdateConstants() noexcept {
 				constants.emplace_back(Constant32::Float(1.0f / _outputSize.width));
 				constants.emplace_back(Constant32::Float(1.0f / _outputSize.height));
 			} else {
-				D3D12_RESOURCE_DESC texDesc = _textures[size_t(output - 2)]->GetDesc();
+				D3D12_RESOURCE_DESC texDesc = _textures[size_t(output - 2)]->GetResource()->GetDesc();
 				constants.emplace_back(Constant32::Float(1.0f / texDesc.Width));
 				constants.emplace_back(Constant32::Float(1.0f / texDesc.Height));
 			}
@@ -769,7 +764,7 @@ void ShaderEffectDrawer::_UpdateConstants() noexcept {
 	}
 
 	_constantsDataSize = (uint32_t)constants.size() * 4;
-	assert(_constantsDataSize <= _constantUploadBuffer->GetDesc().Width);
+	assert(_constantsDataSize <= _constantUploadBufferAllocation->GetResource()->GetDesc().Width);
 	std::memcpy(_constantUploadBufferData, constants.data(), _constantsDataSize);
 
 	_shouldUpdateConstantBuffer = true;
@@ -781,6 +776,7 @@ HRESULT ShaderEffectDrawer::_UpdateSizeDependentResources() noexcept {
 	const uint32_t textureCount = (uint32_t)_drawInfo->textures.size();
 	if (textureCount != 0) {
 		ID3D12Device5* device = _d3d12Context->GetDevice();
+		auto& gpuResourceManager = _d3d12Context->GetGpuResourceManager();
 
 		_textures.resize(textureCount);
 		_textureStates.resize(textureCount);
@@ -827,27 +823,23 @@ HRESULT ShaderEffectDrawer::_UpdateSizeDependentResources() noexcept {
 				}
 
 				if (_textures[texIdx]) {
-					D3D12_RESOURCE_DESC texDesc = _textures[texIdx]->GetDesc();
+					D3D12_RESOURCE_DESC texDesc = _textures[texIdx]->GetResource()->GetDesc();
 					if (texDesc.Width == texSize.width && texDesc.Height == texSize.height &&
 						texDesc.Format == dxgiFormat) {
 						continue;
 					}
 				}
 
-				CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_DEFAULT);
-
-				D3D12_HEAP_FLAGS heapFlags = _d3d12Context->IsHeapFlagCreateNotZeroedSupported() ?
-					D3D12_HEAP_FLAG_CREATE_NOT_ZEROED : D3D12_HEAP_FLAG_NONE;
-
-				CD3DX12_RESOURCE_DESC texDesc = CD3DX12_RESOURCE_DESC::Tex2D(dxgiFormat,
-					texSize.width, texSize.height, 1, 1, 1, 0,
-					D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS
+				HRESULT hr = gpuResourceManager.CreateTexture(
+					D3D12_HEAP_TYPE_DEFAULT,
+					dxgiFormat,
+					texSize,
+					D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+					D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+					_textures[texIdx].put()
 				);
-
-				HRESULT hr = device->CreateCommittedResource(&heapProps, heapFlags, &texDesc,
-					D3D12_RESOURCE_STATE_UNORDERED_ACCESS, nullptr, IID_PPV_ARGS(&_textures[texIdx]));
 				if (FAILED(hr)) {
-					Logger::Get().ComError("CreateCommittedResource 失败", hr);
+					Logger::Get().ComError("GpuResourceManager::CreateTexture 失败", hr);
 					return hr;
 				}
 
@@ -866,31 +858,29 @@ HRESULT ShaderEffectDrawer::_UpdateSizeDependentResources() noexcept {
 
 				_TextureSourceData& sourceData = _textureSourceDatas.emplace_back();
 				// 可能会把 dxgiFormat 修改为 sRGB
-				sourceData.uploadBuffer = TextureHelper::LoadFromFile(
+				HRESULT hr = TextureHelper::LoadFromFile(
 					AppFolderManager::Get().GetBuiltInShaderEffectsDir() / texPath,
-					*_d3d12Context,
+					gpuResourceManager,
 					dxgiFormat,
-					sourceData.textureSize
+					sourceData.textureSize,
+					sourceData.uploadBufferAllocation.put()
 				);
-				if (!sourceData.uploadBuffer) {
+				if (FAILED(hr)) {
+					Logger::Get().ComError(fmt::format("加载纹理 {} 数据失败", effectTexDesc.name), hr);
 					_error = _Error::InvalidTextureSource;
-					Logger::Get().Error(fmt::format("加载纹理 {} 数据失败", effectTexDesc.name));
 					return S_FALSE;
 				}
 
-				CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_DEFAULT);
-
-				D3D12_HEAP_FLAGS heapFlags = _d3d12Context->IsHeapFlagCreateNotZeroedSupported() ?
-					D3D12_HEAP_FLAG_CREATE_NOT_ZEROED : D3D12_HEAP_FLAG_NONE;
-
-				CD3DX12_RESOURCE_DESC texDesc = CD3DX12_RESOURCE_DESC::Tex2D(
-					dxgiFormat, sourceData.textureSize.width, sourceData.textureSize.height,
-					1, 1, 1, 0, D3D12_RESOURCE_FLAG_NONE);
-
-				HRESULT hr = device->CreateCommittedResource(&heapProps, heapFlags, &texDesc,
-					D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(&_textures[texIdx]));
+				hr = gpuResourceManager.CreateTexture(
+					D3D12_HEAP_TYPE_DEFAULT,
+					dxgiFormat,
+					sourceData.textureSize,
+					D3D12_RESOURCE_FLAG_NONE,
+					D3D12_RESOURCE_STATE_COPY_DEST,
+					_textures[texIdx].put()
+				);
 				if (FAILED(hr)) {
-					Logger::Get().ComError("CreateCommittedResource 失败", hr);
+					Logger::Get().ComError("GpuResourceManager::CreateTexture 失败", hr);
 					return hr;
 				}
 
@@ -915,7 +905,7 @@ HRESULT ShaderEffectDrawer::_UpdateSizeDependentResources() noexcept {
 					}
 
 					size_t offset = it - _textureDescriptorMap.begin();
-					device->CreateShaderResourceView(_textures[texIdx].get(), &srvDesc,
+					device->CreateShaderResourceView(_textures[texIdx]->GetResource(), &srvDesc,
 						CD3DX12_CPU_DESCRIPTOR_HANDLE(baseHandle, (INT)offset, descriptorSize));
 				}
 
@@ -933,7 +923,7 @@ HRESULT ShaderEffectDrawer::_UpdateSizeDependentResources() noexcept {
 						}
 
 						size_t offset = it - _textureDescriptorMap.begin();
-						device->CreateUnorderedAccessView(_textures[texIdx].get(), nullptr, &uavDesc,
+						device->CreateUnorderedAccessView(_textures[texIdx]->GetResource(), nullptr, &uavDesc,
 							CD3DX12_CPU_DESCRIPTOR_HANDLE(baseHandle, (INT)offset, descriptorSize));
 					}
 				} else {
@@ -954,7 +944,7 @@ HRESULT ShaderEffectDrawer::_UpdateSizeDependentResources() noexcept {
 		if (curPassDesc.outputs[0] == 1) {
 			outputSize = _outputSize;
 		} else {
-			D3D12_RESOURCE_DESC texDesc = _textures[size_t(curPassDesc.outputs[0] - 2)]->GetDesc();
+			D3D12_RESOURCE_DESC texDesc = _textures[size_t(curPassDesc.outputs[0] - 2)]->GetResource()->GetDesc();
 			outputSize = { (uint32_t)texDesc.Width,(uint32_t)texDesc.Height };
 		}
 

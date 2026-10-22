@@ -115,8 +115,6 @@ private:
 		uint32_t GetFrameIdx(uint32_t seqIdx) const noexcept {
 			return IsAnimated() ? frameSequence[seqIdx].first : 0;
 		}
-		
-		void FreeDescriptors(DescriptorHeap& csuDescriptorHeap) const noexcept;
 	};
 
 	std::pair<const _CursorInfoKey, _CursorInfo>* _ResolveCursor(
@@ -151,9 +149,6 @@ private:
 		uint32_t cursorFrameIdx
 	) noexcept;
 
-	// 只能在同步 GPU 后调用
-	void _ClearCursorInfos() noexcept;
-
 	HRESULT _CreateColorPSO() noexcept;
 
 	HRESULT _CreateMaskPSO(
@@ -163,7 +158,9 @@ private:
 
 	HRESULT _CreateCursorResizerPSO() noexcept;
 
-	void _ClearRetiredResources(uint64_t completedFenceValue) noexcept;
+	void _RetireCursorInfos(bool isGpuWaited) noexcept;
+
+	void _EvictOldCursorInfos(uint64_t completedFenceValue) noexcept;
 
 	void _OnCursorsRegChanged(wil::RegistryChangeKind) noexcept;
 

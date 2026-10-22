@@ -113,6 +113,7 @@ bool EffectsDrawer::Initialize(
 	_rendererSize = rendererSize;
 
 	ID3D12Device5* device = d3d12Context.GetDevice();
+	auto& gpuResourceManager = d3d12Context.GetGpuResourceManager();
 	const ScalingOptions& options = ScalingWindow::Get().Options();
 
 	uint32_t effectCount = (uint32_t)options.effects.size();
@@ -142,24 +143,13 @@ bool EffectsDrawer::Initialize(
 		}
 
 		CD3DX12_CPU_DESCRIPTOR_HANDLE cpuHandle(descriptorHeap.GetCpuHandle(_descriptorBaseOffset));
-		const uint32_t descriptorSize = descriptorHeap.GetDescriptorSize();
+		uint32_t descriptorSize = descriptorHeap.GetDescriptorSize();
 
-		CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_DEFAULT);
-
-		D3D12_HEAP_FLAGS heapFlags = _d3d12Context->IsHeapFlagCreateNotZeroedSupported() ?
-			D3D12_HEAP_FLAG_CREATE_NOT_ZEROED : D3D12_HEAP_FLAG_NONE;
-
-		bool isSrgb = colorInfo.kind == winrt::AdvancedColorKind::StandardDynamicRange;
-		CD3DX12_RESOURCE_DESC texDesc = CD3DX12_RESOURCE_DESC::Tex2D(
-			isSrgb ? DXGI_FORMAT_R10G10B10A2_UNORM : DXGI_FORMAT_R16G16B16A16_FLOAT,
-			0, 0, 1, 1, 1, 0,
-			D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS
-		);
-
-		CD3DX12_SHADER_RESOURCE_VIEW_DESC srvDesc =
-			CD3DX12_SHADER_RESOURCE_VIEW_DESC::Tex2D(texDesc.Format, 1);
-		CD3DX12_UNORDERED_ACCESS_VIEW_DESC uavDesc =
-			CD3DX12_UNORDERED_ACCESS_VIEW_DESC::Tex2D(texDesc.Format);
+		DXGI_FORMAT texFormat = colorInfo.kind == winrt::AdvancedColorKind::StandardDynamicRange ?
+			DXGI_FORMAT_R10G10B10A2_UNORM : DXGI_FORMAT_R16G16B16A16_FLOAT;
+		
+		CD3DX12_SHADER_RESOURCE_VIEW_DESC srvDesc = CD3DX12_SHADER_RESOURCE_VIEW_DESC::Tex2D(texFormat, 1);
+		CD3DX12_UNORDERED_ACCESS_VIEW_DESC uavDesc = CD3DX12_UNORDERED_ACCESS_VIEW_DESC::Tex2D(texFormat);
 
 		for (uint32_t i = 0; i < effectCount; ++i) {
 			auto& effectData = _effectDatas[i];
@@ -169,22 +159,25 @@ bool EffectsDrawer::Initialize(
 				break;
 			}
 
-			texDesc.Width = effectData.outputSize.width;
-			texDesc.Height = effectData.outputSize.height;
-
-			hr = device->CreateCommittedResource(
-				&heapProps, heapFlags, &texDesc, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
-				nullptr, IID_PPV_ARGS(&effectData.outputTexture));
+			gpuResourceManager.CreateTexture(
+				D3D12_HEAP_TYPE_DEFAULT,
+				texFormat,
+				effectData.outputSize,
+				D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+				D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
+				effectData.outputTextureAllocation.put()
+			);
 			if (FAILED(hr)) {
-				Logger::Get().ComError("CreateCommittedResource 失败", hr);
+				Logger::Get().ComError("GpuResourceManager::CreateTexture 失败", hr);
 				return false;
 			}
 
-			device->CreateShaderResourceView(effectData.outputTexture.get(), &srvDesc, cpuHandle);
+			device->CreateShaderResourceView(
+				effectData.outputTextureAllocation->GetResource(), &srvDesc, cpuHandle);
 			cpuHandle.Offset(descriptorSize);
 
 			device->CreateUnorderedAccessView(
-				effectData.outputTexture.get(), nullptr, &uavDesc, cpuHandle);
+				effectData.outputTextureAllocation->GetResource(), nullptr, &uavDesc, cpuHandle);
 			cpuHandle.Offset(descriptorSize);
 		}
 	}
@@ -206,19 +199,14 @@ bool EffectsDrawer::Initialize(
 			return false;
 		}
 
-		CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_READBACK);
-		CD3DX12_RESOURCE_DESC bufferDesc =
-			CD3DX12_RESOURCE_DESC::Buffer(timestampCount * sizeof(UINT64));
-		hr = device->CreateCommittedResource(
-			&heapProps,
-			D3D12_HEAP_FLAG_NONE,
-			&bufferDesc,
+		hr = gpuResourceManager.CreateBuffer(
+			D3D12_HEAP_TYPE_READBACK,
+			timestampCount * sizeof(UINT64),
 			D3D12_RESOURCE_STATE_COPY_DEST,
-			nullptr,
-			IID_PPV_ARGS(&_queryResultBuffer)
+			_queryResultBufferAllocation.put()
 		);
 		if (FAILED(hr)) {
-			Logger::Get().ComError("CreateCommittedResource 失败", hr);
+			Logger::Get().ComError("GpuResourceManager::CreateBuffer 失败", hr);
 			return false;
 		}
 
@@ -227,6 +215,50 @@ bool EffectsDrawer::Initialize(
 			Logger::Get().ComError("ID3D12CommandQueue::GetTimestampFrequency 失败", hr);
 			return false;
 		}
+	}
+
+	return true;
+}
+
+static bool IsExportDataValid(
+	const EffectDrawerExportData& exportData,
+	uint64_t& bufferSize,
+	void*& readbackBufferData
+) noexcept {
+	if (!exportData.readbackBufferAllocation ||
+		exportData.textureSize == SizeU{} ||
+		exportData.textureSize.width > D3D12_REQ_TEXTURE2D_U_OR_V_DIMENSION ||
+		exportData.textureSize.height > D3D12_REQ_TEXTURE2D_U_OR_V_DIMENSION ||
+		exportData.textureFormat <= EffectTextureFormat::COLOR_SPACE_ADAPTIVE ||
+		exportData.textureFormat >= EffectTextureFormat::COUNT)
+	{
+		return false;
+	}
+
+	uint32_t texelSize = EFFECT_TEXTURE_FORMAT_PROPS[(uint32_t)exportData.textureFormat].texelSize;
+	uint32_t rowSize = exportData.textureSize.width * texelSize;
+
+	if (exportData.rowPitch < rowSize) {
+		return false;
+	}
+
+	ID3D12Resource* buffer = exportData.readbackBufferAllocation->GetResource();
+	D3D12_RESOURCE_DESC desc = buffer->GetDesc();
+
+	if (desc.Dimension != D3D12_RESOURCE_DIMENSION_BUFFER) {
+		return false;
+	}
+
+	bufferSize = exportData.rowPitch * size_t(exportData.textureSize.height - 1) + rowSize;
+	if (desc.Width < bufferSize) {
+		return false;
+	}
+
+	// CPU 需读取整个缓冲区
+	HRESULT hr = buffer->Map(0, nullptr, &readbackBufferData);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("ID3D12Resource::Map 失败", hr);
+		return false;
 	}
 
 	return true;
@@ -310,7 +342,7 @@ HRESULT EffectsDrawer::Draw(
 			}
 
 			ID3D12Resource* prevOutputTexture =
-				_effectDatas[size_t(effectIdx - 1)].outputTexture.get();
+				_effectDatas[size_t(effectIdx - 1)].outputTextureAllocation->GetResource();
 
 			computeContext.InsertTransitionBarrier(
 				prevOutputTexture,
@@ -346,7 +378,7 @@ HRESULT EffectsDrawer::Draw(
 			);
 		} else {
 			computeContext.InsertTransitionBarrier(
-				curEffectData.outputTexture.get(),
+				curEffectData.outputTextureAllocation->GetResource(),
 				D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
 				D3D12_RESOURCE_STATE_UNORDERED_ACCESS
 			);
@@ -373,23 +405,35 @@ HRESULT EffectsDrawer::Draw(
 		}
 
 		if (exportInternalTexture) {
-			if (exportData.IsValid()) {
+			uint64_t bufferSize;
+			void* readbackBufferData;
+			if (IsExportDataValid(exportData, bufferSize, readbackBufferData)) {
 				_screenshotDatas.push_back(_ScreenshotData{
 					.fenceValue = frameFenceValue,
 					.readbackBufferAllocation = std::move(exportData.readbackBufferAllocation),
+					.readbackBufferData = readbackBufferData,
 					.textureSize = exportData.textureSize,
 					.textureFormat = exportData.textureFormat,
 					.rowPitch = exportData.rowPitch,
+					.bufferSize = bufferSize,
 					.colorInfo = _colorInfo
 				});
 			} else {
 				Logger::Get().Error(fmt::format("EffectDrawer[{}] 导出内部纹理失败", effectIdx));
+
+				if (exportData.readbackBufferAllocation) {
+					_d3d12Context->GetGpuResourceManager().RetireResource(
+						std::move(exportData.readbackBufferAllocation), false);
+				}
+
+				// readbackBufferData 为空表示截图失败
+				_screenshotDatas.push_back(_ScreenshotData{});
 			}
 		}
 
 		if (!writeToRingBuffer) {
 			computeContext.InsertTransitionBarrier(
-				curEffectData.outputTexture.get(),
+				curEffectData.outputTextureAllocation->GetResource(),
 				D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
 				D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE
 			);
@@ -669,37 +713,34 @@ void EffectsDrawer::OnProducerFrameCompleted(uint64_t fenceValue) noexcept {
 
 			TakeScreenshotResult result;
 			std::wstring screenshotFileName;
-			{
+			if (curData.readbackBufferData) {
+				// 导出时要求 pixelData 的最后一行有填充位
 				std::vector<uint8_t> pixelData(size_t(curData.rowPitch) * curData.textureSize.height);
+				std::memcpy(pixelData.data(), curData.readbackBufferData, curData.bufferSize);
+				
+				HWND hwndSrc = ScalingWindow::Get().SrcHandle();
+				// 中间纹理导出为 dds，否则导出为 png
+				std::wstring_view imgFormat = curData.tempTextureAllocation ? L"png" : L"dds";
+				SizeU textureSize = curData.textureSize;
+				EffectTextureFormat textureFormat = curData.textureFormat;
+				uint32_t rowPitch = curData.rowPitch;
+				ColorInfo colorInfo = curData.colorInfo;
+				
+				// 转到后台导出。从现在开始不要访问 curData
+				co_await winrt::resume_background();
 
-				void* pBufferData;
-				HRESULT hr = curData.readbackBufferAllocation->GetResource()->Map(0, nullptr, &pBufferData);
-				if (SUCCEEDED(hr)) {
-					std::memcpy(pixelData.data(), pBufferData, pixelData.size());
-					D3D12_RANGE emptyRange{};
-					curData.readbackBufferAllocation->GetResource()->Unmap(0, &emptyRange);
-
-					HWND hwndSrc = ScalingWindow::Get().SrcHandle();
-					// 中间纹理导出为 dds，否则导出为 png
-					std::wstring_view imgFormat = curData.tempTextureAllocation ? L"png" : L"dds";
-					SizeU textureSize = curData.textureSize;
-					EffectTextureFormat textureFormat = curData.textureFormat;
-					uint32_t rowPitch = curData.rowPitch;
-					ColorInfo colorInfo = curData.colorInfo;
-					
-					// 转到后台导出。从现在开始不要访问 curData
-					co_await winrt::resume_background();
-
-					result = ExportScreenshot(hwndSrc, imgFormat, textureSize,
-						textureFormat, pixelData, rowPitch, colorInfo, screenshotFileName);
-				} else {
-					Logger::Get().ComError("ID3D12Resource::Map 失败", hr);
-					result = TakeScreenshotResult::InternalError;
+				result = ExportScreenshot(hwndSrc, imgFormat, textureSize,
+					textureFormat, pixelData, rowPitch, colorInfo, screenshotFileName);
+				if (result != TakeScreenshotResult::Success) {
+					Logger::Get().Error("ExportScreenshot 失败");
 				}
+
+				co_await dispatcher;
+			} else {
+				// readbackBufferData 为空表示截图失败
+				result = TakeScreenshotResult::InternalError;
 			}
 			
-			co_await dispatcher;
-
 			LocalizationService& ls = LocalizationService::Get();
 
 			if (result == TakeScreenshotResult::Success) {
@@ -707,8 +748,6 @@ void EffectsDrawer::OnProducerFrameCompleted(uint64_t fenceValue) noexcept {
 				ScalingWindow::Get().ShowToast(
 					fmt::format(fmt::runtime(std::wstring_view(successMsg)), screenshotFileName));
 			} else {
-				Logger::Get().Error("_TakeScreenshotImpl 失败");
-
 				const wchar_t* errorMsgs[] = {
 					L"Message_ScreenshotFailed_InvalidDirectory",
 					L"Message_ScreenshotFailed_InvalidFilenameTemplate",
@@ -756,17 +795,25 @@ HRESULT EffectsDrawer::_DrawScreenshot(
 	const EffectTextureFormatProps& screenshotTextureFormatProps =
 		EFFECT_TEXTURE_FORMAT_PROPS[(uint32_t)curData.textureFormat];
 
-	curData.rowPitch = DirectXHelper::Align(
-		textureSize.width * screenshotTextureFormatProps.texelSize, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
+	uint32_t rowSize;
+	DirectXHelper::ComputeBufferLayout(textureSize,
+		screenshotTextureFormatProps.texelSize, rowSize, curData.rowPitch, curData.bufferSize);
 
 	HRESULT hr = gpuResourceManager.CreateBuffer(
 		D3D12_HEAP_TYPE_READBACK,
-		(UINT64)curData.rowPitch * textureSize.height,
+		curData.bufferSize,
 		D3D12_RESOURCE_STATE_COPY_DEST,
 		curData.readbackBufferAllocation.put()
 	);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("GpuResourceManager::CreateBuffer 失败", hr);
+		return hr;
+	}
+
+	// CPU 需读取整个缓冲区
+	hr = curData.readbackBufferAllocation->GetResource()->Map(0, nullptr, &curData.readbackBufferData);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("ID3D12Resource::Map 失败", hr);
 		return hr;
 	}
 	

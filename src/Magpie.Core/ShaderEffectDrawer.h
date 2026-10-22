@@ -56,15 +56,15 @@ private:
 	};
 	SmallVector<_PassData> _passDatas;
 
-	winrt::com_ptr<ID3D12Resource> _constantBuffer;
-	winrt::com_ptr<ID3D12Resource> _constantUploadBuffer;
+	winrt::com_ptr<D3D12MA::Allocation> _constantBufferAllocation;
+	winrt::com_ptr<D3D12MA::Allocation> _constantUploadBufferAllocation;
 	void* _constantUploadBufferData = nullptr;
 	uint32_t _constantsDataSize = 0;
 
-	SmallVector<winrt::com_ptr<ID3D12Resource>> _textures;
+	SmallVector<winrt::com_ptr<D3D12MA::Allocation>> _textures;
 	SmallVector<D3D12_RESOURCE_STATES> _textureStates;
 	struct _TextureSourceData {
-		winrt::com_ptr<ID3D12Resource> uploadBuffer;
+		winrt::com_ptr<D3D12MA::Allocation> uploadBufferAllocation;
 		SizeU textureSize{};
 		uint32_t targetTextureIdx = 0;
 	};
@@ -76,14 +76,6 @@ private:
 	// 从 0 开始。虽然可以用额外字段区分 SRV 和 UAV，但这里想尽可能避免堆分配，因此 UAV
 	// 的索引都加上 _textures.size() 作为区分。
 	SmallVector<uint32_t> _textureDescriptorMap;
-
-	struct _UploadBuffer {
-		winrt::com_ptr<ID3D12Resource> buffer;
-		void* bufferData = nullptr;
-		uint32_t size = 0;
-		uint64_t fenceValue = 0;
-	};
-	SmallVector<_UploadBuffer> _uploadBuffers;
 
 	enum _Error {
 		NoError,

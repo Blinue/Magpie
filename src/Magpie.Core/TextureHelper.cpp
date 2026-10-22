@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "D3D12Context.h"
 #include "DDS.h"
+#include "GpuResourceManager.h"
 #include "Logger.h"
 #include "TextureHelper.h"
 #include "WICImageLoader.h"
@@ -350,7 +351,9 @@ static bool CheckDDSHeader(DXGI_FORMAT format, _In_ const DDS_HEADER* header) no
 		}
 	}
 
-	if (header->width > D3D12_REQ_TEXTURE2D_U_OR_V_DIMENSION ||
+	if (header->width == 0 ||
+		header->height == 0 ||
+		header->width > D3D12_REQ_TEXTURE2D_U_OR_V_DIMENSION ||
 		header->height > D3D12_REQ_TEXTURE2D_U_OR_V_DIMENSION) {
 		return false;
 	}
@@ -358,11 +361,12 @@ static bool CheckDDSHeader(DXGI_FORMAT format, _In_ const DDS_HEADER* header) no
 	return true;
 }
 
-static winrt::com_ptr<ID3D12Resource> LoadTextureFromDDS(
+static HRESULT LoadTextureFromDDS(
 	const wchar_t* fileName,
 	DXGI_FORMAT format,
-	const D3D12Context& d3d12Context,
-	SizeU& textureSize
+	const GpuResourceManager& gpuResourceManager,
+	SizeU& textureSize,
+	D3D12MA::Allocation** allocation
 ) noexcept {
 	const DDS_HEADER* header = nullptr;
 	const uint8_t* bitData = nullptr;
@@ -378,83 +382,74 @@ static winrt::com_ptr<ID3D12Resource> LoadTextureFromDDS(
 	);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("LoadTextureDataFromFile 失败", hr);
-		return nullptr;
+		return hr;
 	}
 
 	if (!CheckDDSHeader(format, header)) {
 		Logger::Get().Error("CheckDDSHeader 失败");
-		return nullptr;
+		return HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED);
 	}
 
 	textureSize.width = header->width;
 	textureSize.height = header->height;
 
-	uint32_t pixelByteCount = BytesPerPixel(format);
-	uint32_t rowPitch = textureSize.width * pixelByteCount;
-	size_t numBytes = (size_t)rowPitch * textureSize.height;
+	uint32_t rowSize;
+	uint32_t rowPitch;
+	uint64_t bufferSize;
+	DirectXHelper::ComputeBufferLayout(
+		textureSize, BytesPerPixel(format), rowSize, rowPitch, bufferSize);
+
+	uint64_t numBytes = (uint64_t)rowSize * textureSize.height;
 
 	if (numBytes > bitSize) {
 		Logger::Get().Error("文件格式错误");
-		return nullptr;
+		return E_FAIL;
 	}
 
-	winrt::com_ptr<ID3D12Resource> result;
-
-	ID3D12Device5* device = d3d12Context.GetDevice();
-
-	CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_UPLOAD);
-
-	D3D12_HEAP_FLAGS heapFlags = d3d12Context.IsHeapFlagCreateNotZeroedSupported() ?
-		D3D12_HEAP_FLAG_CREATE_NOT_ZEROED : D3D12_HEAP_FLAG_NONE;
-
-	uint32_t textureRowPitch = DirectXHelper::Align(rowPitch, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
-	uint32_t bufferSize = textureRowPitch * textureSize.height;
-
-	CD3DX12_RESOURCE_DESC bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
-
-	hr = device->CreateCommittedResource(
-		&heapProps,
-		heapFlags,
-		&bufferDesc,
+	hr = gpuResourceManager.CreateBuffer(
+		D3D12_HEAP_TYPE_UPLOAD,
+		bufferSize,
 		D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&result)
+		allocation
 	);
 	if (FAILED(hr)) {
-		Logger::Get().ComError("CreateCommittedResource 失败", hr);
-		return nullptr;
+		Logger::Get().ComError("GpuResourceManager::CreateBuffer", hr);
+		return hr;
 	}
 
-	CD3DX12_RANGE emptyRange{};
+	ID3D12Resource* buffer = (*allocation)->GetResource();
+
 	void* pData;
-	hr = result->Map(0, &emptyRange, &pData);
+	CD3DX12_RANGE readRange{};
+	hr = buffer->Map(0, &readRange, &pData);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("ID3D12Resource::Map 失败", hr);
-		return nullptr;
+		return hr;
 	}
 
-	if (rowPitch == textureRowPitch) {
+	if (rowSize == rowPitch) {
 		std::memcpy(pData, bitData, numBytes);
 	} else {
 		for (uint32_t i = 0; i < textureSize.height; ++i) {
 			std::memcpy(
-				(uint8_t*)pData + textureRowPitch * i,
-				bitData + rowPitch * i,
-				rowPitch
+				(uint8_t*)pData + rowPitch * i,
+				bitData + rowSize * i,
+				rowSize
 			);
 		}
 	}
 
-	result->Unmap(0, nullptr);
+	buffer->Unmap(0, nullptr);
 
-	return std::move(result);
+	return S_OK;
 }
 
-static winrt::com_ptr<ID3D12Resource> LoadTextureFromImage(
+static HRESULT LoadTextureFromImage(
 	const wchar_t* fileName,
-	const D3D12Context& d3d12Context,
+	const GpuResourceManager& gpuResourceManager,
 	DXGI_FORMAT& format,
-	SizeU& textureSize
+	SizeU& textureSize,
+	D3D12MA::Allocation** allocation
 ) noexcept {
 	WICPixelFormatGUID targetWicFormat;
 	switch (format) {
@@ -475,91 +470,69 @@ static winrt::com_ptr<ID3D12Resource> LoadTextureFromImage(
 		WICImageLoader::LoadFromFile(fileName, targetWicFormat, isSRGB);
 	if (!wicBitmap) {
 		Logger::Get().Error("WICImageLoader::LoadFromFile 失败");
-		return nullptr;
-	}
-
-	// 如果图片是 sRGB 则修改 format。对于其他格式 WIC 会自动执行伽马校正。
-	if (isSRGB) {
-		format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+		return E_FAIL;
 	}
 
 	// 检查 D3D 纹理尺寸限制
 	HRESULT hr = wicBitmap->GetSize(&textureSize.width, &textureSize.height);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("GetSize 失败", hr);
-		return nullptr;
+		return hr;
 	}
 
 	if (textureSize.width > D3D12_REQ_TEXTURE2D_U_OR_V_DIMENSION ||
 		textureSize.height > D3D12_REQ_TEXTURE2D_U_OR_V_DIMENSION)
 	{
 		Logger::Get().Error("图像尺寸超出限制");
-		return nullptr;
+		return E_FAIL;
 	}
 
-	winrt::com_ptr<ID3D12Resource> result;
+	size_t rowSize = (size_t)textureSize.width * BytesPerPixel(format);
+	size_t rowPitch = DirectXHelper::Align(rowSize, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
+	// WIC 需要最后一行有填充位
+	size_t bufferSize = rowPitch * textureSize.height;
 
-	ID3D12Device5* device = d3d12Context.GetDevice();
+	// CopyPixels 接受 UINT
+	if (rowPitch > UINT32_MAX || bufferSize > UINT32_MAX) {
+		Logger::Get().Error("rowPitch 或 bufferSize 过大");
+		return E_FAIL;
+	}
 
-	CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_UPLOAD);
-
-	D3D12_HEAP_FLAGS heapFlags = d3d12Context.IsHeapFlagCreateNotZeroedSupported() ?
-		D3D12_HEAP_FLAG_CREATE_NOT_ZEROED : D3D12_HEAP_FLAG_NONE;
-
-	CD3DX12_RESOURCE_DESC texDesc = CD3DX12_RESOURCE_DESC::Tex2D(
-		format, textureSize.width, textureSize.height, 1, 1);
-
-	D3D12_PLACED_SUBRESOURCE_FOOTPRINT textureLayout;
-	UINT64 bufferSize;
-	device->GetCopyableFootprints(&texDesc, 0, 1, 0,
-		&textureLayout, nullptr, nullptr, &bufferSize);
-
-	// GetCopyableFootprints 计算出的字节数可能不包含最后一行的填充位，而 WIC 需要
-	bufferSize = std::max(bufferSize, UINT64(textureLayout.Footprint.RowPitch * textureSize.height));
-
-	CD3DX12_RESOURCE_DESC bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
-
-	hr = device->CreateCommittedResource(
-		&heapProps,
-		heapFlags,
-		&bufferDesc,
+	hr = gpuResourceManager.CreateBuffer(
+		D3D12_HEAP_TYPE_UPLOAD,
+		bufferSize,
 		D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&result)
+		allocation
 	);
 	if (FAILED(hr)) {
-		Logger::Get().ComError("CreateCommittedResource 失败", hr);
-		return nullptr;
+		Logger::Get().ComError("GpuResourceManager::CreateBuffer", hr);
+		return hr;
 	}
 
-	CD3DX12_RANGE emptyRange{};
+	ID3D12Resource* buffer = (*allocation)->GetResource();
+
 	void* pData;
-	hr = result->Map(0, &emptyRange, &pData);
+	CD3DX12_RANGE readRange{};
+	hr = buffer->Map(0, &readRange, &pData);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("ID3D12Resource::Map 失败", hr);
-		return nullptr;
+		return hr;
 	}
 
-	// 这个调用是否会意外读取 pData 的内容？保险起见可以使用临时缓冲区。
-	hr = wicBitmap->CopyPixels(nullptr, textureLayout.Footprint.RowPitch, (UINT)bufferSize, (BYTE*)pData);
+	hr = wicBitmap->CopyPixels(nullptr, (UINT)rowPitch, (UINT)bufferSize, (BYTE*)pData);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CopyPixels 失败", hr);
-		return nullptr;
+		return hr;
 	}
 
-	result->Unmap(0, nullptr);
+	buffer->Unmap(0, nullptr);
 
-	return std::move(result);
-}
+	// 如果图片是 sRGB 则修改 format。对于其他格式 WIC 会自动执行伽马校正。
+	if (isSRGB && format == DXGI_FORMAT_R8G8B8A8_UNORM) {
+		format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	}
 
-//-------------------------------------------------------------------------------------
-// Computes the image row pitch in bytes, and the slice ptich (size in bytes of the image)
-// based on DXGI format, width, and height
-//-------------------------------------------------------------------------------------
-static void ComputePitch(DXGI_FORMAT fmt, size_t width, size_t height, size_t& rowPitch, size_t& slicePitch) noexcept {
-	// Default byte alignment
-	rowPitch = width * BytesPerPixel(fmt);
-	slicePitch = rowPitch * uint64_t(height);
+	return S_OK;
 }
 
 //-------------------------------------------------------------------------------------
@@ -586,8 +559,8 @@ static HRESULT EncodeDDSHeader(
 	header->width = width;
 	header->depth = 1;
 
-	size_t rowPitch, slicePitch;
-	ComputePitch(format, width, height, rowPitch, slicePitch);
+	size_t rowPitch = (size_t)width * BytesPerPixel(format);
+	size_t slicePitch = rowPitch * height;
 
 	if (slicePitch > UINT32_MAX || rowPitch > UINT32_MAX) {
 		Logger::Get().Error("slicePitch 或 rowPitch 过大");
@@ -669,19 +642,30 @@ static HRESULT SaveToDDSFile(
 	return S_OK;
 }
 
-winrt::com_ptr<ID3D12Resource> TextureHelper::LoadFromFile(
+HRESULT TextureHelper::LoadFromFile(
 	wil::zwstring_view fileName,
-	const D3D12Context& d3d12Context,
+	const GpuResourceManager& gpuResourceManager,
 	DXGI_FORMAT& format,
-	SizeU& textureSize
+	SizeU& textureSize,
+	D3D12MA::Allocation** allocation
 ) noexcept {
 	if (fileName.ends_with(L".dds")) {
-		return LoadTextureFromDDS(fileName.c_str(), format, d3d12Context, textureSize);
+		HRESULT hr = LoadTextureFromDDS(fileName.c_str(), format, gpuResourceManager, textureSize, allocation);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("LoadTextureFromDDS 失败", hr);
+			return hr;
+		}
 	} else {
 		assert(format == DXGI_FORMAT_R8G8B8A8_UNORM || format == DXGI_FORMAT_R16G16B16A16_FLOAT ||
 			format == DXGI_FORMAT_R32G32B32A32_FLOAT);
-		return LoadTextureFromImage(fileName.c_str(), d3d12Context, format, textureSize);
+		HRESULT hr = LoadTextureFromImage(fileName.c_str(), gpuResourceManager, format, textureSize, allocation);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("LoadTextureFromImage 失败", hr);
+			return hr;
+		}
 	}
+
+	return S_OK;
 }
 
 static HRESULT EmbedBT2020ICC(IWICImagingFactory2* wicFactory, IWICBitmapFrameEncode* frameEncoder) noexcept {
