@@ -70,6 +70,7 @@ void ScalingOptions::Prepare() noexcept {
 	}
 
 	Logger::Get().Info(fmt::format(R"(缩放选项
+	effects: {}
 	IsWindowedMode: {}
 	IsDebugMode: {}
 	IsBenchmarkMode: {}
@@ -99,13 +100,14 @@ void ScalingOptions::Prepare() noexcept {
 	captureMethod: {}
 	multiMonitorUsage: {}
 	cursorInterpolationMode: {}
+	autoHideCursorDelay: {}
 	duplicateFrameDetectionMode: {}
 	fullscreenInitialToolbarState: {}
 	windowedInitialToolbarState: {}
 	initialWindowedScaleFactor: {}
 	screenshotsDir: {}
-	screenshotFilenameTemplate: {}
-	effects: {})",
+	screenshotFilenameTemplate: {})",
+		LogEffects(effects),
 		IsWindowedMode(),
 		IsDebugMode(),
 		IsBenchmarkMode(),
@@ -129,18 +131,18 @@ void ScalingOptions::Prepare() noexcept {
 		graphicsCardId.vendorId,
 		graphicsCardId.deviceId,
 		minFrameRate,
-		maxFrameRate.has_value() ? *maxFrameRate : 0.0f,
+		maxFrameRate.value_or(0.0f),
 		cursorScaleFactor,
 		(int)captureMethod,
 		(int)multiMonitorUsage,
 		(int)cursorInterpolationMode,
+		autoHideCursorDelay.value_or(0.0f),
 		(int)duplicateFrameDetectionMode,
 		(int)fullscreenInitialToolbarState,
 		(int)windowedInitialToolbarState,
 		initialWindowedScaleFactor,
 		StrHelper::UTF16ToUTF8(screenshotsDir.native()),
-		screenshotFilenameTemplate,
-		LogEffects(effects)
+		screenshotFilenameTemplate
 	));
 }
 
