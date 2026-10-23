@@ -35,7 +35,7 @@ HRESULT GpuResourceManager::CreateBuffer(
 	D3D12_RESOURCE_STATES initialResourceState,
 	D3D12MA::Allocation** allocation
 ) const noexcept {
-	D3D12MA::ALLOCATION_DESC allocDesc = { .HeapType = heapType };
+	D3D12MA::CALLOCATION_DESC allocDesc(heapType);
 
 	CD3DX12_RESOURCE_DESC bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
 
@@ -57,7 +57,7 @@ HRESULT GpuResourceManager::CreateTexture(
 	D3D12_RESOURCE_STATES initialResourceState,
 	D3D12MA::Allocation** allocation
 ) const noexcept {
-	D3D12MA::ALLOCATION_DESC allocDesc = { .HeapType = heapType };
+	D3D12MA::CALLOCATION_DESC allocDesc(heapType);
 
 	CD3DX12_RESOURCE_DESC texDesc = CD3DX12_RESOURCE_DESC::Tex2D(
 		format, size.width, size.height, 1, 1, 1, 0, flags);

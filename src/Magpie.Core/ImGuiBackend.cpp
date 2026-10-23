@@ -84,10 +84,6 @@ HRESULT ImGuiBackend::RenderDrawData(
 
 	curFrameResource->fenceValue = frameFenceValue;
 
-	D3D12MA::ALLOCATION_DESC allocDesc = {
-		.HeapType = D3D12_HEAP_TYPE_UPLOAD
-	};
-
 	// 按需创建和增长顶点和索引缓冲区
 	if (!curFrameResource->vertexBufferAllocation ||
 		curFrameResource->vertexCount < drawData.TotalVtxCount)
