@@ -1,6 +1,7 @@
 #pragma once
 #include "SmallVector.h"
 #include <d3d11_4.h>
+#include <D3D12MemAlloc.h>
 #include <ShlObj.h>
 #include <winrt/Windows.Graphics.Capture.h>
 
@@ -35,7 +36,7 @@ public:
 	bool Start() noexcept;
 
 	ID3D12Resource* GetOutput(uint32_t index) noexcept {
-		return _slots[index].output.get();
+		return _slots[index].outputAllocation->GetResource();
 	}
 
 	bool ShouldWaitMessageForNewFrame() const noexcept {
@@ -122,7 +123,7 @@ private:
 		winrt::Windows::Graphics::Capture::Direct3D11CaptureFrame captureFrame{ nullptr };
 		uint32_t captureFrameResourceIdx = 0;
 		SmallVector<RectU> dirtyRects;
-		winrt::com_ptr<ID3D12Resource> output;
+		winrt::com_ptr<D3D12MA::Allocation> outputAllocation;
 	};
 
 	std::vector<_FrameResourceSlot> _slots;

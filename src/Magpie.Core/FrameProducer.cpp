@@ -125,7 +125,10 @@ void FrameProducer::OnResizedAsync(
 			return;
 		}
 
-		_effectsDrawer->OnResized(rendererSize, outputSize);
+		hr = _effectsDrawer->OnResized(rendererSize, outputSize);
+		if (!_CheckResult(hr, "EffectsDrawer::OnResized 失败")) {
+			return;
+		}
 
 		hr = _frameRingBuffer.OnResized(outputSize);
 		if (!_CheckResult(hr, "FrameRingBuffer::OnResized 失败")) {
@@ -175,7 +178,10 @@ void FrameProducer::OnColorInfoChangedAsync(
 			return;
 		}
 
-		_effectsDrawer->OnColorInfoChanged(colorInfo);
+		hr = _effectsDrawer->OnColorInfoChanged(colorInfo);
+		if (!_CheckResult(hr, "EffectsDrawer::OnColorInfoChanged 失败")) {
+			return;
+		}
 
 		hr = _frameRingBuffer.OnColorInfoChanged(colorInfo);
 		if (!_CheckResult(hr, "FrameRingBuffer::OnColorInfoChanged 失败")) {

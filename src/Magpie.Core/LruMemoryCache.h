@@ -1,6 +1,6 @@
 #pragma once
-#include <parallel_hashmap/phmap.h>
 #include "SmallVector.h"
+#include <parallel_hashmap/phmap.h>
 
 namespace Magpie {
 

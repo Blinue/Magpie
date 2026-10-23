@@ -53,9 +53,9 @@ public:
 	// -1: 效果的输出画面
 	void ExportAsync(int effectIdx, int passIdx = -1, uint32_t outputIdx = 0) noexcept;
 
-	void OnResized(SizeU rendererSize, SizeU& outputSize) noexcept;
+	HRESULT OnResized(SizeU rendererSize, SizeU& outputSize) noexcept;
 
-	void OnColorInfoChanged(const ColorInfo& colorInfo) noexcept;
+	HRESULT OnColorInfoChanged(const ColorInfo& colorInfo) noexcept;
 
 	void OnProducerFrameCompleted(uint64_t fenceValue) noexcept;
 
@@ -73,6 +73,8 @@ private:
 	uint32_t _CalcDescriptorCount() const noexcept;
 
 	void _UpdateEffectBindings() noexcept;
+
+	HRESULT _UpdateEffectOutputTextures() noexcept;
 
 	HRESULT _InitializeScreenshotRootSignature() noexcept;
 

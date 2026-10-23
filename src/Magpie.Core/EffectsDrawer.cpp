@@ -142,43 +142,10 @@ bool EffectsDrawer::Initialize(
 			return false;
 		}
 
-		CD3DX12_CPU_DESCRIPTOR_HANDLE cpuHandle(descriptorHeap.GetCpuHandle(_descriptorBaseOffset));
-		uint32_t descriptorSize = descriptorHeap.GetDescriptorSize();
-
-		DXGI_FORMAT texFormat = colorInfo.kind == winrt::AdvancedColorKind::StandardDynamicRange ?
-			DXGI_FORMAT_R10G10B10A2_UNORM : DXGI_FORMAT_R16G16B16A16_FLOAT;
-		
-		CD3DX12_SHADER_RESOURCE_VIEW_DESC srvDesc = CD3DX12_SHADER_RESOURCE_VIEW_DESC::Tex2D(texFormat, 1);
-		CD3DX12_UNORDERED_ACCESS_VIEW_DESC uavDesc = CD3DX12_UNORDERED_ACCESS_VIEW_DESC::Tex2D(texFormat);
-
-		for (uint32_t i = 0; i < effectCount; ++i) {
-			auto& effectData = _effectDatas[i];
-
-			// 如果不需要缩小，最后一个效果直接写入环形缓冲，不需要创建输出纹理
-			if (i == effectCount - 1 && effectData.outputSize == _outputSize) {
-				break;
-			}
-
-			gpuResourceManager.CreateTexture(
-				D3D12_HEAP_TYPE_DEFAULT,
-				texFormat,
-				effectData.outputSize,
-				D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-				D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
-				effectData.outputTextureAllocation.put()
-			);
-			if (FAILED(hr)) {
-				Logger::Get().ComError("GpuResourceManager::CreateTexture 失败", hr);
-				return false;
-			}
-
-			device->CreateShaderResourceView(
-				effectData.outputTextureAllocation->GetResource(), &srvDesc, cpuHandle);
-			cpuHandle.Offset(descriptorSize);
-
-			device->CreateUnorderedAccessView(
-				effectData.outputTextureAllocation->GetResource(), nullptr, &uavDesc, cpuHandle);
-			cpuHandle.Offset(descriptorSize);
+		hr = _UpdateEffectOutputTextures();
+		if (FAILED(hr)) {
+			Logger::Get().ComError("_UpdateEffectOutputTextures 失败", hr);
+			return false;
 		}
 	}
 
@@ -540,21 +507,41 @@ void EffectsDrawer::ExportAsync(int effectIdx, int passIdx, uint32_t outputIdx) 
 	ScalingWindow::Get().RequestNewFrame(true);
 }
 
-void EffectsDrawer::OnResized(SizeU rendererSize, SizeU& outputSize) noexcept {
+HRESULT EffectsDrawer::OnResized(SizeU rendererSize, SizeU& outputSize) noexcept {
 	_rendererSize = rendererSize;
 	_UpdateEffectBindings();
 	outputSize = _outputSize;
+
+	HRESULT hr = _UpdateEffectOutputTextures();
+	if (FAILED(hr)) {
+		Logger::Get().ComError("_UpdateEffectOutputTextures 失败", hr);
+		return hr;
+	}
+
+	return S_OK;
 }
 
-void EffectsDrawer::OnColorInfoChanged(const ColorInfo& colorInfo) noexcept {
+HRESULT EffectsDrawer::OnColorInfoChanged(const ColorInfo& colorInfo) noexcept {
 	const winrt::AdvancedColorKind oldKind = _colorInfo.kind;
+	const bool wasSdr = _colorInfo.kind == winrt::AdvancedColorKind::StandardDynamicRange;
 	_colorInfo = colorInfo;
 
 	_UpdateEffectBindings();
 
+	bool isSdr = _colorInfo.kind == winrt::AdvancedColorKind::StandardDynamicRange;
+	if (isSdr != wasSdr) {
+		HRESULT hr = _UpdateEffectOutputTextures();
+		if (FAILED(hr)) {
+			Logger::Get().ComError("_UpdateEffectOutputTextures 失败", hr);
+			return hr;
+		}
+	}
+
 	if (colorInfo.kind != oldKind) {
 		_screenshotPSO = nullptr;
 	}
+
+	return S_OK;
 }
 
 static void AppendSuffixToScreenshotFilename(std::wstring& screenshotFileName) noexcept {
@@ -939,8 +926,6 @@ HRESULT EffectsDrawer::_DrawScreenshot(
 uint32_t EffectsDrawer::_CalcDescriptorCount() const noexcept {
 	// 如果最后一个效果的缩放类型是 Fit 或 Fill 且缩放比例不大于 1，那么始终可以直接写入环形缓冲区，
 	// 需要的描述符数量可以减少两个。
-	// 还有更复杂的情况，如倒数第二个效果是 Fit(0.5,0.5)，最后一个效果放大一倍，也可以认为输出尺寸
-	// 永远不会大于 rendererSize，不过这较为复杂，还有舍入的问题，安全起见不进行优化。
 	uint32_t count = (uint32_t)_effectDatas.size() * 2;
 
 	if (_effectDatas.back().effectInfo->scaleFactor != 0) {
@@ -962,7 +947,9 @@ void EffectsDrawer::_UpdateEffectBindings() noexcept {
 	const ScalingOptions& options = ScalingWindow::Get().Options();
 
 	_outputSize = _inputSize;
-	for (uint32_t i = 0; i < _effectDatas.size(); ++i) {
+
+	uint32_t effectCount = (uint32_t)_effectDatas.size();
+	for (uint32_t i = 0; i < effectCount; ++i) {
 		_EffectData& effectData = _effectDatas[i];
 		const EffectOption& effectOption = options.effects[i];
 
@@ -978,7 +965,7 @@ void EffectsDrawer::_UpdateEffectBindings() noexcept {
 	// 如果输出尺寸比渲染区域更大则使用 CatmullRom 等比缩小，窗口模式缩放下可能要放大
 	if (_outputSize != _rendererSize) {
 		if (options.IsWindowedMode()) {
-			// 窗口模式缩放已确保等比例，这里直接赋值以避免舍入误差
+			// 窗口模式缩放始终填满渲染区域
 			_outputSize = _rendererSize;
 		} else if (_outputSize.width > _rendererSize.width ||
 			_outputSize.height > _rendererSize.height)
@@ -994,6 +981,68 @@ void EffectsDrawer::_UpdateEffectBindings() noexcept {
 			}
 		}
 	}
+}
+
+HRESULT EffectsDrawer::_UpdateEffectOutputTextures() noexcept {
+	const ScalingOptions& options = ScalingWindow::Get().Options();
+	ID3D12Device5* device = _d3d12Context->GetDevice();
+	auto& descriptorHeap = _d3d12Context->GetDescriptorHeap();
+	auto& gpuResourceManager = _d3d12Context->GetGpuResourceManager();
+
+	CD3DX12_CPU_DESCRIPTOR_HANDLE baseHandle(descriptorHeap.GetCpuHandle(_descriptorBaseOffset));
+	uint32_t descriptorSize = descriptorHeap.GetDescriptorSize();
+
+	DXGI_FORMAT texFormat = _colorInfo.kind == winrt::AdvancedColorKind::StandardDynamicRange ?
+		DXGI_FORMAT_R10G10B10A2_UNORM : DXGI_FORMAT_R16G16B16A16_FLOAT;
+
+	CD3DX12_SHADER_RESOURCE_VIEW_DESC srvDesc = CD3DX12_SHADER_RESOURCE_VIEW_DESC::Tex2D(texFormat, 1);
+	CD3DX12_UNORDERED_ACCESS_VIEW_DESC uavDesc = CD3DX12_UNORDERED_ACCESS_VIEW_DESC::Tex2D(texFormat);
+
+	uint32_t effectCount = (uint32_t)options.effects.size();
+	for (uint32_t i = 0; i < effectCount; ++i) {
+		auto& effectData = _effectDatas[i];
+
+		// 如果不需要缩小，最后一个效果直接写入环形缓冲，不需要创建输出纹理
+		if (i == effectCount - 1 && effectData.outputSize == _outputSize) {
+			effectData.outputTextureAllocation = nullptr;
+			break;
+		}
+
+		if (effectData.outputTextureAllocation) {
+			D3D12_RESOURCE_DESC desc = effectData.outputTextureAllocation->GetResource()->GetDesc();
+			if (desc.Width == effectData.outputSize.width &&
+				desc.Height == effectData.outputSize.height &&
+				desc.Format == texFormat)
+			{
+				continue;
+			}
+		}
+
+		HRESULT hr = gpuResourceManager.CreateTexture(
+			D3D12_HEAP_TYPE_DEFAULT,
+			texFormat,
+			effectData.outputSize,
+			D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+			D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
+			effectData.outputTextureAllocation.put()
+		);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("GpuResourceManager::CreateTexture 失败", hr);
+			return hr;
+		}
+
+		assert(i * 2 + 1 <= _CalcDescriptorCount());
+
+		CD3DX12_CPU_DESCRIPTOR_HANDLE cpuHandle(baseHandle, i * 2, descriptorSize);
+		device->CreateShaderResourceView(
+			effectData.outputTextureAllocation->GetResource(), &srvDesc, cpuHandle);
+
+		cpuHandle.Offset(descriptorSize);
+		device->CreateUnorderedAccessView(
+			effectData.outputTextureAllocation->GetResource(), nullptr, &uavDesc, cpuHandle);
+	}
+
+	return S_OK;
 }
 
 HRESULT EffectsDrawer::_InitializeScreenshotRootSignature() noexcept {
