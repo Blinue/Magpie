@@ -1,10 +1,11 @@
 #include "pch.h"
 #include "FrameRingBuffer.h"
 #include "D3D12Context.h"
+#include "DebugInfo.h"
+#include "DirectXHelper.h"
 #include "GpuResourceManager.h"
 #include "Logger.h"
 #include "ScalingWindow.h"
-#include "DebugInfo.h"
 
 namespace Magpie {
 
@@ -48,7 +49,7 @@ bool FrameRingBuffer::Initialize(
 
 ID3D12Resource* FrameRingBuffer::GetBuffer(uint32_t index) noexcept {
 	auto lk = _lock.lock_shared();
-	return _slots[index].textureAllocation->GetResource();
+	return _slots[index].texture.get();
 }
 
 HRESULT FrameRingBuffer::ProducerBeginFrame(
@@ -165,7 +166,7 @@ bool FrameRingBuffer::ConsumerBeginFrame(
 	curSlot.consumerFenceValue = fenceValueToSignal;
 
 	bufferIdx = _curConsumerIdx;
-	frame = curSlot.textureAllocation->GetResource();
+	frame = curSlot.texture.get();
 	completedFenceValue = _consumerFence->GetCompletedValue();
 
 	return true;
@@ -240,24 +241,24 @@ HRESULT FrameRingBuffer::OnColorInfoChanged(const ColorInfo& colorInfo) noexcept
 }
 
 HRESULT FrameRingBuffer::_CreateBuffers() noexcept {
-	auto& gpuResourceManager = _d3d12Context->GetGpuResourceManager();
+	uint64_t slotCount = _slots.size();
+	SmallVector<ID3D12Resource**, 4> textures(slotCount);
+	for (uint64_t i = 0; i < slotCount; ++i) {
+		textures[i] = _slots[i].texture.put();
+	}
 
-	DXGI_FORMAT textureFormat =
-		_isScRGB ? DXGI_FORMAT_R16G16B16A16_FLOAT : DXGI_FORMAT_R8G8B8A8_UNORM;
-
-	for (_FrameResourceSlot& slot : _slots) {
-		HRESULT hr = gpuResourceManager.CreateTexture(
-			D3D12_HEAP_TYPE_DEFAULT,
-			textureFormat,
-			_size,
-			D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-			D3D12_RESOURCE_STATE_COMMON,
-			slot.textureAllocation.put()
-		);
-		if (FAILED(hr)) {
-			Logger::Get().ComError("GpuResourceManager::CreateTexture 失败", hr);
-			return hr;
-		}
+	HRESULT hr = _d3d12Context->GetGpuResourceManager().CreateTextures(
+		D3D12_HEAP_TYPE_DEFAULT,
+		_isScRGB ? DXGI_FORMAT_R16G16B16A16_FLOAT : DXGI_FORMAT_R8G8B8A8_UNORM,
+		_size,
+		D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+		D3D12_RESOURCE_STATE_COMMON,
+		_textureAllocations.put(),
+		textures
+	);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("GpuResourceManager::CreateTextures 失败", hr);
+		return hr;
 	}
 
 	return S_OK;

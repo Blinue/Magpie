@@ -36,7 +36,7 @@ public:
 	bool Start() noexcept;
 
 	ID3D12Resource* GetOutput(uint32_t index) noexcept {
-		return _slots[index].outputAllocation->GetResource();
+		return _slots[index].output.get();
 	}
 
 	bool ShouldWaitMessageForNewFrame() const noexcept {
@@ -123,10 +123,12 @@ private:
 		winrt::Windows::Graphics::Capture::Direct3D11CaptureFrame captureFrame{ nullptr };
 		uint32_t captureFrameResourceIdx = 0;
 		SmallVector<RectU> dirtyRects;
-		winrt::com_ptr<D3D12MA::Allocation> outputAllocation;
+		winrt::com_ptr<ID3D12Resource> output;
 	};
 
 	std::vector<_FrameResourceSlot> _slots;
+	// 存储所有输出纹理
+	winrt::com_ptr<D3D12MA::Allocation> _outputAllocation;
 	uint32_t _curFrameIdx = 0;
 	
 	D3D12_BOX _frameBox{};

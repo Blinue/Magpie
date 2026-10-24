@@ -314,6 +314,7 @@
 							<ComboBox DropDownOpened="ComboBox_DropDownOpened"
 							          SelectedIndex="{x:Bind ViewModel.HighestShaderModel, Mode=TwoWay}">
 								<ComboBoxItem x:Uid="Home_Advanced_DeveloperOptions_HighestShaderModel_NotLimited" />
+								<x:String>6.10</x:String>
 								<x:String>6.9</x:String>
 								<x:String>6.8</x:String>
 								<x:String>6.7</x:String>

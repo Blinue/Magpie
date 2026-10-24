@@ -1,11 +1,12 @@
 #include "pch.h"
 #include "D3D12Context.h"
-#include "ScalingWindow.h"
-#include "Logger.h"
 #include "AppFolderManager.h"
-#include "DirectXHelper.h"
-#include "StrHelper.h"
 #include "DescriptorHeap.h"
+#include "DirectXHelper.h"
+#include "GpuResourceManager.h"
+#include "Logger.h"
+#include "ScalingWindow.h"
+#include "StrHelper.h"
 
 namespace Magpie {
 
@@ -56,45 +57,7 @@ bool D3D12Context::Initialize(
 		}
 	}
 
-	// 检查是否是集成显卡
-	{
-		D3D12_FEATURE_DATA_ARCHITECTURE1 data{};
-		hr = _device->CheckFeatureSupport(D3D12_FEATURE_ARCHITECTURE1, &data, sizeof(data));
-		if (SUCCEEDED(hr)) {
-			_isUMA = data.UMA;
-		} else {
-			Logger::Get().ComWarn("CheckFeatureSupport 失败", hr);
-		}
-	}
-
-	// 检查 D3D12_HEAP_FLAG_CREATE_NOT_ZEROED 支持。是否支持这个功能只和 D3D12 版本有关，
-	// 虽然我们随程序部署了 Agility SDK，但旧版 Win10 不支持加载。
-	// https://devblogs.microsoft.com/directx/coming-to-directx-12-more-control-over-memory-allocation/
-	_isHeapFlagCreateNotZeroedSupported = (bool)_device.try_as<ID3D12Device8>();
-
-	// 检查 Resizable BAR 支持
-	{
-		D3D12_FEATURE_DATA_D3D12_OPTIONS16 data{};
-		hr = _device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS16, &data, sizeof(data));
-		if (SUCCEEDED(hr)) {
-			_isGPUUploadHeapSupported = data.GPUUploadHeapSupported;
-		} else {
-			Logger::Get().ComWarn("CheckFeatureSupport 失败", hr);
-		}
-	}
-
-	// 检查 FP16 支持
 	if (!ScalingWindow::Get().Options().IsFP16Disabled()) {
-		{
-			D3D12_FEATURE_DATA_D3D12_OPTIONS data{};
-			hr = _device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, &data, sizeof(data));
-			if (SUCCEEDED(hr)) {
-				_isMinFloat16Supported = data.MinPrecisionSupport & D3D12_SHADER_MIN_PRECISION_SUPPORT_16_BIT;
-			} else {
-				Logger::Get().ComWarn("CheckFeatureSupport 失败", hr);
-			}
-		}
-		
 		// SM 6.2 开始支持原生 16 位标量
 		if (_shaderModel >= D3D_SHADER_MODEL_6_2) {
 			D3D12_FEATURE_DATA_D3D12_OPTIONS4 data{};
@@ -106,8 +69,6 @@ bool D3D12Context::Initialize(
 			}
 		}
 	}
-	
-	_LogDeviceInfo();
 
 	if (!_InitializeDeviceResources(
 		maxInFlightFrameCount, priority, commandListType, disableFrameFenceTracking)) {
@@ -125,10 +86,6 @@ void D3D12Context::CopyDevice(const D3D12Context& other) {
 	_device = other._device;
 	_shaderModel = other._shaderModel;
 	_rootSignatureVersion = other._rootSignatureVersion;
-	_isUMA = other._isUMA;
-	_isHeapFlagCreateNotZeroedSupported = other._isHeapFlagCreateNotZeroedSupported;
-	_isGPUUploadHeapSupported = other._isGPUUploadHeapSupported;
-	_isMinFloat16Supported = other._isMinFloat16Supported;
 	_isNative16BitSupported = other._isNative16BitSupported;
 }
 
@@ -167,6 +124,23 @@ IDXGIFactory7* D3D12Context::GetDXGIFactoryForEnumingAdapters() noexcept {
 	}
 
 	return _dxgiFactory.get();
+}
+
+bool D3D12Context::IsUMA() const noexcept {
+	return _gpuResourceManager->GetAllocator()->IsUMA();
+}
+
+bool D3D12Context::IsGPUUploadHeapSupported() const noexcept {
+	return _gpuResourceManager->GetAllocator()->IsGPUUploadHeapSupported();
+}
+
+bool D3D12Context::IsMinFloat16Supported() const noexcept {
+	if (ScalingWindow::Get().Options().IsFP16Disabled()) {
+		return false;
+	}
+
+	auto allocator = _gpuResourceManager->GetAllocator();
+	return allocator->GetD3D12Options().MinPrecisionSupport & D3D12_SHADER_MIN_PRECISION_SUPPORT_16_BIT;
 }
 
 HRESULT D3D12Context::Signal(uint64_t& fenceValue) noexcept {
@@ -497,6 +471,7 @@ void D3D12Context::_QueryHighestShaderModel() noexcept {
 	// （这只会发生在不支持 Agility SDK 的旧版本 Win10 上）。官方推荐从新到旧依次检查每
 	// 个版本。
 	constexpr std::array allModelVersions = {
+		D3D_SHADER_MODEL_6_10,
 		D3D_SHADER_MODEL_6_9,
 		D3D_SHADER_MODEL_6_8,
 		D3D_SHADER_MODEL_6_7,
@@ -511,8 +486,10 @@ void D3D12Context::_QueryHighestShaderModel() noexcept {
 	};
 	constexpr uint32_t versionCount = (uint32_t)std::size(allModelVersions);
 
+	// HighestShaderModel 从低到高排序
 	HighestShaderModel versionLimit = ScalingWindow::Get().Options().highestShaderModel;
-	uint32_t startIdx = versionLimit == HighestShaderModel::NotLimited ? 0 : (uint32_t)versionLimit - 1;
+	uint32_t startIdx = versionLimit == HighestShaderModel::NotLimited ? 0 :
+		versionCount - (uint32_t)versionLimit;
 
 	for (uint32_t i = startIdx; i < versionCount; ++i) {
 		D3D12_FEATURE_DATA_SHADER_MODEL data = { .HighestShaderModel = allModelVersions[i]};
@@ -529,108 +506,6 @@ void D3D12Context::_QueryHighestShaderModel() noexcept {
 
 		return;
 	}
-}
-
-void D3D12Context::_LogDeviceInfo() noexcept {
-	std::string_view featureLevel;
-	{
-		D3D_FEATURE_LEVEL featureLevels[] = {
-			D3D_FEATURE_LEVEL_12_2,
-			D3D_FEATURE_LEVEL_12_1,
-			D3D_FEATURE_LEVEL_12_0,
-			D3D_FEATURE_LEVEL_11_1,
-			D3D_FEATURE_LEVEL_11_0
-		};
-		D3D12_FEATURE_DATA_FEATURE_LEVELS featureData = {
-			.NumFeatureLevels = (UINT)std::size(featureLevels),
-			.pFeatureLevelsRequested = featureLevels
-		};
-		HRESULT hr = _device->CheckFeatureSupport(
-			D3D12_FEATURE_FEATURE_LEVELS, &featureData, sizeof(featureData));
-		if (SUCCEEDED(hr)) {
-			switch (featureData.MaxSupportedFeatureLevel) {
-			case D3D_FEATURE_LEVEL_12_2:
-				featureLevel = "12.2";
-				break;
-			case D3D_FEATURE_LEVEL_12_1:
-				featureLevel = "12.1";
-				break;
-			case D3D_FEATURE_LEVEL_12_0:
-				featureLevel = "12.0";
-				break;
-			case D3D_FEATURE_LEVEL_11_1:
-				featureLevel = "11.1";
-				break;
-			case D3D_FEATURE_LEVEL_11_0:
-				featureLevel = "11.0";
-				break;
-			default:
-				featureLevel = "未知";
-				break;
-			}
-		} else {
-			Logger::Get().ComWarn("CheckFeatureSupport 失败", hr);
-			featureLevel = "未知";
-		}
-	}
-
-	std::string_view shaderModel;
-	switch (_shaderModel) {
-	case D3D_SHADER_MODEL_6_9:
-		shaderModel = "6.9";
-		break;
-	case D3D_SHADER_MODEL_6_8:
-		shaderModel = "6.8";
-		break;
-	case D3D_SHADER_MODEL_6_7:
-		shaderModel = "6.7";
-		break;
-	case D3D_SHADER_MODEL_6_6:
-		shaderModel = "6.6";
-		break;
-	case D3D_SHADER_MODEL_6_5:
-		shaderModel = "6.5";
-		break;
-	case D3D_SHADER_MODEL_6_4:
-		shaderModel = "6.4";
-		break;
-	case D3D_SHADER_MODEL_6_3:
-		shaderModel = "6.3";
-		break;
-	case D3D_SHADER_MODEL_6_2:
-		shaderModel = "6.2";
-		break;
-	case D3D_SHADER_MODEL_6_1:
-		shaderModel = "6.1";
-		break;
-	case D3D_SHADER_MODEL_6_0:
-		shaderModel = "6.0";
-		break;
-	default:
-		shaderModel = "5.1";
-		break;
-	}
-
-	constexpr const char* boolStrs[] = { "否","是" };
-
-	Logger::Get().Info(fmt::format(R"(已创建 D3D12 设备
-	功能级别: {}
-	shader model 版本: {}
-	根签名版本: {}
-	集成显卡: {}
-	D3D12_HEAP_FLAG_CREATE_NOT_ZEROED 支持: {}
-	Resizable BAR 支持: {}
-	min16float 支持: {}
-	原生 16 位标量支持: {})",
-		featureLevel,
-		shaderModel,
-		_rootSignatureVersion == D3D_ROOT_SIGNATURE_VERSION_1_1 ? "1.1" : "1.0",
-		boolStrs[_isUMA],
-		boolStrs[_isHeapFlagCreateNotZeroedSupported],
-		boolStrs[_isGPUUploadHeapSupported],
-		boolStrs[_isMinFloat16Supported],
-		boolStrs[_isNative16BitSupported]
-	));
 }
 
 }

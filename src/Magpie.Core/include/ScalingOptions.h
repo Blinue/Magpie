@@ -108,19 +108,22 @@ struct OverlayOptions {
 	std::string takeScreenshotShortcut;
 };
 
+// 从低到高排序以便于保存为设置。添加新 SM 时也要修改 HomePage.xaml、D3D12Context.cpp
+// 和 Renderer.cpp。
 enum class HighestShaderModel {
 	NotLimited,
-	SM_6_9,
-	SM_6_8,
-	SM_6_7,
-	SM_6_6,
-	SM_6_5,
-	SM_6_4,
-	SM_6_3,
-	SM_6_2,
-	SM_6_1,
-	SM_6_0,
 	SM_5_1,
+	SM_6_0,
+	SM_6_1,
+	SM_6_2,
+	SM_6_3,
+	SM_6_4,
+	SM_6_5,
+	SM_6_6,
+	SM_6_7,
+	SM_6_8,
+	SM_6_9,
+	SM_6_10,
 	COUNT
 };
 
@@ -227,6 +230,7 @@ struct ScalingOptions {
 	CursorInterpolationMode cursorInterpolationMode = CursorInterpolationMode::Bicubic;
 	std::optional<float> autoHideCursorDelay;
 	DuplicateFrameDetectionMode duplicateFrameDetectionMode = DuplicateFrameDetectionMode::Dynamic;
+	// 取值范围 1~3
 	uint32_t maxProducerInFlightFrames = 2;
 	ToolbarState fullscreenInitialToolbarState = ToolbarState::AutoHide;
 	ToolbarState windowedInitialToolbarState = ToolbarState::AutoHide;

@@ -19,6 +19,10 @@ public:
 		DescriptorHeap& rtvDescriptorHeap
 	) noexcept;
 
+	D3D12MA::Allocator* GetAllocator() const noexcept {
+		return _allocator.get();
+	}
+
 	HRESULT CreateBuffer(
 		D3D12_HEAP_TYPE heapType,
 		UINT64 bufferSize,
@@ -35,6 +39,17 @@ public:
 		D3D12MA::Allocation** allocation
 	) const noexcept;
 
+	// 创建多个相同的纹理，合并为一个 Allocation
+	HRESULT CreateTextures(
+		D3D12_HEAP_TYPE heapType,
+		DXGI_FORMAT format,
+		SizeU size,
+		D3D12_RESOURCE_FLAGS flags,
+		D3D12_RESOURCE_STATES initialResourceState,
+		D3D12MA::Allocation** allocation,
+		std::span<ID3D12Resource**> resources
+	) const noexcept;
+
 	void RetireResource(winrt::com_ptr<D3D12MA::Allocation>&& allocation, bool isConsumer) noexcept;
 
 	void RetireDescriptor(
@@ -49,6 +64,7 @@ public:
 	void OnFrameCompleted(uint64_t completedFenceValue, bool isConsumer) noexcept;
 
 private:
+	ID3D12Device5* _device = nullptr;
 	DescriptorHeap* _csuDescriptorHeap = nullptr;
 	DescriptorHeap* _rtvDescriptorHeap = nullptr;
 

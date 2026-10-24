@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "GpuResourceManager.h"
 #include "DescriptorHeap.h"
+#include "DirectXHelper.h"
 #include "Logger.h"
 
 namespace Magpie {
@@ -11,11 +12,14 @@ bool GpuResourceManager::Initialize(
 	DescriptorHeap& csuDescriptorHeap,
 	DescriptorHeap& rtvDescriptorHeap
 ) noexcept {
+	_device = device;
 	_csuDescriptorHeap = &csuDescriptorHeap;
 	_rtvDescriptorHeap = &rtvDescriptorHeap;
 
 	D3D12MA::ALLOCATOR_DESC allocatorDesc = {
-		.Flags = (D3D12MA::ALLOCATOR_FLAGS)D3D12MA_RECOMMENDED_ALLOCATOR_FLAGS,
+		.Flags = D3D12MA::ALLOCATOR_FLAGS(D3D12MA_RECOMMENDED_ALLOCATOR_FLAGS |
+			// 我们创建的缓冲区不多，不需要担心浪费空间
+			D3D12MA::ALLOCATOR_FLAG_DONT_PREFER_SMALL_BUFFERS_COMMITTED),
 		.pDevice = device,
 		.pAdapter = dxgiAdapter
 	};
@@ -74,6 +78,64 @@ HRESULT GpuResourceManager::CreateTexture(
 	if (FAILED(hr)) {
 		Logger::Get().ComError("D3D12MA::Allocator::CreateResource 失败", hr);
 		return hr;
+	}
+
+	return S_OK;
+}
+
+HRESULT GpuResourceManager::CreateTextures(
+	D3D12_HEAP_TYPE heapType,
+	DXGI_FORMAT format,
+	SizeU size,
+	D3D12_RESOURCE_FLAGS flags,
+	D3D12_RESOURCE_STATES initialResourceState,
+	D3D12MA::Allocation** allocation,
+	std::span<ID3D12Resource**> resources
+) const noexcept {
+	uint64_t slotCount = resources.size();
+
+	CD3DX12_RESOURCE_DESC texDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+		format, size.width, size.height, 1, 1, 1, 0, flags);
+
+	D3D12_RESOURCE_ALLOCATION_INFO texAllocInfo = _device->GetResourceAllocationInfo(0, 1, &texDesc);
+	
+	uint64_t texPitch = DirectXHelper::Align(texAllocInfo.SizeInBytes, texAllocInfo.Alignment);
+
+	D3D12MA::CALLOCATION_DESC allocDesc(
+		heapType,
+		D3D12MA::ALLOCATION_FLAG_NONE,
+		nullptr,
+		D3D12MA_RECOMMENDED_HEAP_FLAGS | D3D12_HEAP_FLAG_ALLOW_ONLY_NON_RT_DS_TEXTURES
+	);
+
+	// Allocator::AllocateMemory 要求 SizeInBytes 是 64KiB 的整数倍
+	D3D12_RESOURCE_ALLOCATION_INFO blockAllocInfo = {
+		.SizeInBytes = DirectXHelper::Align(
+			texPitch * (slotCount - 1) + texAllocInfo.SizeInBytes,
+			64ull << 10
+		),
+		.Alignment = texAllocInfo.Alignment
+	};
+
+	HRESULT hr = _allocator->AllocateMemory(&allocDesc, &blockAllocInfo, allocation);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("D3D12MA::Allocator::AllocateMemory 失败", hr);
+		return hr;
+	}
+
+	for (uint64_t i = 0; i < slotCount; ++i) {
+		hr = _allocator->CreateAliasingResource(
+			*allocation,
+			texPitch * i,
+			&texDesc,
+			initialResourceState,
+			nullptr,
+			IID_PPV_ARGS(resources[i])
+		);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("D3D12MA::Allocator::CreateAliasingResource 失败", hr);
+			return hr;
+		}
 	}
 
 	return S_OK;

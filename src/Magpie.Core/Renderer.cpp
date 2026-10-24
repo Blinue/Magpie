@@ -41,6 +41,111 @@ static void SetGpuPriority() noexcept {
 	}
 }
 
+static void LogDeviceInfo(const D3D12Context& d3d12Context) noexcept {
+	ID3D12Device5* device = d3d12Context.GetDevice();
+
+	std::string_view featureLevel = "未知";
+	{
+		D3D_FEATURE_LEVEL featureLevels[] = {
+			D3D_FEATURE_LEVEL_12_2,
+			D3D_FEATURE_LEVEL_12_1,
+			D3D_FEATURE_LEVEL_12_0,
+			D3D_FEATURE_LEVEL_11_1,
+			D3D_FEATURE_LEVEL_11_0
+		};
+		D3D12_FEATURE_DATA_FEATURE_LEVELS featureData = {
+			.NumFeatureLevels = (UINT)std::size(featureLevels),
+			.pFeatureLevelsRequested = featureLevels
+		};
+		HRESULT hr = device->CheckFeatureSupport(
+			D3D12_FEATURE_FEATURE_LEVELS, &featureData, sizeof(featureData));
+		if (SUCCEEDED(hr)) {
+			switch (featureData.MaxSupportedFeatureLevel) {
+			case D3D_FEATURE_LEVEL_12_2:
+				featureLevel = "12.2";
+				break;
+			case D3D_FEATURE_LEVEL_12_1:
+				featureLevel = "12.1";
+				break;
+			case D3D_FEATURE_LEVEL_12_0:
+				featureLevel = "12.0";
+				break;
+			case D3D_FEATURE_LEVEL_11_1:
+				featureLevel = "11.1";
+				break;
+			case D3D_FEATURE_LEVEL_11_0:
+				featureLevel = "11.0";
+				break;
+			default:
+				break;
+			}
+		} else {
+			Logger::Get().ComWarn("CheckFeatureSupport 失败", hr);
+		}
+	}
+
+	std::string_view shaderModel = "未知";
+	switch (d3d12Context.GetShaderModel()) {
+	case D3D_SHADER_MODEL_6_10:
+		shaderModel = "6.10";
+		break;
+	case D3D_SHADER_MODEL_6_9:
+		shaderModel = "6.9";
+		break;
+	case D3D_SHADER_MODEL_6_8:
+		shaderModel = "6.8";
+		break;
+	case D3D_SHADER_MODEL_6_7:
+		shaderModel = "6.7";
+		break;
+	case D3D_SHADER_MODEL_6_6:
+		shaderModel = "6.6";
+		break;
+	case D3D_SHADER_MODEL_6_5:
+		shaderModel = "6.5";
+		break;
+	case D3D_SHADER_MODEL_6_4:
+		shaderModel = "6.4";
+		break;
+	case D3D_SHADER_MODEL_6_3:
+		shaderModel = "6.3";
+		break;
+	case D3D_SHADER_MODEL_6_2:
+		shaderModel = "6.2";
+		break;
+	case D3D_SHADER_MODEL_6_1:
+		shaderModel = "6.1";
+		break;
+	case D3D_SHADER_MODEL_6_0:
+		shaderModel = "6.0";
+		break;
+	case D3D_SHADER_MODEL_5_1:
+		shaderModel = "5.1";
+		break;
+	default:
+		break;
+	}
+
+	constexpr const char* boolStrs[] = { "否","是" };
+
+	Logger::Get().Info(fmt::format(R"(已创建 D3D12 设备
+	功能级别: {}
+	shader model 版本: {}
+	根签名版本: {}
+	集成显卡: {}
+	Resizable BAR 支持: {}
+	min16float 支持: {}
+	原生 16 位标量支持: {})",
+		featureLevel,
+		shaderModel,
+		d3d12Context.GetRootSignatureVersion() == D3D_ROOT_SIGNATURE_VERSION_1_1 ? "1.1" : "1.0",
+		boolStrs[d3d12Context.IsUMA()],
+		boolStrs[d3d12Context.IsGPUUploadHeapSupported()],
+		boolStrs[d3d12Context.IsMinFloat16Supported()],
+		boolStrs[d3d12Context.IsNative16BitSupported()]
+	));
+}
+
 ScalingError Renderer::Initialize(
 	HWND hwndAttach,
 	HMONITOR hMonitor,
@@ -122,6 +227,8 @@ ScalingError Renderer::Initialize(
 		Logger::Get().Error("GpuResourceManager::Initialize 失败");
 		return ScalingError::ScalingFailedGeneral;
 	}
+
+	LogDeviceInfo(_d3d12Context);
 
 	_graphicsContext.Initialize(_d3d12Context);
 

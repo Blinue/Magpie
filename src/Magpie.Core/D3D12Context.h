@@ -70,21 +70,11 @@ public:
 		return _rootSignatureVersion;
 	}
 
-	bool IsUMA() const noexcept {
-		return _isUMA;
-	}
+	bool IsUMA() const noexcept;
 
-	bool IsHeapFlagCreateNotZeroedSupported() const noexcept {
-		return _isHeapFlagCreateNotZeroedSupported;
-	}
+	bool IsGPUUploadHeapSupported() const noexcept;
 
-	bool IsGPUUploadHeapSupported() const noexcept {
-		return _isGPUUploadHeapSupported;
-	}
-
-	bool IsMinFloat16Supported() const noexcept {
-		return _isMinFloat16Supported;
-	}
+	bool IsMinFloat16Supported() const noexcept;
 
 	bool IsNative16BitSupported() const noexcept {
 		return _isNative16BitSupported;
@@ -130,8 +120,6 @@ private:
 
 	void _QueryHighestShaderModel() noexcept;
 
-	void _LogDeviceInfo() noexcept;
-
 	DescriptorHeap* _csuDescriptorHeap = nullptr;
 	DescriptorHeap* _rtvDescriptorHeap = nullptr;
 	GpuResourceManager* _gpuResourceManager = nullptr;
@@ -153,10 +141,6 @@ private:
 	D3D_SHADER_MODEL _shaderModel = D3D_SHADER_MODEL_5_1;
 	D3D_ROOT_SIGNATURE_VERSION _rootSignatureVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
 
-	bool _isUMA = false;
-	bool _isHeapFlagCreateNotZeroedSupported = false;
-	bool _isGPUUploadHeapSupported = false;
-	bool _isMinFloat16Supported = false;
 	bool _isNative16BitSupported = false;
 };
 
