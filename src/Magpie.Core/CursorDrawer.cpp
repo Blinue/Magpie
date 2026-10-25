@@ -916,14 +916,6 @@ bool CursorDrawer::_ResolveCursorFramePixels(
 		// 单色光标。如果不需要应用反色则转换成彩色光标
 		const uint32_t halfSize = bi.bmiHeader.biSizeImage / 2;
 
-		// 调试模式下将 XOR 掩码反转以和原始光标做区分。XOR 掩码反转后白色和黑色互换，
-		// 透明和反色互换。
-		if (ScalingWindow::Get().Options().IsDebugMode()) {
-			for (uint32_t i = halfSize; i < bi.bmiHeader.biSizeImage; i += 4) {
-				pixels[i] = 255 - pixels[i];
-			}
-		}
-
 		// 计算此单色光标是否可以转换为彩色光标
 		bool canConvertToColor = true;
 		for (uint32_t i = 0; i < halfSize; i += 4) {
@@ -931,6 +923,14 @@ bool CursorDrawer::_ResolveCursorFramePixels(
 			if (pixels[i] != 0 && pixels[i + halfSize] != 0) {
 				canConvertToColor = false;
 				break;
+			}
+		}
+
+		// 调试模式下将 XOR 掩码反转以和原始光标做区分。XOR 掩码反转后白色和黑色互换，
+		// 透明和反色互换。如果可以转换为彩色光标则只将白色和黑色互换。
+		if (ScalingWindow::Get().Options().IsDebugMode()) {
+			for (uint32_t i = halfSize; i < bi.bmiHeader.biSizeImage; i += 4) {
+				pixels[i] = 255 - pixels[i];
 			}
 		}
 		
