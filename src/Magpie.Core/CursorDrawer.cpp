@@ -831,6 +831,15 @@ bool CursorDrawer::_ResolveCursorFramePixels(
 	}
 
 	if (hColorBmp) {
+		// 调试模式下将光标颜色反转以和原始光标做区分
+		if (ScalingWindow::Get().Options().IsDebugMode()) {
+			for (uint32_t i = 0; i < bi.bmiHeader.biSizeImage; i += 4) {
+				pixels[i] = 255 - pixels[i];
+				pixels[i + 1] = 255 - pixels[i + 1];
+				pixels[i + 2] = 255 - pixels[i + 2];
+			}
+		}
+
 		// 彩色掩码光标和彩色光标的区别在于前者的透明通道全为 0
 		bool hasAlpha = false;
 		for (uint32_t i = 3; i < bi.bmiHeader.biSizeImage; i += 4) {
@@ -906,6 +915,14 @@ bool CursorDrawer::_ResolveCursorFramePixels(
 	} else {
 		// 单色光标。如果不需要应用反色则转换成彩色光标
 		const uint32_t halfSize = bi.bmiHeader.biSizeImage / 2;
+
+		// 调试模式下将 XOR 掩码反转以和原始光标做区分。XOR 掩码反转后白色和黑色互换，
+		// 透明和反色互换。
+		if (ScalingWindow::Get().Options().IsDebugMode()) {
+			for (uint32_t i = halfSize; i < bi.bmiHeader.biSizeImage; i += 4) {
+				pixels[i] = 255 - pixels[i];
+			}
+		}
 
 		// 计算此单色光标是否可以转换为彩色光标
 		bool canConvertToColor = true;
