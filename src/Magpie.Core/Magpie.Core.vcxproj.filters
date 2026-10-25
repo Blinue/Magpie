@@ -19,11 +19,11 @@
     <Filter Include="Presenter">
       <UniqueIdentifier>{bf1f1896-560d-4f37-9c3a-891b7c9cd2af}</UniqueIdentifier>
     </Filter>
-    <Filter Include="EffectDrawer">
-      <UniqueIdentifier>{ae93c055-e8c1-41c3-ba76-3422dac27328}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Services">
       <UniqueIdentifier>{1ca5aed2-f451-476c-92cb-a0a4d6f3412e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Drawers">
+      <UniqueIdentifier>{ae93c055-e8c1-41c3-ba76-3422dac27328}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -51,9 +51,6 @@
     <ClInclude Include="include\DirectXHelper.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="CursorDrawer.h">
-      <Filter>Render</Filter>
-    </ClInclude>
     <ClInclude Include="ExclModeHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
@@ -80,7 +77,7 @@
       <Filter>Render</Filter>
     </ClInclude>
     <ClInclude Include="EffectDrawerBase.h">
-      <Filter>EffectDrawer</Filter>
+      <Filter>Drawers</Filter>
     </ClInclude>
     <ClInclude Include="DuplicateFrameChecker.h">
       <Filter>Capture</Filter>
@@ -88,11 +85,8 @@
     <ClInclude Include="DirtyRectsOptimizer.h">
       <Filter>Capture</Filter>
     </ClInclude>
-    <ClInclude Include="EffectsDrawer.h">
-      <Filter>Render</Filter>
-    </ClInclude>
     <ClInclude Include="ShaderEffectDrawer.h">
-      <Filter>EffectDrawer</Filter>
+      <Filter>Drawers</Filter>
     </ClInclude>
     <ClInclude Include="include\EffectInfo.h">
       <Filter>Include</Filter>
@@ -134,15 +128,6 @@
     <ClInclude Include="YasHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
-    <ClInclude Include="OverlayDrawer.h">
-      <Filter>Render</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGuiImpl.h">
-      <Filter>Render</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGuiBackend.h">
-      <Filter>Render</Filter>
-    </ClInclude>
     <ClInclude Include="KeepScreenOnHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
@@ -156,23 +141,41 @@
     <ClInclude Include="OverlayHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
-    <ClInclude Include="EffectTextureFormat.h">
-      <Filter>Render</Filter>
-    </ClInclude>
     <ClInclude Include="include\resource.h">
       <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderEffectDrawInfo.h">
-      <Filter>Render</Filter>
     </ClInclude>
     <ClInclude Include="MemStream.h">
       <Filter>Helpers</Filter>
     </ClInclude>
-    <ClInclude Include="CatmullRomDrawer.h">
-      <Filter>Render</Filter>
-    </ClInclude>
     <ClInclude Include="GpuResourceManager.h">
       <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="CatmullRomDrawer.h">
+      <Filter>Drawers</Filter>
+    </ClInclude>
+    <ClInclude Include="OverlayDrawer.h">
+      <Filter>Drawers</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderEffectDrawInfo.h">
+      <Filter>Drawers</Filter>
+    </ClInclude>
+    <ClInclude Include="CursorDrawer.h">
+      <Filter>Drawers</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectsDrawer.h">
+      <Filter>Drawers</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuiImpl.h">
+      <Filter>Drawers</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuiBackend.h">
+      <Filter>Drawers</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectTextureFormat.h">
+      <Filter>Drawers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenshotDrawer.h">
+      <Filter>Drawers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -186,9 +189,6 @@
     <ClCompile Include="ScalingOptions.cpp" />
     <ClCompile Include="Win32Helper.cpp">
       <Filter>Helpers</Filter>
-    </ClCompile>
-    <ClCompile Include="CursorDrawer.cpp">
-      <Filter>Render</Filter>
     </ClCompile>
     <ClCompile Include="ExclModeHelper.cpp">
       <Filter>Helpers</Filter>
@@ -218,11 +218,8 @@
     <ClCompile Include="DirtyRectsOptimizer.cpp">
       <Filter>Capture</Filter>
     </ClCompile>
-    <ClCompile Include="EffectsDrawer.cpp">
-      <Filter>Render</Filter>
-    </ClCompile>
     <ClCompile Include="ShaderEffectDrawer.cpp">
-      <Filter>EffectDrawer</Filter>
+      <Filter>Drawers</Filter>
     </ClCompile>
     <ClCompile Include="ShaderEffectParser.cpp" />
     <ClCompile Include="CursorHelper.cpp">
@@ -247,15 +244,6 @@
       <Filter>Helpers</Filter>
     </ClCompile>
     <ClCompile Include="AppFolderManager.cpp" />
-    <ClCompile Include="OverlayDrawer.cpp">
-      <Filter>Render</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGuiImpl.cpp">
-      <Filter>Render</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGuiBackend.cpp">
-      <Filter>Render</Filter>
-    </ClCompile>
     <ClCompile Include="KeepScreenOnHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
@@ -268,11 +256,29 @@
     <ClCompile Include="WICImageLoader.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
-    <ClCompile Include="CatmullRomDrawer.cpp">
-      <Filter>Render</Filter>
-    </ClCompile>
     <ClCompile Include="GpuResourceManager.cpp">
       <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="CatmullRomDrawer.cpp">
+      <Filter>Drawers</Filter>
+    </ClCompile>
+    <ClCompile Include="OverlayDrawer.cpp">
+      <Filter>Drawers</Filter>
+    </ClCompile>
+    <ClCompile Include="CursorDrawer.cpp">
+      <Filter>Drawers</Filter>
+    </ClCompile>
+    <ClCompile Include="EffectsDrawer.cpp">
+      <Filter>Drawers</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuiBackend.cpp">
+      <Filter>Drawers</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuiImpl.cpp">
+      <Filter>Drawers</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenshotDrawer.cpp">
+      <Filter>Drawers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

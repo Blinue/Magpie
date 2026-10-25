@@ -2,7 +2,7 @@
 #include "CatmullRomDrawer.h"
 #include "D3D12Context.h"
 #include "EffectDrawerBase.h"
-#include "EffectTextureFormat.h"
+#include "ScreenshotDrawer.h"
 #include "SmallVector.h"
 #include <D3D12MemAlloc.h>
 
@@ -60,23 +60,11 @@ public:
 	void OnProducerFrameCompleted(uint64_t fenceValue) noexcept;
 
 private:
-	// 如果提供了 textureSrvOffset 则不需要 textureAllocation 和 textureFormat，否则需要
-	HRESULT _DrawScreenshot(
-		ComputeContext& computeContext,
-		uint32_t textureSrvOffset,
-		ID3D12Resource* texture,
-		EffectTextureFormat textureFormat,
-		SizeU textureSize,
-		uint64_t frameFenceValue
-	) noexcept;
-
 	uint32_t _CalcDescriptorCount() const noexcept;
 
 	void _UpdateEffectBindings() noexcept;
 
 	HRESULT _UpdateEffectOutputTextures() noexcept;
-
-	HRESULT _InitializeScreenshotRootSignature() noexcept;
 
 	D3D12Context* _d3d12Context = nullptr;
 	winrt::DispatcherQueue _dispatcher{ nullptr };
@@ -96,6 +84,7 @@ private:
 
 	SmallVector<_EffectData> _effectDatas;
 	CatmullRomDrawer _catmullRomDrawer;
+	ScreenshotDrawer _screenshotDrawer;
 
 	// 描述符的布局是 SRV|UAV|SRV|UAV|...
 	uint32_t _descriptorBaseOffset = std::numeric_limits<uint32_t>::max();
@@ -112,31 +101,6 @@ private:
 	};
 	// 不知为何如果默认初始化 clang-cl 会编译失败
 	std::atomic<_ExportTask> _exportTask{};
-
-	struct _ScreenshotData {
-		uint64_t fenceValue = 0;
-		winrt::com_ptr<D3D12MA::Allocation> readbackBufferAllocation;
-		void* readbackBufferData = nullptr;
-		SizeU textureSize{};
-		EffectTextureFormat textureFormat = EffectTextureFormat::R16G16B16A16_UNORM;
-		uint32_t rowPitch = 0;
-		uint64_t bufferSize = 0;
-		// 由于导出是异步的需要备份 colorInfo
-		ColorInfo colorInfo;
-
-		// 用于把要导出的纹理转换为 R16G16B16A16_FLOAT 格式
-		winrt::com_ptr<D3D12MA::Allocation> tempTextureAllocation;
-		uint32_t descriptorBaseOffset = std::numeric_limits<uint32_t>::max();
-		
-		// 通常只需要 tempTexture 的 UAV，但导出最终输出画面时需要额外为环形缓冲创建 SRV
-		bool hasSRV = false;
-	};
-	SmallVector<_ScreenshotData> _screenshotDatas;
-
-	winrt::com_ptr<ID3D12RootSignature> _screenshotRootSignature;
-	winrt::com_ptr<ID3D12PipelineState> _screenshotPSO;
-
-	uint32_t _pendingScreenshotCount = 0;
 };
 
 }

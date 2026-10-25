@@ -71,6 +71,7 @@
     <ClInclude Include="MemStream.h" />
     <ClInclude Include="OverlayDrawer.h" />
     <ClInclude Include="OverlayHelper.h" />
+    <ClInclude Include="ScreenshotDrawer.h" />
     <ClInclude Include="TextureHelper.h" />
     <ClInclude Include="DirtyRectsOptimizer.h" />
     <ClInclude Include="DuplicateFrameChecker.h" />
@@ -117,6 +118,7 @@
     <ClCompile Include="ImGuiBackend.cpp" />
     <ClCompile Include="ImGuiImpl.cpp" />
     <ClCompile Include="OverlayDrawer.cpp" />
+    <ClCompile Include="ScreenshotDrawer.cpp" />
     <ClCompile Include="TextureHelper.cpp" />
     <ClCompile Include="DirtyRectsOptimizer.cpp" />
     <ClCompile Include="DuplicateFrameChecker.cpp" />
