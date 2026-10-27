@@ -1,4 +1,5 @@
 #pragma once
+#include "GpuCompletion.h"
 
 namespace Magpie {
 
@@ -34,9 +35,7 @@ protected:
 	const DeviceResources* _deviceResources = nullptr;
 
 private:
-	winrt::com_ptr<ID3D11Fence> _fence;
-	uint64_t _fenceValue = 0;
-	wil::unique_event_nothrow _fenceEvent;
+	GpuCompletion _gpuCompletion;
 };
 
 }

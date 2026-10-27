@@ -127,9 +127,7 @@ private:
 	StepTimer _stepTimer;
 	EffectsProfiler _effectsProfiler;
 
-	winrt::com_ptr<ID3D11Fence> _d3dFence;
-	uint64_t _fenceValue = 0;
-	wil::unique_event_nothrow _fenceEvent;
+	GpuCompletion _gpuCompletion;
 
 	winrt::com_ptr<ID3D11Texture2D> _backendSharedTexture;
 	winrt::com_ptr<IDXGIKeyedMutex> _backendSharedTextureMutex;

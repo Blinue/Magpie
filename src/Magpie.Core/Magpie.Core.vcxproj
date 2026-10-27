@@ -80,6 +80,7 @@
     <ClInclude Include="include\Event.h" />
     <ClInclude Include="OverlayDrawer.h" />
     <ClInclude Include="PresenterBase.h" />
+    <ClInclude Include="GpuCompletion.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="ScalingWindow.h" />

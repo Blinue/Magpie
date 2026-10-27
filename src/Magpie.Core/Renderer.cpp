@@ -977,19 +977,8 @@ HANDLE Renderer::_InitBackend() noexcept {
 		return NULL;
 	}
 
-	HRESULT hr = d3dDevice->CreateFence(
-		_fenceValue, D3D11_FENCE_FLAG_NONE, IID_PPV_ARGS(&_d3dFence));
-	if (FAILED(hr)) {
-		// GH#979
-		// 这个错误会在某些很旧的显卡上出现，似乎是驱动的 bug。文档中提到 ID3D11Device5::CreateFence 
-		// 和 ID3D12Device::CreateFence 等价，但支持 DX12 的显卡也有失败的可能，如 GH#1013
-		Logger::Get().ComError("CreateFence 失败", hr);
+	if (!_gpuCompletion.Initialize(d3dDevice)) {
 		_backendInitError = ScalingError::CreateFenceFailed;
-		return NULL;
-	}
-
-	if (!_fenceEvent.try_create(wil::EventOptions::None, nullptr)) {
-		Logger::Get().Win32Error("CreateEvent 失败");
 		return NULL;
 	}
 
@@ -1027,29 +1016,17 @@ void Renderer::_BackendRender(ID3D11Texture2D* effectsOutput) noexcept {
 
 	_effectsProfiler.OnEndEffects(d3dDC);
 
-	HRESULT hr = d3dDC->Signal(_d3dFence.get(), ++_fenceValue);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("Signal 失败", hr);
+	// VMware drivers without Fence support use an event query on this thread.
+	if (!_gpuCompletion.Signal(d3dDC) || !_gpuCompletion.Wait(d3dDC)) {
 		return;
 	}
-
-	hr = _d3dFence->SetEventOnCompletion(_fenceValue, _fenceEvent.get());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("SetEventOnCompletion 失败", hr);
-		return;
-	}
-
-	d3dDC->Flush();
-
-	// 等待渲染完成
-	_fenceEvent.wait();
 
 	// 查询效果的渲染时间
 	_effectsProfiler.QueryTimings(d3dDC);
 
 	// 渲染完成后再更新 _sharedTextureMutexKey，否则前端必须等待，降低光标流畅度
 	const uint64_t key = ++_sharedTextureMutexKey;
-	hr = _backendSharedTextureMutex->AcquireSync(key - 1, INFINITE);
+	HRESULT hr = _backendSharedTextureMutex->AcquireSync(key - 1, INFINITE);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("AcquireSync 失败", hr);
 		return;
@@ -1223,39 +1200,24 @@ winrt::IAsyncOperation<int> Renderer::_TakeScreenshotImpl(
 
 	d3dDC->CopyResource(stagingTex.get(), sourceTex);
 	
-	// 为避免混乱，使用独立的栅栏
-	winrt::com_ptr<ID3D11Fence> localFence;
-	wil::unique_event_nothrow localFenceEvent;
-
-	hr = d3dDevice->CreateFence(
-		0, D3D11_FENCE_FLAG_NONE, IID_PPV_ARGS(&localFence));
-	if (FAILED(hr)) {
-		Logger::Get().ComError("CreateFence 失败", hr);
+	// Use independent synchronization for screenshots. Query access must remain
+	// on the backend thread because its immediate context can be SINGLETHREADED.
+	GpuCompletion localCompletion;
+	if (!localCompletion.Initialize(d3dDevice) || !localCompletion.Signal(d3dDC)) {
 		co_return (int)TakeScreenshotResult::InternalError;
 	}
 
-	if (!localFenceEvent.try_create(wil::EventOptions::None, nullptr)) {
-		Logger::Get().Win32Error("CreateEvent 失败");
-		co_return (int)TakeScreenshotResult::InternalError;
+	if (localCompletion.UsesQuery()) {
+		if (!localCompletion.Wait(d3dDC)) {
+			co_return (int)TakeScreenshotResult::InternalError;
+		}
+		co_await winrt::resume_background();
+	} else {
+		co_await winrt::resume_background();
+		if (!localCompletion.Wait(d3dDC)) {
+			co_return (int)TakeScreenshotResult::InternalError;
+		}
 	}
-
-	hr = d3dDC->Signal(localFence.get(), 1);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("Signal 失败", hr);
-		co_return (int)TakeScreenshotResult::InternalError;
-	}
-
-	hr = localFence->SetEventOnCompletion(1, localFenceEvent.get());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("SetEventOnCompletion 失败", hr);
-		co_return (int)TakeScreenshotResult::InternalError;
-	}
-
-	d3dDC->Flush();
-
-	// 转到后台等待 GPU 以防止卡顿
-	co_await winrt::resume_background();
-	localFenceEvent.wait();
 	co_await _backendThreadDispatcher;
 
 	// 读取纹理数据到内存
