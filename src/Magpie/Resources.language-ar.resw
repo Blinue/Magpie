@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
@@ -58,4 +58,1022 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="About_PageFrame.Title" xml:space="preserve">
+    <value>حول</value>
+  </data>
+  <data name="Home_Activation.Header" xml:space="preserve">
+    <value>التنشيط</value>
+  </data>
+  <data name="Home_PageFrame.Title" xml:space="preserve">
+    <value>الرئيسية</value>
+  </data>
+  <data name="Home_Activation_Timer.Header" xml:space="preserve">
+    <value>تحجيم مؤجل</value>
+  </data>
+  <data name="Home_Activation_Timer_Cancel" xml:space="preserve">
+    <value>إلغاء</value>
+  </data>
+  <data name="Home_Activation_Timer_Delay.Header" xml:space="preserve">
+    <value>التأخير بالثواني</value>
+  </data>
+  <data name="ShortcutDialog_Cancel" xml:space="preserve">
+    <value>إلغاء</value>
+  </data>
+  <data name="ShortcutDialogContent_Description.Text" xml:space="preserve">
+    <value>اضغط على مجموعة مفاتيح لتغيير هذا الاختصار</value>
+  </data>
+  <data name="ShortcutDialog_InUse" xml:space="preserve">
+    <value>مستخدم بالفعل</value>
+  </data>
+  <data name="ShortcutDialog_InvalidShortcut" xml:space="preserve">
+    <value>اختصار غير صالح</value>
+  </data>
+  <data name="ShortcutDialog_Save" xml:space="preserve">
+    <value>حفظ</value>
+  </data>
+  <data name="ShortcutDialogContent_Tip.Text" xml:space="preserve">
+    <value>الاختصارات التي تبدأ بمفتاح Windows أو Ctrl أو Alt أو Shift فقط هي الصالحة.</value>
+  </data>
+  <data name="Root_About.Content" xml:space="preserve">
+    <value>حول</value>
+  </data>
+  <data name="Root_Defaults.Content" xml:space="preserve">
+    <value>الإعدادات الافتراضية</value>
+  </data>
+  <data name="Root_Home.Content" xml:space="preserve">
+    <value>الرئيسية</value>
+  </data>
+  <data name="Root_NewProfile.Content" xml:space="preserve">
+    <value>ملف تعريف جديد</value>
+  </data>
+  <data name="Root_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
+    <value>حدد نافذة</value>
+  </data>
+  <data name="Root_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
+    <value>نسخ من</value>
+  </data>
+  <data name="Root_NewProfileFlyout_Create.Content" xml:space="preserve">
+    <value>إنشاء</value>
+  </data>
+  <data name="Root_NewProfileFlyout_Name.Text" xml:space="preserve">
+    <value>الاسم</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
+    <value>افتح نافذة جديدة لإنشاء ملف تعريف</value>
+  </data>
+  <data name="Root_NewProfileFlyout_Title.Text" xml:space="preserve">
+    <value>ملف تعريف جديد</value>
+  </data>
+  <data name="Root_Profiles.Content" xml:space="preserve">
+    <value>ملفات التعريف</value>
+  </data>
+  <data name="Root_ScalingModes.Content" xml:space="preserve">
+    <value>أوضاع التحجيم</value>
+  </data>
+  <data name="ScalingModes_PageFrame.Title" xml:space="preserve">
+    <value>أوضاع التحجيم</value>
+  </data>
+  <data name="Home_Advanced.Header" xml:space="preserve">
+    <value>متقدم</value>
+  </data>
+  <data name="Settings_General.Header" xml:space="preserve">
+    <value>عام</value>
+  </data>
+  <data name="Settings_General_Language.Header" xml:space="preserve">
+    <value>اللغة</value>
+  </data>
+  <data name="Settings_General_Language_System" xml:space="preserve">
+    <value>افتراضي ويندوز</value>
+  </data>
+  <data name="Settings_General_PortableMode.Header" xml:space="preserve">
+    <value>الوضع المحمول</value>
+  </data>
+  <data name="Settings_General_PortableMode_Locate.Content" xml:space="preserve">
+    <value>فتح موقع ملف التكوين</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup.Header" xml:space="preserve">
+    <value>التشغيل عند بدء التشغيل</value>
+  </data>
+  <data name="Settings_General_ShowNotifyIcon.Description" xml:space="preserve">
+    <value>سيبقى Magpie قيد التشغيل في الخلفية بعد إغلاق النافذة الرئيسية</value>
+  </data>
+  <data name="Settings_General_ShowNotifyIcon.Header" xml:space="preserve">
+    <value>عرض التطبيق في علبة النظام</value>
+  </data>
+  <data name="Settings_General_Theme.Header" xml:space="preserve">
+    <value>المظهر</value>
+  </data>
+  <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
+    <value>داكن</value>
+  </data>
+  <data name="Settings_General_Theme_System.Content" xml:space="preserve">
+    <value>افتراضي ويندوز</value>
+  </data>
+  <data name="Settings_General_Theme_Light.Content" xml:space="preserve">
+    <value>فاتح</value>
+  </data>
+  <data name="ToggleSwitch.OffContent" xml:space="preserve">
+    <value>إيقاف</value>
+  </data>
+  <data name="ToggleSwitch.OnContent" xml:space="preserve">
+    <value>تشغيل</value>
+  </data>
+  <data name="Settings_Launch.Header" xml:space="preserve">
+    <value>التشغيل</value>
+  </data>
+  <data name="ScalingModes_General_Export.Text" xml:space="preserve">
+    <value>تصدير</value>
+  </data>
+  <data name="ScalingModes_General_Import.Text" xml:space="preserve">
+    <value>استيراد</value>
+  </data>
+  <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>مزيد من الخيارات</value>
+  </data>
+  <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
+    <value>يلزم التشغيل كمسؤول لاستخدام هذا الإعداد</value>
+  </data>
+  <data name="Settings_Launch_AlwaysRunAsAdmin.Header" xml:space="preserve">
+    <value>التشغيل كمسؤول دائمًا</value>
+  </data>
+  <data name="Home_UpdateCard_AutoCheckForUpdates.Content" xml:space="preserve">
+    <value>التحقق من التحديثات دوريًا</value>
+  </data>
+  <data name="Home_UpdateCard_DownloadAndInstall.Content" xml:space="preserve">
+    <value>تنزيل وتثبيت</value>
+  </data>
+  <data name="Home_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
+    <value>ملاحظات الإصدار</value>
+  </data>
+  <data name="Home_UpdateCard_RemindMeLater.Content" xml:space="preserve">
+    <value>تذكيري لاحقًا</value>
+  </data>
+  <data name="Home_UpdateCard_Title" xml:space="preserve">
+    <value>{} متاح</value>
+  </data>
+  <data name="About_OtherLinks.Header" xml:space="preserve">
+    <value>روابط أخرى</value>
+  </data>
+  <data name="About_OtherLinks_ContributionGuidelines.Text" xml:space="preserve">
+    <value>إرشادات المساهمة</value>
+  </data>
+  <data name="About_OtherLinks_FAQ.Text" xml:space="preserve">
+    <value>الأسئلة الشائعة</value>
+  </data>
+  <data name="About_OtherLinks_License.Text" xml:space="preserve">
+    <value>الترخيص</value>
+  </data>
+  <data name="About_OtherLinks_Repository.Text" xml:space="preserve">
+    <value>مستودع GitHub</value>
+  </data>
+  <data name="ScalingModes_Parameters.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>المعلمات</value>
+  </data>
+  <data name="ScalingModes_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>مزيد من الخيارات</value>
+  </data>
+  <data name="ScalingModes_MoreOptionsFlyout_Delete.Text" xml:space="preserve">
+    <value>حذف</value>
+  </data>
+  <data name="ScalingModes_MoreOptionsFlyout_MoveDown.Text" xml:space="preserve">
+    <value>تحريك لأسفل</value>
+  </data>
+  <data name="ScalingModes_MoreOptionsFlyout_MoveUp.Text" xml:space="preserve">
+    <value>تحريك لأعلى</value>
+  </data>
+  <data name="ScalingModes_Rename.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>إعادة التسمية</value>
+  </data>
+  <data name="ScalingModes_RenameFlyout_OK.Content" xml:space="preserve">
+    <value>موافق</value>
+  </data>
+  <data name="ScalingModes_RenameFlyout_Title.Text" xml:space="preserve">
+    <value>إعادة التسمية</value>
+  </data>
+  <data name="ScalingModes_AddEffect.Text" xml:space="preserve">
+    <value>إضافة تأثير</value>
+  </data>
+  <data name="ScalingModes_Delete.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>حذف</value>
+  </data>
+  <data name="ScalingModes_DeleteFlyout_Delete.Text" xml:space="preserve">
+    <value>حذف</value>
+  </data>
+  <data name="ScalingModes_DeleteFlyout_Description.Text" xml:space="preserve">
+    <value>يتم استخدامه بواسطة ملفات التعريف التالية:</value>
+  </data>
+  <data name="ScalingModes_DeleteFlyout_Title.Text" xml:space="preserve">
+    <value>هل أنت متأكد من رغبتك في حذف وضع التحجيم هذا؟</value>
+  </data>
+  <data name="ScalingModes_DragNotSupported.Text" xml:space="preserve">
+    <value>السحب والإفلات غير مدعوم عند التشغيل كمسؤول</value>
+  </data>
+  <data name="ScalingModes_DragToReorder.Text" xml:space="preserve">
+    <value>اسحب لإعادة الترتيب</value>
+  </data>
+  <data name="ScalingModes_MoveDown.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>تحريك لأسفل</value>
+  </data>
+  <data name="ScalingModes_MoveUp.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>تحريك لأعلى</value>
+  </data>
+  <data name="ScalingModes_NewScalingMode.Text" xml:space="preserve">
+    <value>وضع تحجيم جديد</value>
+  </data>
+  <data name="ScalingModes_NewScalingModeFlyout_Title.Text" xml:space="preserve">
+    <value>وضع تحجيم جديد</value>
+  </data>
+  <data name="ScalingModes_Scale.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>تحجيم</value>
+  </data>
+  <data name="ScalingModes_NewScalingModeFlyout_CopyFrom.Text" xml:space="preserve">
+    <value>نسخ من</value>
+  </data>
+  <data name="ScalingModes_NewScalingModeFlyout_CopyFrom_None" xml:space="preserve">
+    <value>بلا</value>
+  </data>
+  <data name="ScalingModes_NewScalingModeFlyout_Create.Content" xml:space="preserve">
+    <value>إنشاء</value>
+  </data>
+  <data name="ScalingModes_NewScalingModeFlyout_Name.Text" xml:space="preserve">
+    <value>الاسم</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_HeightFactor.Text" xml:space="preserve">
+    <value>الارتفاع (عامل التحجيم)</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_HeightPixels.Text" xml:space="preserve">
+    <value>الارتفاع (بالبكسل)</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_WidthFactor.Text" xml:space="preserve">
+    <value>العرض (عامل التحجيم)</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_WidthPixels.Text" xml:space="preserve">
+    <value>العرض (بالبكسل)</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type.Text" xml:space="preserve">
+    <value>النوع</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
+    <value>مطلق</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute_Description" xml:space="preserve">
+    <value>تحديد الحجم بعد التحجيم</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
+    <value>معامل</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
+    <value>تحديد عامل التحجيم بالنسبة لصورة الإدخال</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
+    <value>ملء</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
+    <value>ملء الشاشة، قد يتم تمديد الصورة</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
+    <value>ملاءمة</value>
+  </data>
+  <data name="ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
+    <value>تحديد عامل التحجيم بعد ملء الشاشة مع تحجيم متناسب</value>
+  </data>
+  <data name="Profile_General.Header" xml:space="preserve">
+    <value>عام</value>
+  </data>
+  <data name="Profile_General_3DGameMode.Header" xml:space="preserve">
+    <value>وضع ألعاب 3D</value>
+  </data>
+  <data name="Profile_General_AutoScale.Header" xml:space="preserve">
+    <value>تحجيم تلقائي عندما تكون في المقدمة</value>
+  </data>
+  <data name="Profile_General_CaptureMethod.Header" xml:space="preserve">
+    <value>طريقة الالتقاط</value>
+  </data>
+  <data name="Profile_General_Multimonitor.Header" xml:space="preserve">
+    <value>الشاشات المفضلة</value>
+  </data>
+  <data name="Profile_General_Multimonitor_All.Content" xml:space="preserve">
+    <value>جميع الشاشات</value>
+  </data>
+  <data name="Profile_General_Multimonitor_Closest.Content" xml:space="preserve">
+    <value>الشاشة الأقرب إلى النافذة المصدر</value>
+  </data>
+  <data name="Profile_General_Multimonitor_Intersected.Content" xml:space="preserve">
+    <value>الشاشات المتقاطعة مع النافذة المصدر</value>
+  </data>
+  <data name="Profile_General_ScalingMode.Header" xml:space="preserve">
+    <value>وضع التحجيم</value>
+  </data>
+  <data name="Profile_Launch.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>تشغيل</value>
+  </data>
+  <data name="Profile_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>مزيد من الخيارات</value>
+  </data>
+  <data name="Profile_MoreOptions_Delete.Text" xml:space="preserve">
+    <value>حذف</value>
+  </data>
+  <data name="DeleteConfirmationFlyoutContent_Delete.Text" xml:space="preserve">
+    <value>حذف</value>
+  </data>
+  <data name="Profile_MoreOptions_DeleteFlyout.Text" xml:space="preserve">
+    <value>هل أنت متأكد من رغبتك في حذف ملف التعريف هذا؟</value>
+  </data>
+  <data name="Profile_MoreOptions_OpenProgramLocation.Text" xml:space="preserve">
+    <value>فتح موقع البرنامج</value>
+  </data>
+  <data name="Profile_MoreOptions_Rename.Text" xml:space="preserve">
+    <value>إعادة التسمية</value>
+  </data>
+  <data name="Profile_MoreOptions_RenameFlyout_OK.Content" xml:space="preserve">
+    <value>موافق</value>
+  </data>
+  <data name="Profile_MoreOptions_RenameFlyout_Title.Text" xml:space="preserve">
+    <value>إعادة التسمية</value>
+  </data>
+  <data name="Profile_MoreOptions_Reorder.Text" xml:space="preserve">
+    <value>إعادة الترتيب</value>
+  </data>
+  <data name="Profile_MoreOptions_ReorderFlyout_MoveDown.Text" xml:space="preserve">
+    <value>تحريك لأسفل</value>
+  </data>
+  <data name="Profile_MoreOptions_ReorderFlyout_MoveUp.Text" xml:space="preserve">
+    <value>تحريك لأعلى</value>
+  </data>
+  <data name="Profile_MoreOptions_ReorderFlyout_Title.Text" xml:space="preserve">
+    <value>إعادة الترتيب</value>
+  </data>
+  <data name="Profile_General_ScalingMode_None" xml:space="preserve">
+    <value>بلا</value>
+  </data>
+  <data name="Profile_Performance.Header" xml:space="preserve">
+    <value>الأداء</value>
+  </data>
+  <data name="Profile_Performance_GraphicsCard.Header" xml:space="preserve">
+    <value>بطاقة الرسوميات</value>
+  </data>
+  <data name="About_Feedback.Header" xml:space="preserve">
+    <value>التعليقات والملاحظات</value>
+  </data>
+  <data name="About_Feedback_Discussion.Header" xml:space="preserve">
+    <value>المناقشات</value>
+  </data>
+  <data name="About_Feedback_ReportBug.Header" xml:space="preserve">
+    <value>الإبلاغ عن خطأ</value>
+  </data>
+  <data name="About_Feedback_RequestFeature.Header" xml:space="preserve">
+    <value>طلب ميزة</value>
+  </data>
+  <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Header" xml:space="preserve">
+    <value>التحقق من التحديثات التجريبية</value>
+  </data>
+  <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Header" xml:space="preserve">
+    <value>التحقق من التحديثات تلقائيًا</value>
+  </data>
+  <data name="About_Version_CheckForUpdates.Text" xml:space="preserve">
+    <value>التحقق من وجود تحديثات</value>
+  </data>
+  <data name="About_Version_CheckForUpdatesFailed.Title" xml:space="preserve">
+    <value>فشل التحقق من وجود تحديثات، يرجى المحاولة لاحقًا</value>
+  </data>
+  <data name="About_Version_CheckingForUpdates.Text" xml:space="preserve">
+    <value>جارٍ التحقق من وجود تحديثات</value>
+  </data>
+  <data name="About_Version_UpdateCard_Cancel.Content" xml:space="preserve">
+    <value>إلغاء</value>
+  </data>
+  <data name="About_Version_UpdateCard_DownloadAndInstall.Content" xml:space="preserve">
+    <value>تنزيل وتثبيت</value>
+  </data>
+  <data name="About_Version_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
+    <value>ملاحظات الإصدار</value>
+  </data>
+  <data name="About_Version_UpdateCard_Retry.Content" xml:space="preserve">
+    <value>إعادة المحاولة</value>
+  </data>
+  <data name="About_Version_UpdateCard_Title" xml:space="preserve">
+    <value>{} متاح</value>
+  </data>
+  <data name="About_Version_UpdateToDate.Title" xml:space="preserve">
+    <value>Magpie محدّث إلى آخر إصدار</value>
+  </data>
+  <data name="About_Version_UpdateToDate_DownloadFailed.Text" xml:space="preserve">
+    <value>فشل التنزيل</value>
+  </data>
+  <data name="About_Version_UpdateToDate_Downloading.Text" xml:space="preserve">
+    <value>جارٍ التنزيل</value>
+  </data>
+  <data name="About_Version_UpdateToDate_Installing.Text" xml:space="preserve">
+    <value>جارٍ التثبيت</value>
+  </data>
+  <data name="Profile_Advanced.Header" xml:space="preserve">
+    <value>متقدم</value>
+  </data>
+  <data name="Profile_Advanced_DisableDirectFlip.Header" xml:space="preserve">
+    <value>تعطيل DirectFlip</value>
+  </data>
+  <data name="Profile_Cursor.Header" xml:space="preserve">
+    <value>المؤشر</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Header" xml:space="preserve">
+    <value>ضبط سرعة المؤشر أثناء التحجيم</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_Interpolation.Header" xml:space="preserve">
+    <value>خوارزمية الاستيفاء</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
+    <value>ثنائي الخطية (Bilinear)</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
+    <value>الجار الأقرب (Nearest-neighbor)</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor.Header" xml:space="preserve">
+    <value>عامل التحجيم</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor_Custom.Content" xml:space="preserve">
+    <value>مخصص</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor_NoScaling.Content" xml:space="preserve">
+    <value>بدون تحجيم</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScaleFactor_SameAsSourceWindow.Content" xml:space="preserve">
+    <value>نفس النافذة المصدر</value>
+  </data>
+  <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
+    <value>الافتراضي</value>
+  </data>
+  <data name="Profile_SourceWindow.Header" xml:space="preserve">
+    <value>النافذة المصدر</value>
+  </data>
+  <data name="Profile_SourceWindow_CaptureTitleBar.Description" xml:space="preserve">
+    <value>يقتصر على Graphics Capture وDesktop Duplication</value>
+  </data>
+  <data name="Profile_SourceWindow_CaptureTitleBar.Header" xml:space="preserve">
+    <value>التقاط شريط العنوان</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping.Header" xml:space="preserve">
+    <value>اقتصاص مخصص</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Bottom.Header" xml:space="preserve">
+    <value>أسفل</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Left.Header" xml:space="preserve">
+    <value>يسار</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Pixels.Text" xml:space="preserve">
+    <value>بكسل</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Right.Header" xml:space="preserve">
+    <value>يمين</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Top.Header" xml:space="preserve">
+    <value>أعلى</value>
+  </data>
+  <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">
+    <value>يمنح تحسينًا طفيفًا في الأداء. ومع ذلك، يجب إعادة ترجمة التأثيرات في كل مرة يتم فيها تغيير معلماتها</value>
+  </data>
+  <data name="Home_Advanced_InlineParams.Header" xml:space="preserve">
+    <value>تضمين معلمات التأثيرات مضمنة (Inline)</value>
+  </data>
+  <data name="Home_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
+    <value>ينطبق على التحجيم بملء الشاشة فقط. يكتم إشعارات معينة للتطبيقات والنوافذ المنبثقة عند تفعيله</value>
+  </data>
+  <data name="Home_Advanced_SimulateExclusiveFullscreen.Header" xml:space="preserve">
+    <value>محاكاة ملء الشاشة الحصري</value>
+  </data>
+  <data name="AppSettings_Dialog_Error" xml:space="preserve">
+    <value>خطأ</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions.Description" xml:space="preserve">
+    <value>هذه الإعدادات للاستخدام في التطوير فقط</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions.Header" xml:space="preserve">
+    <value>خيارات المطورين</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DebugMode.Content" xml:space="preserve">
+    <value>وضع تصحيح الأخطاء</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
+    <value>تعطيل ذاكرة التخزين المؤقت للتأثيرات</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
+    <value>حفظ التعليمات البرمجية المصدر للمظلل عند تحليل التأثيرات</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
+    <value>معاملة التحذيرات كأخطاء عند ترجمة التأثيرات</value>
+  </data>
+  <data name="AppSettings_Dialog_Exit" xml:space="preserve">
+    <value>خروج</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_ConfigLocation" xml:space="preserve">
+    <value>موقع ملف التكوين:
+{}</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_NotValidJson" xml:space="preserve">
+    <value>ملف التكوين ليس بتنسيق JSON صالح</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_ParseFailed" xml:space="preserve">
+    <value>فشل تحليل ملف التكوين</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_ReadFailed" xml:space="preserve">
+    <value>فشل قراءة ملف التكوين</value>
+  </data>
+  <data name="NotifyIcon_Exit" xml:space="preserve">
+    <value>خروج</value>
+  </data>
+  <data name="NotifyIcon_MainWindow" xml:space="preserve">
+    <value>النافذة الرئيسية</value>
+  </data>
+  <data name="Settings_General_RequireRestart.Title" xml:space="preserve">
+    <value>يلزم إعادة التشغيل لتطبيق التغيير</value>
+  </data>
+  <data name="Settings_General_RequireRestart_ActionButton.Content" xml:space="preserve">
+    <value>إعادة تشغيل Magpie</value>
+  </data>
+  <data name="ScalingModes_Description_UnknownEffect" xml:space="preserve">
+    <value>تأثير غير معروف</value>
+  </data>
+  <data name="ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
+    <value>تعذر تحليل بعض التأثيرات</value>
+  </data>
+  <data name="Dialog_Export_Title" xml:space="preserve">
+    <value>تصدير أوضاع التحجيم</value>
+  </data>
+  <data name="Dialog_Import_Title" xml:space="preserve">
+    <value>استيراد أوضاع التحجيم</value>
+  </data>
+  <data name="About_Version_UpdateSettings.Header" xml:space="preserve">
+    <value>إعدادات التحديث</value>
+  </data>
+  <data name="About_Version_Version" xml:space="preserve">
+    <value>الإصدار</value>
+  </data>
+  <data name="Profile_Advanced_LaunchParameters.Header" xml:space="preserve">
+    <value>معلمات التشغيل</value>
+  </data>
+  <data name="Overlay_Profiler" xml:space="preserve">
+    <value>فاحص الأداء</value>
+  </data>
+  <data name="Overlay_Profiler_CaptureMethod" xml:space="preserve">
+    <value>طريقة الالتقاط</value>
+  </data>
+  <data name="Overlay_FPS_Lock" xml:space="preserve">
+    <value>قفل</value>
+  </data>
+  <data name="Overlay_FPS_Opacity" xml:space="preserve">
+    <value>العتامة</value>
+  </data>
+  <data name="Overlay_FPS_Unlock" xml:space="preserve">
+    <value>إلغاء القفل</value>
+  </data>
+  <data name="Overlay_Profiler_Timings" xml:space="preserve">
+    <value>التوقيتات</value>
+  </data>
+  <data name="Overlay_Profiler_Timings_SwitchToEffects" xml:space="preserve">
+    <value>التبديل إلى التأثيرات</value>
+  </data>
+  <data name="Overlay_Profiler_Timings_SwitchToPasses" xml:space="preserve">
+    <value>التبديل إلى التمريرات</value>
+  </data>
+  <data name="Overlay_Profiler_Timings_Total" xml:space="preserve">
+    <value>الإجمالي</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DisableFontCache.Content" xml:space="preserve">
+    <value>تعطيل ذاكرة التخزين المؤقت للخطوط</value>
+  </data>
+  <data name="Home_Advanced_AllowScalingMaximized.Header" xml:space="preserve">
+    <value>السماح بتحجيم النوافذ المكبرة أو بملء الشاشة</value>
+  </data>
+  <data name="Dialog_JsonFile" xml:space="preserve">
+    <value>ملف JSON</value>
+  </data>
+  <data name="Profile_MoreOptions_ChangeExecutableForLaunching.Text" xml:space="preserve">
+    <value>تغيير الملف التنفيذي للتشغيل</value>
+  </data>
+  <data name="Dialog_ExeFile" xml:space="preserve">
+    <value>ملف تنفيذي</value>
+  </data>
+  <data name="Dialog_SelectLauncher_Title" xml:space="preserve">
+    <value>اختر الملف التنفيذي لتشغيل البرنامج</value>
+  </data>
+  <data name="Profile_Performance_FrameRateLimiter.Header" xml:space="preserve">
+    <value>محدد معدل الإطارات</value>
+  </data>
+  <data name="Profile_Performance_FrameRateLimiter_MaxFrameRate.Header" xml:space="preserve">
+    <value>الحد الأقصى لمعدل الإطارات</value>
+  </data>
+  <data name="About_Version_CommitId" xml:space="preserve">
+    <value>Commit</value>
+  </data>
+  <data name="About_DeveloperModeEnabled" xml:space="preserve">
+    <value>وضع المطور مفعّل.</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection.Header" xml:space="preserve">
+    <value>اكتشاف الإطارات المكررة</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Always.Content" xml:space="preserve">
+    <value>دائمًا</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Dynamic.Content" xml:space="preserve">
+    <value>ديناميكي</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
+    <value>أبدًا</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
+    <value>تمكين الإحصائيات للاكتشاف الديناميكي</value>
+  </data>
+  <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
+    <value>اكتشاف ديناميكي</value>
+  </data>
+  <data name="Overlay_Profiler_FrameRate" xml:space="preserve">
+    <value>معدل الإطارات</value>
+  </data>
+  <data name="Home_TouchSupport_EnableTouchSupport.Header" xml:space="preserve">
+    <value>تمكين دعم اللمس</value>
+  </data>
+  <data name="Home_TouchSupport_EnableTouchSupport_Description.Text" xml:space="preserve">
+    <value>ستحتاج إلى منح امتيازات المسؤول لتغيير هذا الإعداد</value>
+  </data>
+  <data name="Home_TouchSupport_EnableTouchSupport_LearnMore.Content" xml:space="preserve">
+    <value>معرفة المزيد</value>
+  </data>
+  <data name="Home_TouchSupport.Header" xml:space="preserve">
+    <value>دعم اللمس</value>
+  </data>
+  <data name="Home_TouchSupport_Info.Title" xml:space="preserve">
+    <value>إذا فشل دعم اللمس، فقد يطلب Magpie امتيازات المسؤول قبل التحجيم لإجراء الإصلاحات.</value>
+  </data>
+  <data name="Home_Advanced_SimulateExclusiveFullscreen_InfoBar.Title" xml:space="preserve">
+    <value>هذا الخيار غير متوافق مع بعض الألعاب القديمة. يرجى استخدامه بحذر.</value>
+  </data>
+  <data name="Message_InvalidScalingMode" xml:space="preserve">
+    <value>وضع التحجيم غير صالح.</value>
+  </data>
+  <data name="Message_TouchSupport" xml:space="preserve">
+    <value>فشل تمكين دعم اللمس.</value>
+  </data>
+  <data name="Message_InvalidSourceWindow" xml:space="preserve">
+    <value>تحجيم هذه النافذة غير مدعوم.</value>
+  </data>
+  <data name="Message_Maximized" xml:space="preserve">
+    <value>تحجيم النوافذ المكبرة أو بملء الشاشة معطّل. يمكنك تغيير هذا الإعداد في الصفحة الرئيسية.</value>
+  </data>
+  <data name="Message_LowIntegrityLevel" xml:space="preserve">
+    <value>يلزم تشغيل Magpie كمسؤول لتحجيم هذه النافذة.</value>
+  </data>
+  <data name="Message_ScalingFailedGeneral" xml:space="preserve">
+    <value>يرجى مراجعة سجلات التشغيل لمزيد من التفاصيل.</value>
+  </data>
+  <data name="Message_CaptureFailed" xml:space="preserve">
+    <value>حدث خطأ أثناء التقاط هذه النافذة. يرجى تجربة استخدام طريقة التقاط مختلفة.</value>
+  </data>
+  <data name="Message_CreateFenceFailed" xml:space="preserve">
+    <value>بطاقة الرسوميات الحالية لا تدعم ID3D11Device5::CreateFence. يرجى تجربة تبديل بطاقة الرسوميات أو تحديث برامج التشغيل.</value>
+  </data>
+  <data name="Message_ScalingFailed" xml:space="preserve">
+    <value>فشل التحجيم</value>
+  </data>
+  <data name="Profile_Performance_NoGraphicsCard.Title" xml:space="preserve">
+    <value>لم يتم العثور على بطاقة رسوميات متوافقة، لذا سيتم استخدام تصيير المعالج (CPU) بدلاً من ذلك. قد لا يلبي الأداء التوقعات.</value>
+  </data>
+  <data name="Home_Advanced_MinFrameRate.Header" xml:space="preserve">
+    <value>الحد الأدنى لمعدل الإطارات</value>
+  </data>
+  <data name="Home_Advanced_MinFrameRate.Description" xml:space="preserve">
+    <value>يثبت تردد وحدة معالجة الرسوميات (GPU) لتقليل التقطيع، ولكنه قد يؤدي إلى زيادة استهلاك الطاقة</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DisableFP16.Content" xml:space="preserve">
+    <value>تعطيل استخدام FP16 في برامج التظليل</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_BenchmarkMode.Content" xml:space="preserve">
+    <value>وضع قياس الأداء</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_AppName" xml:space="preserve">
+    <value>ملء باسم التطبيق</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_ProcessName" xml:space="preserve">
+    <value>ملء باسم العملية</value>
+  </data>
+  <data name="Root_NewProfileFlyout_NameContextFlyout_WindowTitle" xml:space="preserve">
+    <value>ملء بعنوان النافذة</value>
+  </data>
+  <data name="TextMenuFlyout_Copy" xml:space="preserve">
+    <value>نسخ</value>
+  </data>
+  <data name="TextMenuFlyout_Cut" xml:space="preserve">
+    <value>قص</value>
+  </data>
+  <data name="TextMenuFlyout_Paste" xml:space="preserve">
+    <value>لصق</value>
+  </data>
+  <data name="TextMenuFlyout_Redo" xml:space="preserve">
+    <value>إعادة</value>
+  </data>
+  <data name="TextMenuFlyout_SelectAll" xml:space="preserve">
+    <value>تحديد الكل</value>
+  </data>
+  <data name="TextMenuFlyout_Undo" xml:space="preserve">
+    <value>تراجع</value>
+  </data>
+  <data name="Message_BannedInWindowedMode" xml:space="preserve">
+    <value>التحجيم في نافذة غير مدعوم لهذه النافذة.</value>
+  </data>
+  <data name="Message_InvalidCropping" xml:space="preserve">
+    <value>فشل تطبيق الاقتصاص المخصص.</value>
+  </data>
+  <data name="Home_TouchSupport.Description" xml:space="preserve">
+    <value>بسبب قيود أمان النظام، يتطلب Magpie امتياز UIAccess لدعم الإدخال باللمس.</value>
+  </data>
+  <data name="Home_Activation.Description" xml:space="preserve">
+    <value>اضغط على الاختصار لتحجيم النافذة الأمامية أو إيقاف تحجيمها.</value>
+  </data>
+  <data name="Home_Activation_FullscreenScaling.Header" xml:space="preserve">
+    <value>اختصار التحجيم بملء الشاشة</value>
+  </data>
+  <data name="Home_Activation_FullscreenScaling_ShortcutControl.Title" xml:space="preserve">
+    <value>اختصار التحجيم بملء الشاشة</value>
+  </data>
+  <data name="Home_Activation_WindowedScaling.Header" xml:space="preserve">
+    <value>اختصار التحجيم في نافذة</value>
+  </data>
+  <data name="Home_Activation_WindowedScaling_ShortcutControl.Title" xml:space="preserve">
+    <value>اختصار التحجيم في نافذة</value>
+  </data>
+  <data name="Home_Advanced_AllowScalingMaximized.Description" xml:space="preserve">
+    <value>ينطبق على التحجيم بملء الشاشة فقط</value>
+  </data>
+  <data name="Home_Toolbar.Description" xml:space="preserve">
+    <value>يظهر شريط الأدوات في الجزء العلوي من النافذة المحجمة، ويوفر ميزات مثل عرض معدل الإطارات والتقاط لقطات الشاشة. وفي وضع النوافذ، يتيح أيضًا سحب النافذة المحجمة.</value>
+  </data>
+  <data name="Home_Toolbar.Header" xml:space="preserve">
+    <value>شريط الأدوات</value>
+  </data>
+  <data name="Profile_Toolbar_InitialState.Header" xml:space="preserve">
+    <value>حالة شريط الأدوات الأولية</value>
+  </data>
+  <data name="Profile_Toolbar_InitialState_AlwaysShow.Content" xml:space="preserve">
+    <value>إظهار دائمًا</value>
+  </data>
+  <data name="Profile_Toolbar_InitialState_AutoHide.Content" xml:space="preserve">
+    <value>إخفاء تلقائي</value>
+  </data>
+  <data name="Profile_Toolbar_InitialState_Off.Content" xml:space="preserve">
+    <value>إيقاف</value>
+  </data>
+  <data name="Home_Toolbar_StateToggle.Header" xml:space="preserve">
+    <value>اختصار تبديل حالة شريط الأدوات</value>
+  </data>
+  <data name="Home_Toolbar_StateToggle_ShortcutControl.Title" xml:space="preserve">
+    <value>اختصار تبديل حالة شريط الأدوات</value>
+  </data>
+  <data name="Message_ToolbarIn3DGameMode" xml:space="preserve">
+    <value>شريط الأدوات غير مدعوم في وضع ألعاب 3D.</value>
+  </data>
+  <data name="Message_ToolbarNewState" xml:space="preserve">
+    <value>شريط الأدوات: {}</value>
+  </data>
+  <data name="Overlay_Toolbar_Close" xml:space="preserve">
+    <value>إيقاف التحجيم</value>
+  </data>
+  <data name="Overlay_Toolbar_Demo" xml:space="preserve">
+    <value>نافذة عرض ImGui التجريبية</value>
+  </data>
+  <data name="Overlay_Toolbar_Pin" xml:space="preserve">
+    <value>تثبيت شريط الأدوات</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot" xml:space="preserve">
+    <value>التقاط لقطة شاشة</value>
+  </data>
+  <data name="Overlay_Toolbar_Profiler" xml:space="preserve">
+    <value>نافذة فاحص الأداء</value>
+  </data>
+  <data name="Message_Windowed3DGameMode" xml:space="preserve">
+    <value>التحجيم في نافذة غير مدعوم في وضع ألعاب 3D.</value>
+  </data>
+  <data name="Profile_General_3DGameMode.Description" xml:space="preserve">
+    <value>يمكّن التحسينات لألعاب 3D، ولكنه غير متوافق مع شريط الأدوات والتحجيم في نافذة</value>
+  </data>
+  <data name="Home_Toolbar_TakeScreenshot.Header" xml:space="preserve">
+    <value>اختصار لقطة الشاشة</value>
+  </data>
+  <data name="Home_Toolbar_TakeScreenshot_ShortcutControl.Title" xml:space="preserve">
+    <value>اختصار لقطة الشاشة</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
+    <value>مجلد حفظ لقطات الشاشة</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotSaveDirectory_Change.Content" xml:space="preserve">
+    <value>تغيير</value>
+  </data>
+  <data name="Dialog_SelectScreenshotSaveDirectory_Title" xml:space="preserve">
+    <value>حدد مجلدًا لحفظ لقطات الشاشة</value>
+  </data>
+  <data name="Message_ScreenshotSaved" xml:space="preserve">
+    <value>تم حفظ لقطة الشاشة باسم {}</value>
+  </data>
+  <data name="Message_ScreenshotFailed_Title" xml:space="preserve">
+    <value>فشل التقاط لقطة الشاشة</value>
+  </data>
+  <data name="Message_ScreenshotFailed_InvalidDirectory" xml:space="preserve">
+    <value>مجلد حفظ لقطات الشاشة غير صالح.</value>
+  </data>
+  <data name="Message_ScreenshotFailed_InvalidFilenameTemplate" xml:space="preserve">
+    <value>تنسيق اسم ملف لقطة الشاشة غير صالح.</value>
+  </data>
+  <data name="Message_ScreenshotFailed_InternalError" xml:space="preserve">
+    <value>حدث خطأ داخلي. يرجى مراجعة سجلات التشغيل لمزيد من التفاصيل.</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
+    <value>انقر بزر الماوس الأيمن لتصدير النتيجة الوسيطة</value>
+  </data>
+  <data name="Overlay_Toolbar_TakeScreenshot_PopupTitle" xml:space="preserve">
+    <value>تصدير النتيجة الوسيطة</value>
+  </data>
+  <data name="Profile_WindowedScaling.Header" xml:space="preserve">
+    <value>تحجيم في نافذة</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor.Header" xml:space="preserve">
+    <value>عامل التحجيم الأولي</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor_Auto.Content" xml:space="preserve">
+    <value>تلقائي</value>
+  </data>
+  <data name="Profile_WindowedScaling_InitialScaleFactor_Custom.Content" xml:space="preserve">
+    <value>مخصص</value>
+  </data>
+  <data name="Profile_Advanced_DisableDirectFlip.Description" xml:space="preserve">
+    <value>يساعد على تجنب بعض مشكلات التوافق ولكنه قد يزيد من زمن الاستجابة بشكل ملحوظ</value>
+  </data>
+  <data name="Profile_General_AutoScale_Disabled.Content" xml:space="preserve">
+    <value>معطّل</value>
+  </data>
+  <data name="Profile_General_AutoScale_Fullscreen.Content" xml:space="preserve">
+    <value>تحجيم بملء الشاشة</value>
+  </data>
+  <data name="Profile_General_AutoScale_Windowed.Content" xml:space="preserve">
+    <value>تحجيم في نافذة</value>
+  </data>
+  <data name="Profile_General_Multimonitor.Description" xml:space="preserve">
+    <value>ينطبق على التحجيم بملء الشاشة فقط</value>
+  </data>
+  <data name="Home_TouchSupport_Warn.Title" xml:space="preserve">
+    <value>شريط الأدوات غير متوافق مع الإدخال باللمس.</value>
+  </data>
+  <data name="Overlay_Toolbar_Close_Description" xml:space="preserve">
+    <value>انقر بزر الماوس الأيمن لإغلاق شريط الأدوات</value>
+  </data>
+  <data name="Overlay_Toolbar_SwitchToFullscreen" xml:space="preserve">
+    <value>التبديل إلى التحجيم بملء الشاشة</value>
+  </data>
+  <data name="Overlay_Toolbar_SwitchToWindowed" xml:space="preserve">
+    <value>التبديل إلى التحجيم في نافذة</value>
+  </data>
+  <data name="Profile_Toolbar_InitialState_Fullscreen.Header" xml:space="preserve">
+    <value>تحجيم بملء الشاشة</value>
+  </data>
+  <data name="Profile_Toolbar_InitialState_Windowed.Header" xml:space="preserve">
+    <value>تحجيم في نافذة</value>
+  </data>
+  <data name="Message_ExportScalingModesFailed" xml:space="preserve">
+    <value>فشل تصدير أوضاع التحجيم.</value>
+  </data>
+  <data name="Message_ImportScalingModesFailed" xml:space="preserve">
+    <value>فشل استيراد أوضاع التحجيم.</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_LocateLogs.Header" xml:space="preserve">
+    <value>فتح موقع سجلات التشغيل</value>
+  </data>
+  <data name="Message_WindowedDesktopDuplication" xml:space="preserve">
+    <value>التحجيم في نافذة غير مدعوم مع التقاط Desktop Duplication.</value>
+  </data>
+  <data name="Profile_General_DesktopDuplicationWarning.Title" xml:space="preserve">
+    <value>طريقة الالتقاط هذه غير متوافقة مع التحجيم في نافذة.</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup.Description" xml:space="preserve">
+    <value>لن تظهر النافذة الرئيسية إذا تم تفعيل "عرض التطبيق في علبة النظام"</value>
+  </data>
+  <data name="Home_Activation_Timer_Description" xml:space="preserve">
+    <value>تحجيم النافذة الأمامية بعد {} ثانية</value>
+  </data>
+  <data name="Home_Activation_Timer_Start" xml:space="preserve">
+    <value>بدء</value>
+  </data>
+  <data name="NotifyIcon_Timer_Fullscreen" xml:space="preserve">
+    <value>تحجيم بعد {} ثانية (ملء الشاشة)</value>
+  </data>
+  <data name="NotifyIcon_Timer_Windowed" xml:space="preserve">
+    <value>تحجيم بعد {} ثانية (في نافذة)</value>
+  </data>
+  <data name="Overlay_Toolbar_Minimize" xml:space="preserve">
+    <value>تصغير</value>
+  </data>
+  <data name="Profile_Cursor_AutoHide.Header" xml:space="preserve">
+    <value>إخفاء المؤشر تلقائيًا عند الخمول</value>
+  </data>
+  <data name="Profile_Cursor_AutoHide_Delay.Header" xml:space="preserve">
+    <value>تأخير الإخفاء بالثواني</value>
+  </data>
+  <data name="Profile_Advanced_OutputAlignment.Description" xml:space="preserve">
+    <value>ينطبق على التحجيم بملء الشاشة فقط</value>
+  </data>
+  <data name="Profile_Advanced_OutputAlignment.Header" xml:space="preserve">
+    <value>محاذاة المخرجات</value>
+  </data>
+  <data name="Profile_Advanced_OutputAlignment_BottomCenter.Content" xml:space="preserve">
+    <value>أسفل الوسط</value>
+  </data>
+  <data name="Profile_Advanced_OutputAlignment_BottomLeft.Content" xml:space="preserve">
+    <value>أسفل اليسار</value>
+  </data>
+  <data name="Profile_Advanced_OutputAlignment_BottomRight.Content" xml:space="preserve">
+    <value>أسفل اليمين</value>
+  </data>
+  <data name="Profile_Advanced_OutputAlignment_Center.Content" xml:space="preserve">
+    <value>الوسط</value>
+  </data>
+  <data name="Profile_Advanced_OutputAlignment_Left.Content" xml:space="preserve">
+    <value>يسار</value>
+  </data>
+  <data name="Profile_Advanced_OutputAlignment_Right.Content" xml:space="preserve">
+    <value>يمين</value>
+  </data>
+  <data name="Profile_Advanced_OutputAlignment_TopCenter.Content" xml:space="preserve">
+    <value>أعلى الوسط</value>
+  </data>
+  <data name="Profile_Advanced_OutputAlignment_TopLeft.Content" xml:space="preserve">
+    <value>أعلى اليسار</value>
+  </data>
+  <data name="Profile_Advanced_OutputAlignment_TopRight.Content" xml:space="preserve">
+    <value>أعلى اليمين</value>
+  </data>
+  <data name="Home_Advanced_DeveloperOptions_DisableTopmost.Content" xml:space="preserve">
+    <value>تعطيل ميزة الظهور دائمًا في المقدمة</value>
+  </data>
+  <data name="Home_Advanced_KeepScreenOn.Header" xml:space="preserve">
+    <value>إبقاء الشاشة قيد التشغيل أثناء التحجيم</value>
+  </data>
+  <data name="Profile_Toolbar.Header" xml:space="preserve">
+    <value>شريط الأدوات</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate.Header" xml:space="preserve">
+    <value>تنسيق اسم ملف لقطة الشاشة</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate.Description" xml:space="preserve">
+    <value>ستتم إضافة لاحقة رقمية تلقائيًا إلى أسماء الملفات المكررة</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_TipButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>إظهار المعلمات المتاحة</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Header.Text" xml:space="preserve">
+    <value>المعلمات المتاحة</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_WindowTitle.Text" xml:space="preserve">
+    <value>عنوان النافذة</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_WindowTitle2.Text" xml:space="preserve">
+    <value>عنوان النافذة، محدد بـ n من الأحرف</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_ProcessName.Text" xml:space="preserve">
+    <value>اسم العملية</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_ProcessName2.Text" xml:space="preserve">
+    <value>اسم العملية، محدد بـ n من الأحرف</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Year.Text" xml:space="preserve">
+    <value>السنة</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_ShortYear.Text" xml:space="preserve">
+    <value>آخر رقمين من السنة</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Month.Text" xml:space="preserve">
+    <value>الشهر</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Day.Text" xml:space="preserve">
+    <value>اليوم</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Hour.Text" xml:space="preserve">
+    <value>الساعة (نظام 24 ساعة)</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Minute.Text" xml:space="preserve">
+    <value>الدقيقة</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Second.Text" xml:space="preserve">
+    <value>الثانية</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Millisecond.Text" xml:space="preserve">
+    <value>مللي ثانية</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplate_Tip_Escape.Text" xml:space="preserve">
+    <value>علامة النسبة المئوية الحرفية (%)</value>
+  </data>
+  <data name="Profile_Toolbar_ScreenshotFilenameTemplateErrorInfoBar.Title" xml:space="preserve">
+    <value>يحتوي اسم الملف على أحرف غير صالحة</value>
+  </data>
+  <data name="Root_ProfileFlyout_Launch.Text" xml:space="preserve">
+    <value>تشغيل</value>
+  </data>
+  <data name="Root_ProfileFlyout_DeleteConfirmationText" xml:space="preserve">
+    <value>هل أنت متأكد من رغبتك في حذف "{}"؟</value>
+  </data>
 </root>
