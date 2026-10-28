@@ -20,6 +20,8 @@ struct OverlayHelper {
 	static constexpr ImWchar EXTENDED_LATIN_RANGES[] = { 0x20, 0x17F };
 	// 法语字符，包含 EXTENDED_LATIN_RANGES + General Punctuation
 	static constexpr ImWchar FRENCH_RANGES[] = { 0x20, 0x17F, 0x2000, 0x206F };
+	// 阿拉伯语字符，包含 Basic Latin + Arabic
+	static constexpr ImWchar ARABIC_RANGES[] = { 0x20, 0x7E, 0x600, 0x6FF };
 
 	/////////////////////////////////////////////////////
 	// 
