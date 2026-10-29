@@ -697,6 +697,7 @@
     <SDKReference Include="WindowsDesktop, Version=10.0.26100.0" />
   </ItemGroup>
   <ItemGroup>
+    <PRIResource Include="Resources.language-ar.resw" />
     <PRIResource Include="Resources.language-de.resw" />
     <PRIResource Include="Resources.language-en-US.resw" />
     <PRIResource Include="Resources.language-es.resw" />
