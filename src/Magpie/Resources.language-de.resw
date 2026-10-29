@@ -303,9 +303,6 @@
   <data name="Profile_Cursor_DrawCursor_ScaleFactor.Header" xml:space="preserve">
     <value>Skalierungsfaktor</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
-    <value>Bilinear</value>
-  </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
     <value>Nächster Nachbar</value>
   </data>
@@ -733,9 +730,6 @@
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Dynamic.Content" xml:space="preserve">
     <value>Dynamisch</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
-    <value>Statistik für die dynamische Erkennung aktivieren</value>
-  </data>
   <data name="Home_TouchSupport_EnableTouchSupport_Description.Text" xml:space="preserve">
     <value>Sie müssen Administratorrechte besitzen, um diese Einstellung zu ändern</value>
   </data>
@@ -957,12 +951,6 @@
   </data>
   <data name="Overlay_Toolbar_SwitchToWindowed" xml:space="preserve">
     <value>Zur Fensterskalierung wechseln</value>
-  </data>
-  <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
-    <value>Rechtsklick zum Exportieren des Zwischenergebnisses</value>
-  </data>
-  <data name="Overlay_Toolbar_TakeScreenshot_PopupTitle" xml:space="preserve">
-    <value>Zwischenergebnis exportieren</value>
   </data>
   <data name="Profile_WindowedScaling.Header" xml:space="preserve">
     <value>Fensterskalierung</value>

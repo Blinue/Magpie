@@ -1,9 +1,12 @@
 #pragma once
 #include <imgui.h>
+#include <parallel_hashmap/phmap.h>
+#include "SmallVector.h"
 
 namespace Magpie {
 
-class DeviceResources;
+class D3D12Context;
+class GraphicsContext;
 
 class ImGuiBackend {
 public:
@@ -11,32 +14,76 @@ public:
 	ImGuiBackend(const ImGuiBackend&) = delete;
 	ImGuiBackend(ImGuiBackend&&) = delete;
 
-	bool Initialize(DeviceResources& deviceResources) noexcept;
+	~ImGuiBackend() noexcept;
 
-	bool BuildFonts() noexcept;
+	void Initialize(
+		D3D12Context& d3d12Context,
+		winrt::AdvancedColorKind acKind,
+		float sdrWhiteLevel
+	) noexcept;
 
-	void RenderDrawData(const ImDrawData& drawData, POINT viewportOffset) noexcept;
+	HRESULT RenderDrawData(
+		const ImDrawData& drawData,
+		POINT viewportOffset,
+		GraphicsContext& graphicsContext,
+		uint64_t completedFenceValue,
+		uint64_t frameFenceValue
+	) noexcept;
+
+	void OnColorInfoChanged(const ColorInfo& colorInfo) noexcept;
 
 private:
-	bool _CreateDeviceObjects() noexcept;
+	HRESULT _UpdateTexture(
+		ImTextureData& texData,
+		GraphicsContext& graphicsContext,
+		uint64_t completedFenceValue,
+		uint64_t frameFenceValue
+	) noexcept;
 
-	void _SetupRenderState(const ImDrawData& drawData, POINT viewportOffset) noexcept;
+	struct _FrameResource {
+		uint64_t fenceValue = 0;
+		winrt::com_ptr<ID3D12Resource> vertexBuffer;
+		winrt::com_ptr<ID3D12Resource> indexBuffer;
+		int vertexBufferSize = 0;
+		int indexBufferSize = 0;
+		void* vertexBufferData = nullptr;
+		void* indexBufferData = nullptr;
+	};
 
-	DeviceResources* _deviceResources = nullptr;
+	HRESULT _SetupRenderState(
+		const ImDrawData& drawData,
+		GraphicsContext& graphicsContext,
+		const _FrameResource& curFrameResource,
+		POINT viewportOffset,
+		uint32_t& descriptorTableIdx
+	) noexcept;
 
-	winrt::com_ptr<ID3D11Buffer> _vertexBuffer;
-	int _vertexBufferSize = 5000;
+	HRESULT _CreateImGuiPSO() noexcept;
 
-	winrt::com_ptr<ID3D11Buffer> _indexBuffer;
-	int _indexBufferSize = 10000;
+	D3D12Context* _d3d12Context = nullptr;
 
-	winrt::com_ptr<ID3D11VertexShader> _vertexShader;
-	winrt::com_ptr<ID3D11InputLayout> _inputLayout;
-	winrt::com_ptr<ID3D11Buffer> _vertexConstantBuffer;
-	winrt::com_ptr<ID3D11PixelShader> _pixelShader;
-	winrt::com_ptr<ID3D11ShaderResourceView> _fontTextureView;
-	winrt::com_ptr<ID3D11BlendState> _blendState;
-	winrt::com_ptr<ID3D11RasterizerState> _rasterizerState;
+	winrt::AdvancedColorKind _acKind = winrt::AdvancedColorKind::StandardDynamicRange;
+	float _sdrWhiteLevel = 1.0f;
+
+	struct _TextureData {
+		winrt::com_ptr<ID3D12Resource> texture;
+		uint64_t fenceValue = 0;
+	};
+	// 使用 SRV 偏移量（同时也是 ImTextureID）作为键
+	phmap::flat_hash_map<uint32_t, _TextureData> _textureDatas;
+
+	struct _UploadBuffer {
+		winrt::com_ptr<ID3D12Resource> buffer;
+		void* bufferData = nullptr;
+		uint32_t size = 0;
+		uint64_t fenceValue = 0;
+	};
+	SmallVector<_UploadBuffer> _uploadBuffers;
+
+	SmallVector<_FrameResource, 0> _frameResources;
+
+	winrt::com_ptr<ID3D12RootSignature> _imguiRootSignature;
+	winrt::com_ptr<ID3D12PipelineState> _imguiPSO;
 };
 
 }

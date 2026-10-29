@@ -519,9 +519,6 @@
   <data name="About_Version_UpdateToDate_DownloadFailed.Text" xml:space="preserve">
     <value>Falha no download</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
-    <value>Bilinear</value>
-  </data>
   <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Header" xml:space="preserve">
     <value>Modificar a velocidade do cursor ao ser redimensionado</value>
   </data>
@@ -739,9 +736,6 @@
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Dynamic.Content" xml:space="preserve">
     <value>Dinâmica</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
-    <value>Ativar estatísticas para detecção dinâmica</value>
-  </data>
   <data name="Home_TouchSupport_EnableTouchSupport_LearnMore.Content" xml:space="preserve">
     <value>Saiba mais</value>
   </data>
@@ -942,12 +936,6 @@
   </data>
   <data name="Message_ScreenshotFailed_InternalError" xml:space="preserve">
     <value>Um erro interno ocorreu, por favor verifique os logs para mais detalhes.</value>
-  </data>
-  <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
-    <value>Clique com o botão direito para exportar um resultado intermediário</value>
-  </data>
-  <data name="Overlay_Toolbar_TakeScreenshot_PopupTitle" xml:space="preserve">
-    <value>Exportar resultado intermediário</value>
   </data>
   <data name="Profile_WindowedScaling.Header" xml:space="preserve">
     <value>Redimensionamento em modo janela</value>

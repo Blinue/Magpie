@@ -540,9 +540,6 @@
   <data name="Profile_Cursor_DrawCursor_Interpolation.Header" xml:space="preserve">
     <value>Algoritma interpolasi</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
-    <value>Bilinear</value>
-  </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
     <value>Nearest-neighbor</value>
   </data>
@@ -799,9 +796,6 @@
   <data name="Dialog_SelectLauncher_Title" xml:space="preserve">
     <value>Pilih file yang dapat dieksekusi untuk meluncurkan program</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
-    <value>Aktifkan statistik untuk deteksi dinamis</value>
-  </data>
   <data name="Home_Advanced_DeveloperOptions_DisableFP16.Content" xml:space="preserve">
     <value>Nonaktifkan penggunaan FP16 dalam shader</value>
   </data>
@@ -924,12 +918,6 @@
   </data>
   <data name="Message_ScreenshotSaved" xml:space="preserve">
     <value>Tangkapan layar disimpan sebagai {}</value>
-  </data>
-  <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
-    <value>Klik kanan untuk mengekspor hasil antara</value>
-  </data>
-  <data name="Overlay_Toolbar_TakeScreenshot_PopupTitle" xml:space="preserve">
-    <value>Ekspor hasil antara</value>
   </data>
   <data name="Profile_WindowedScaling.Header" xml:space="preserve">
     <value>Penskalaan berjendela</value>

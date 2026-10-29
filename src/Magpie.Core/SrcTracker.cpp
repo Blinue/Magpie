@@ -71,8 +71,8 @@ ScalingError SrcTracker::Set(HWND hWnd, const ScalingOptions& options, bool& isI
 		return ScalingError::InvalidSourceWindow;
 	}
 
-	const HMONITOR hMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONULL);
-	if (!hMon) {
+	_hMonitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONULL);
+	if (!_hMonitor) {
 		Logger::Get().Error("源窗口不在任何屏幕上");
 		return ScalingError::InvalidSourceWindow;
 	}
@@ -146,7 +146,7 @@ ScalingError SrcTracker::Set(HWND hWnd, const ScalingOptions& options, bool& isI
 	{
 		// 使用屏幕而非窗口的 DPI 来计算边框宽度
 		UINT dpi = USER_DEFAULT_SCREEN_DPI;
-		GetDpiForMonitor(hMon, MDT_EFFECTIVE_DPI, &dpi, &dpi);
+		GetDpiForMonitor(_hMonitor, MDT_EFFECTIVE_DPI, &dpi, &dpi);
 
 		borderThicknessInFrame = (LONG)Win32Helper::GetNativeWindowBorderThickness(dpi);
 	}
@@ -168,10 +168,11 @@ bool SrcTracker::UpdateState(
 	bool& focusedChanged,
 	bool& rectChanged,
 	bool& sizeChanged,
-	bool& movingChanged
+	bool& movingChanged,
+	bool& monitorChanged
 ) noexcept {
 	assert(!isInvisibleOrMinimized && !focusedChanged &&
-		!rectChanged && !sizeChanged && !movingChanged);
+		!rectChanged && !sizeChanged && !movingChanged && !monitorChanged);
 
 	if (!IsWindow(_hWnd)) {
 		Logger::Get().Info("源窗口已销毁");
@@ -248,11 +249,25 @@ bool SrcTracker::UpdateState(
 		}
 	}
 
-	sizeChanged = oldMaximized != _isMaximized ||
-		Win32Helper::GetSizeOfRect(curWindowRect) != Win32Helper::GetSizeOfRect(_windowRect);
-	if (sizeChanged) {
-		rectChanged = true;
-		return true;
+	// 最大化状态改变视为尺寸发生变化
+	rectChanged = oldMaximized != _isMaximized || curWindowRect != _windowRect;
+	if (rectChanged) {
+		HMONITOR hMon = MonitorFromWindow(_hWnd, MONITOR_DEFAULTTONULL);
+		if (!hMon) {
+			Logger::Get().Error("源窗口不在任何屏幕上");
+			return false;
+		}
+
+		if (_hMonitor != hMon) {
+			monitorChanged = true;
+			_hMonitor = hMon;
+		}
+
+		sizeChanged = oldMaximized != _isMaximized ||
+			Win32Helper::GetSizeOfRect(curWindowRect) != Win32Helper::GetSizeOfRect(_windowRect);
+		if (sizeChanged) {
+			return true;
+		}
 	}
 
 	// 缩放窗口正在调整大小或被拖动时源窗口的移动是异步的，暂时不检查源窗口是否移动
@@ -260,9 +275,6 @@ bool SrcTracker::UpdateState(
 		rectChanged = oldMaximized != _isMaximized;
 		return true;
 	}
-
-	// 最大化状态改变视为尺寸发生变化
-	rectChanged = oldMaximized != _isMaximized || curWindowRect != _windowRect;
 	
 	if (isWindowedMode && !sizeChanged) {
 		if (rectChanged) {
@@ -531,9 +543,8 @@ ScalingError SrcTracker::_CalcSrcRect(
 
 	if (_isMaximized) {
 		// 最大化的窗口只有屏幕内是有效区域
-		HMONITOR hMon = MonitorFromWindow(_hWnd, MONITOR_DEFAULTTONEAREST);
 		MONITORINFO mi{ .cbSize = sizeof(mi) };
-		if (!GetMonitorInfo(hMon, &mi)) {
+		if (!GetMonitorInfo(_hMonitor, &mi)) {
 			Logger::Get().Win32Error("GetMonitorInfo 失败");
 			return ScalingError::ScalingFailedGeneral;
 		}

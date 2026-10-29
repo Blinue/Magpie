@@ -1,21 +1,29 @@
 #pragma once
-#include "EffectDesc.h"
+#include "ShaderEffectDrawInfo.h"
 
 namespace Magpie {
 
-class TextureHelper {
-public:
-	// 支持 dds、bmp、jpg、png 和 tiff
-	static winrt::com_ptr<ID3D11Texture2D> LoadTexture(const wchar_t* fileName, ID3D11Device* d3dDevice) noexcept;
+class D3D12Context;
 
-	// 支持 dds 和 png
-	static bool SaveTexture(
-		const wchar_t* fileName,
-		uint32_t width,
-		uint32_t height,
-		EffectIntermediateTextureFormat format,
+struct TextureHelper {
+	// 支持 dds、bmp、jpg、png 和 tif。自动检测 sRGB 并修改 format。
+	static winrt::com_ptr<ID3D12Resource> LoadFromFile(
+		wil::zwstring_view fileName,
+		const D3D12Context& d3d12Context,
+		DXGI_FORMAT& format,
+		SizeU& textureSize
+	) noexcept;
+
+	// 中间纹理导出为 dds，否则导出为 png。
+	// dds 不使用 acKind。
+	// 导出 png 时 pixelData 必须是 R16G16B16A16_UNROM 格式。WCG 下使用 BT.2020 色域，HDR 下使用 BT.2020
+	static HRESULT Save(
+		wil::zwstring_view fileName,
+		SizeU textureSize,
+		EffectTextureFormat textureFormat,
 		std::span<uint8_t> pixelData,
-		uint32_t rowPitch
+		uint32_t rowPitch,
+		const ColorInfo& colorInfo
 	) noexcept;
 };
 
