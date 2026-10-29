@@ -27,7 +27,7 @@
 #endif
 #include <dxgi1_6.h>
 
-extern "C" { __declspec(dllexport) extern const UINT D3D12SDKVersion = 619; }
+extern "C" { __declspec(dllexport) extern const UINT D3D12SDKVersion = D3D12_SDK_VERSION; }
 // D3D12 相关 dll 不能放在 dll 搜索目录，否则如果 OS 的 D3D12 运行时更新将会错误
 // 加载随程序部署的旧版本依赖 dll（包括 D3D12SDKLayers.dll 和 d3d10warp.dll）。
 extern "C" { __declspec(dllexport) extern const char* D3D12SDKPath = ".\\app\\D3D12"; }

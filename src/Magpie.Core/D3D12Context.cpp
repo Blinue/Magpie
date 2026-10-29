@@ -46,7 +46,7 @@ bool D3D12Context::Initialize(
 	// 检查根签名版本
 	{
 		D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData = { .HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1 };
-		hr = _device->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &featureData, sizeof(featureData));
+		hr = CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &featureData, sizeof(featureData));
 		if (SUCCEEDED(hr)) {
 			_rootSignatureVersion = featureData.HighestVersion;
 		} else {
@@ -57,7 +57,7 @@ bool D3D12Context::Initialize(
 	// 检查是否是集成显卡
 	{
 		D3D12_FEATURE_DATA_ARCHITECTURE1 data{};
-		hr = _device->CheckFeatureSupport(D3D12_FEATURE_ARCHITECTURE1, &data, sizeof(data));
+		hr = CheckFeatureSupport(D3D12_FEATURE_ARCHITECTURE1, &data, sizeof(data));
 		if (SUCCEEDED(hr)) {
 			_isUMA = data.UMA;
 		} else {
@@ -73,7 +73,7 @@ bool D3D12Context::Initialize(
 	// 检查 Resizable BAR 支持
 	{
 		D3D12_FEATURE_DATA_D3D12_OPTIONS16 data{};
-		hr = _device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS16, &data, sizeof(data));
+		hr = CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS16, &data, sizeof(data));
 		if (SUCCEEDED(hr)) {
 			_isGPUUploadHeapSupported = data.GPUUploadHeapSupported;
 		} else {
@@ -85,7 +85,7 @@ bool D3D12Context::Initialize(
 	if (!ScalingWindow::Get().Options().IsFP16Disabled()) {
 		{
 			D3D12_FEATURE_DATA_D3D12_OPTIONS data{};
-			hr = _device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, &data, sizeof(data));
+			hr = CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, &data, sizeof(data));
 			if (SUCCEEDED(hr)) {
 				_isMinFloat16Supported = data.MinPrecisionSupport & D3D12_SHADER_MIN_PRECISION_SUPPORT_16_BIT;
 			} else {
@@ -96,7 +96,7 @@ bool D3D12Context::Initialize(
 		// SM 6.2 开始支持原生 16 位标量
 		if (_shaderModel >= D3D_SHADER_MODEL_6_2) {
 			D3D12_FEATURE_DATA_D3D12_OPTIONS4 data{};
-			hr = _device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS4, &data, sizeof(data));
+			hr = CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS4, &data, sizeof(data));
 			if (SUCCEEDED(hr)) {
 				_isNative16BitSupported = data.Native16BitShaderOpsSupported;
 			} else {
@@ -120,6 +120,7 @@ void D3D12Context::CopyDevice(const D3D12Context& other) {
 	_csuDescriptorHeap = other._csuDescriptorHeap;
 	_rtvDescriptorHeap = other._rtvDescriptorHeap;
 	_device = other._device;
+	_device16 = other._device16;
 	_shaderModel = other._shaderModel;
 	_rootSignatureVersion = other._rootSignatureVersion;
 	_isUMA = other._isUMA;
@@ -164,6 +165,31 @@ IDXGIFactory7* D3D12Context::GetDXGIFactoryForEnumingAdapters() noexcept {
 	}
 
 	return _dxgiFactory.get();
+}
+
+HRESULT D3D12Context::CheckFeatureSupport(
+	D3D12_FEATURE feature,
+	void* pFeatureSupportData,
+	UINT featureSupportDataSize
+) const noexcept {
+	HRESULT hr;
+
+	// ID3D12Device::CheckFeatureSupport 已废弃，调试层会产生警告
+	if (_device16) {
+		hr = _device16->CheckFeatureSupport1(
+			feature, pFeatureSupportData, featureSupportDataSize, D3D12_SDK_VERSION);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("CheckFeatureSupport1 失败", hr);
+		}
+	} else {
+		hr = _device->CheckFeatureSupport(
+			feature, pFeatureSupportData, featureSupportDataSize);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("CheckFeatureSupport 失败", hr);
+		}
+	}
+
+	return hr;
 }
 
 HRESULT D3D12Context::Signal(uint64_t& fenceValue) noexcept {
@@ -447,6 +473,11 @@ bool D3D12Context::_TryCreateD3DDevice(
 		return false;
 	}
 
+	_device16 = _device.try_as<ID3D12Device16>();
+	if (!_device16) {
+		Logger::Get().Info("获取 ID3D12Device16 失败");
+	}
+
 	_dxgiAdapter = adapter.try_as<IDXGIAdapter4>();
 	if (!_dxgiAdapter) {
 		Logger::Get().Error("获取 IDXGIAdapter4 失败");
@@ -513,7 +544,7 @@ void D3D12Context::_QueryHighestShaderModel() noexcept {
 
 	for (uint32_t i = startIdx; i < versionCount; ++i) {
 		D3D12_FEATURE_DATA_SHADER_MODEL data = { .HighestShaderModel = allModelVersions[i]};
-		HRESULT hr = _device->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &data, sizeof(data));
+		HRESULT hr = CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &data, sizeof(data));
 		if (hr == E_INVALIDARG) {
 			continue;
 		}
@@ -542,7 +573,7 @@ void D3D12Context::_LogDeviceInfo() noexcept {
 			.NumFeatureLevels = (UINT)std::size(featureLevels),
 			.pFeatureLevelsRequested = featureLevels
 		};
-		HRESULT hr = _device->CheckFeatureSupport(
+		HRESULT hr = CheckFeatureSupport(
 			D3D12_FEATURE_FEATURE_LEVELS, &featureData, sizeof(featureData));
 		if (SUCCEEDED(hr)) {
 			switch (featureData.MaxSupportedFeatureLevel) {

@@ -806,9 +806,18 @@ bool GraphicsCaptureFrameSource::_CreateBridgeDeviceResources(IDXGIAdapter1* dxg
 	// 不应使用集成显卡捕获，集成显卡没有高速的专用显存，捕获延迟很高
 	{
 		D3D12_FEATURE_DATA_ARCHITECTURE1 value{};
-		hr = _bridgeDevice->CheckFeatureSupport(D3D12_FEATURE_ARCHITECTURE1, &value, sizeof(value));
-		if (FAILED(hr)) {
-			Logger::Get().ComWarn("CheckFeatureSupport 失败", hr);
+		// ID3D12Device::CheckFeatureSupport 已废弃，调试层会产生警告
+		if (winrt::com_ptr<ID3D12Device16> bridgeDevice16 = _bridgeDevice.try_as<ID3D12Device16>()) {
+			hr = bridgeDevice16->CheckFeatureSupport1(
+				D3D12_FEATURE_ARCHITECTURE1, &value, sizeof(value), D3D12_SDK_VERSION);
+			if (FAILED(hr)) {
+				Logger::Get().ComWarn("CheckFeatureSupport1 失败", hr);
+			}
+		} else {
+			hr = _bridgeDevice->CheckFeatureSupport(D3D12_FEATURE_ARCHITECTURE1, &value, sizeof(value));
+			if (FAILED(hr)) {
+				Logger::Get().ComWarn("CheckFeatureSupport 失败", hr);
+			}
 		}
 
 		if (value.UMA) {
