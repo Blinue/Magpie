@@ -16,6 +16,30 @@ bool GpuResourceManager::Initialize(
 	_csuDescriptorHeap = &csuDescriptorHeap;
 	_rtvDescriptorHeap = &rtvDescriptorHeap;
 
+	HRESULT hr;
+
+	// D3D12MA 使用了已废弃的 ID3D12Device::CheckFeatureSupport，临时禁用调试层的对应警告
+#ifdef _DEBUG
+	winrt::com_ptr<ID3D12InfoQueue> infoQueue;
+	hr = device->QueryInterface(IID_PPV_ARGS(&infoQueue));
+	if (FAILED(hr)) {
+		Logger::Get().ComError("获取 ID3D12InfoQueue 失败", hr);
+	}
+
+	if (infoQueue) {
+		infoQueue->PushCopyOfStorageFilter();
+
+		std::array IGNORED_MESSAGE_IDS = { D3D12_MESSAGE_ID_DEPRECATED_API };
+		D3D12_INFO_QUEUE_FILTER infoQueueFilter = {
+			.DenyList = {
+				.NumIDs = (UINT)IGNORED_MESSAGE_IDS.size(),
+				.pIDList = IGNORED_MESSAGE_IDS.data()
+			}
+		};
+		infoQueue->AddStorageFilterEntries(&infoQueueFilter);
+	}
+#endif
+
 	D3D12MA::ALLOCATOR_DESC allocatorDesc = {
 		.Flags = D3D12MA::ALLOCATOR_FLAGS(D3D12MA_RECOMMENDED_ALLOCATOR_FLAGS |
 			// 我们创建的缓冲区不多，不需要担心浪费空间
@@ -24,11 +48,17 @@ bool GpuResourceManager::Initialize(
 		.pAdapter = dxgiAdapter
 	};
 
-	HRESULT hr = D3D12MA::CreateAllocator(&allocatorDesc, _allocator.put());
+	hr = D3D12MA::CreateAllocator(&allocatorDesc, _allocator.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("D3D12MA::CreateAllocator 失败", hr);
 		return false;
 	}
+
+#ifdef _DEBUG
+	if (infoQueue) {
+		infoQueue->PopStorageFilter();
+	}
+#endif
 
 	return true;
 }

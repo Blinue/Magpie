@@ -80,6 +80,12 @@ public:
 		return _isNative16BitSupported;
 	}
 
+	HRESULT CheckFeatureSupport(
+		D3D12_FEATURE feature,
+		void* pFeatureSupportData,
+		UINT featureSupportDataSize
+	) const noexcept;
+
 	uint32_t GetMaxInFlightFrameCount() const noexcept {
 		return (uint32_t)_commandAllocators.size();
 	}
@@ -127,6 +133,7 @@ private:
 	winrt::com_ptr<IDXGIFactory7> _dxgiFactory;
 	winrt::com_ptr<IDXGIAdapter4> _dxgiAdapter;
 	winrt::com_ptr<ID3D12Device5> _device;
+	winrt::com_ptr<ID3D12Device16> _device16;
 	winrt::com_ptr<ID3D12CommandQueue> _commandQueue;
 
 	std::vector<winrt::com_ptr<ID3D12CommandAllocator>> _commandAllocators;

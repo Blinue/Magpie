@@ -42,8 +42,6 @@ static void SetGpuPriority() noexcept {
 }
 
 static void LogDeviceInfo(const D3D12Context& d3d12Context) noexcept {
-	ID3D12Device5* device = d3d12Context.GetDevice();
-
 	std::string_view featureLevel = "未知";
 	{
 		D3D_FEATURE_LEVEL featureLevels[] = {
@@ -57,7 +55,7 @@ static void LogDeviceInfo(const D3D12Context& d3d12Context) noexcept {
 			.NumFeatureLevels = (UINT)std::size(featureLevels),
 			.pFeatureLevelsRequested = featureLevels
 		};
-		HRESULT hr = device->CheckFeatureSupport(
+		HRESULT hr = d3d12Context.CheckFeatureSupport(
 			D3D12_FEATURE_FEATURE_LEVELS, &featureData, sizeof(featureData));
 		if (SUCCEEDED(hr)) {
 			switch (featureData.MaxSupportedFeatureLevel) {
@@ -80,7 +78,7 @@ static void LogDeviceInfo(const D3D12Context& d3d12Context) noexcept {
 				break;
 			}
 		} else {
-			Logger::Get().ComWarn("CheckFeatureSupport 失败", hr);
+			Logger::Get().ComWarn("D3D12Context::CheckFeatureSupport 失败", hr);
 		}
 	}
 
