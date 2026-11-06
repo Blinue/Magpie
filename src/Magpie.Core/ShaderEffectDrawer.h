@@ -66,6 +66,12 @@ private:
 
 	DXGI_FORMAT _GetDxgiFormat(EffectTextureFormat texFormat) const noexcept;
 
+	HRESULT _Export(
+		EffectDrawerExportData& exportData,
+		ComputeContext& computeContext,
+		uint32_t passIdx
+	) noexcept;
+
 	enum _Error {
 		NoError,
 		CompilationFailed,

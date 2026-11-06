@@ -504,71 +504,11 @@ HRESULT ShaderEffectDrawer::Draw(
 
 		// 导出输出纹理
 		if ((int)passIdx == exportData.passIdx) {
-			auto& gpuResourceManager = _d3d12Context->GetGpuResourceManager();
-
-			assert(curPassDesc.outputs[exportData.outputIdx] >= 2);
-			uint32_t exportTexIdx = curPassDesc.outputs[exportData.outputIdx] - 2;
-			uint32_t exportTexResIdx = curPassData.outputTexResIdxes[exportData.outputIdx];
-			// 不会导出最后一个通道，因此只会导出中间纹理
-			assert(exportTexResIdx != UINT_MAX);
-
-			_TextureResourceData& exportTexResData = _textureResourceDatas[exportTexResIdx];
-
-			exportData.textureSize = _textureSizes[exportTexIdx];
-
-			exportData.textureFormat = _drawInfo->textures[exportTexIdx].format;
-			assert(exportData.textureFormat != EffectTextureFormat::UNKNOWN);
-			if (exportData.textureFormat == EffectTextureFormat::COLOR_SPACE_ADAPTIVE) {
-				if (_acKind == winrt::AdvancedColorKind::StandardDynamicRange) {
-					exportData.textureFormat = EffectTextureFormat::R10G10B10A2_UNORM;
-				} else {
-					exportData.textureFormat = EffectTextureFormat::R16G16B16A16_FLOAT;
-				}
-			}
-
-			const EffectTextureFormatProps& textureFormatProps =
-				EFFECT_TEXTURE_FORMAT_PROPS[(uint32_t)exportData.textureFormat];
-
-			uint32_t rowSize;
-			size_t bufferSize;
-			DirectXHelper::ComputeBufferLayout(exportData.textureSize,
-				textureFormatProps.texelSize, rowSize, exportData.rowPitch, bufferSize);
-
-			HRESULT hr = gpuResourceManager.CreateBuffer(
-				D3D12_HEAP_TYPE_READBACK,
-				bufferSize,
-				D3D12_RESOURCE_STATE_COPY_DEST,
-				exportData.readbackBufferAllocation.put()
-			);
+			HRESULT hr = _Export(exportData, computeContext, passIdx);
 			if (FAILED(hr)) {
-				Logger::Get().ComError("GpuResourceManager::CreateBuffer 失败", hr);
+				Logger::Get().ComError("_Export 失败", hr);
 				return hr;
 			}
-			
-			computeContext.InsertTransitionBarrier(
-				exportTexResData.resource.get(),
-				D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-				D3D12_RESOURCE_STATE_COPY_SOURCE
-			);
-			exportTexResData.state = D3D12_RESOURCE_STATE_COPY_SOURCE;
-
-			computeContext.CopyTextureRegion(
-				CD3DX12_TEXTURE_COPY_LOCATION(
-					exportData.readbackBufferAllocation->GetResource(),
-					D3D12_PLACED_SUBRESOURCE_FOOTPRINT{
-						.Footprint = {
-							.Format = textureFormatProps.dxgiFormat,
-							.Width = exportData.textureSize.width,
-							.Height = exportData.textureSize.height,
-							.Depth = 1,
-							.RowPitch = exportData.rowPitch
-						}
-					}
-				),
-				0,
-				0,
-				CD3DX12_TEXTURE_COPY_LOCATION(exportTexResData.resource.get())
-			);
 		}
 	}
 
@@ -1392,6 +1332,82 @@ DXGI_FORMAT ShaderEffectDrawer::_GetDxgiFormat(EffectTextureFormat texFormat) co
 	} else {
 		return EFFECT_TEXTURE_FORMAT_PROPS[(uint32_t)texFormat].dxgiFormat;
 	}
+}
+
+HRESULT ShaderEffectDrawer::_Export(
+	EffectDrawerExportData& exportData,
+	ComputeContext& computeContext,
+	uint32_t passIdx
+) noexcept {
+	auto& gpuResourceManager = _d3d12Context->GetGpuResourceManager();
+	const _PassData& passData = _passDatas[passIdx];
+	const ShaderEffectPassDesc& passDesc = _drawInfo->passes[passIdx];
+
+	assert(passDesc.outputs[exportData.outputIdx] >= 2);
+	uint32_t exportTexIdx = passDesc.outputs[exportData.outputIdx] - 2;
+	uint32_t exportTexResIdx = passData.outputTexResIdxes[exportData.outputIdx];
+	// 不会导出最后一个通道，因此只会导出中间纹理
+	assert(exportTexResIdx != UINT_MAX);
+
+	_TextureResourceData& exportTexResData = _textureResourceDatas[exportTexResIdx];
+
+	exportData.textureSize = _textureSizes[exportTexIdx];
+
+	exportData.textureFormat = _drawInfo->textures[exportTexIdx].format;
+	assert(exportData.textureFormat != EffectTextureFormat::UNKNOWN);
+	if (exportData.textureFormat == EffectTextureFormat::COLOR_SPACE_ADAPTIVE) {
+		if (_acKind == winrt::AdvancedColorKind::StandardDynamicRange) {
+			exportData.textureFormat = EffectTextureFormat::R10G10B10A2_UNORM;
+		} else {
+			exportData.textureFormat = EffectTextureFormat::R16G16B16A16_FLOAT;
+		}
+	}
+
+	const EffectTextureFormatProps& textureFormatProps =
+		EFFECT_TEXTURE_FORMAT_PROPS[(uint32_t)exportData.textureFormat];
+
+	uint32_t rowSize;
+	size_t bufferSize;
+	DirectXHelper::ComputeBufferLayout(exportData.textureSize,
+		textureFormatProps.texelSize, rowSize, exportData.rowPitch, bufferSize);
+
+	HRESULT hr = gpuResourceManager.CreateBuffer(
+		D3D12_HEAP_TYPE_READBACK,
+		bufferSize,
+		D3D12_RESOURCE_STATE_COPY_DEST,
+		exportData.readbackBufferAllocation.put()
+	);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("GpuResourceManager::CreateBuffer 失败", hr);
+		return hr;
+	}
+
+	computeContext.InsertTransitionBarrier(
+		exportTexResData.resource.get(),
+		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+		D3D12_RESOURCE_STATE_COPY_SOURCE
+	);
+	exportTexResData.state = D3D12_RESOURCE_STATE_COPY_SOURCE;
+
+	computeContext.CopyTextureRegion(
+		CD3DX12_TEXTURE_COPY_LOCATION(
+			exportData.readbackBufferAllocation->GetResource(),
+			D3D12_PLACED_SUBRESOURCE_FOOTPRINT{
+				.Footprint = {
+					.Format = textureFormatProps.dxgiFormat,
+					.Width = exportData.textureSize.width,
+					.Height = exportData.textureSize.height,
+					.Depth = 1,
+					.RowPitch = exportData.rowPitch
+				}
+			}
+		),
+		0,
+		0,
+		CD3DX12_TEXTURE_COPY_LOCATION(exportTexResData.resource.get())
+	);
+
+	return S_OK;
 }
 
 }

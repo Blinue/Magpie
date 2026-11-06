@@ -27,6 +27,8 @@
     <MinimumVisualStudioVersion>18.0</MinimumVisualStudioVersion>
     <VCProjectVersion>18.0</VCProjectVersion>
     <DefaultLanguage>en-US</DefaultLanguage>
+    <!-- 使用最新的 Windows SDK，目前至少需要 26100 -->
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <IntDir>$(SolutionDir)\obj\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
     <OutBaseDir Condition="'$(OutBaseDir)' == ''">$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutBaseDir>
     <!-- 使 clang-tidy 并行运行-->
