@@ -460,6 +460,7 @@ void AppSettings::IsDeveloperMode(bool value) noexcept {
 		_duplicateFrameDetectionMode = DuplicateFrameDetectionMode::Dynamic;
 		_highestShaderModel = HighestShaderModel::NotLimited;
 		_isFP16Disabled = false;
+		_isResourceAliasingDisabled = false;
 	}
 
 	SaveAsync();
@@ -615,6 +616,8 @@ rapidjson::StringBuffer AppSettings::_WriteConfigJson() const noexcept {
 	writer.Double(_minFrameRate);
 	writer.Key("disableFP16");
 	writer.Bool(_isFP16Disabled);
+	writer.Key("disableResourceAliasing");
+	writer.Bool(_isResourceAliasingDisabled);
 
 	ScalingModesService::Get().Export(writer);
 
@@ -804,6 +807,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 	JsonHelper::ReadEnum(root, "highestShaderModel", _highestShaderModel);
 	JsonHelper::ReadFloat(root, "minFrameRate", _minFrameRate);
 	JsonHelper::ReadBool(root, "disableFP16", _isFP16Disabled);
+	JsonHelper::ReadBool(root, "disableResourceAliasing", _isResourceAliasingDisabled);
 
 	[[maybe_unused]] bool result = ScalingModesService::Get().Import(root, true);
 	assert(result);

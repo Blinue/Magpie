@@ -1,8 +1,9 @@
 #pragma once
-#include "ByteBuffer.h"
-#include "SmallVector.h"
+#include <D3D12MemAlloc.h>
 #include <parallel_hashmap/phmap.h>
 #include <wil/registry.h>
+#include "ByteBuffer.h"
+#include "SmallVector.h"
 
 namespace Magpie {
 
@@ -93,17 +94,11 @@ private:
 		_CursorType type = _CursorType::Color;
 		PointU hotspot{};
 
-		winrt::com_ptr<ID3D12Resource> texture;
+		winrt::com_ptr<D3D12MA::Allocation> textureAllocation;
 		SizeU resSize{};
 		ByteBuffer resTextureData;
-		// 这两个资源使用完毕后在 _ClearRetiredResources 中释放
-		winrt::com_ptr<ID3D12Resource> uploadBuffer;
-		winrt::com_ptr<ID3D12Resource> resTexture;
-		uint64_t tempResourcesFenceValue = 0;
 
-		uint32_t textureSrvOffset = std::numeric_limits<uint32_t>::max();
-		uint32_t textureRtvOffset = std::numeric_limits<uint32_t>::max();
-		uint32_t resTextureSrvOffset = std::numeric_limits<uint32_t>::max();
+		uint32_t textureSrvOffset = UINT_MAX;
 	};
 
 	struct _CursorInfo {
@@ -120,11 +115,6 @@ private:
 		uint32_t GetFrameIdx(uint32_t seqIdx) const noexcept {
 			return IsAnimated() ? frameSequence[seqIdx].first : 0;
 		}
-		
-		void FreeDescriptors(
-			DescriptorHeap& csuDescriptorHeap,
-			DescriptorHeap& rtvDescriptorHeap
-		) const noexcept;
 	};
 
 	std::pair<const _CursorInfoKey, _CursorInfo>* _ResolveCursor(
@@ -156,12 +146,8 @@ private:
 	HRESULT _InitializeCursorTexture(
 		GraphicsContext& graphicsContext,
 		_CursorInfo& cursorInfo,
-		uint32_t cursorFrameIdx,
-		uint64_t completedFenceValue
+		uint32_t cursorFrameIdx
 	) noexcept;
-
-	// 只能在同步 GPU 后调用
-	void _ClearCursorInfos() noexcept;
 
 	HRESULT _CreateColorPSO() noexcept;
 
@@ -172,7 +158,9 @@ private:
 
 	HRESULT _CreateCursorResizerPSO() noexcept;
 
-	void _ClearRetiredResources(uint64_t completedFenceValue) noexcept;
+	void _RetireCursorInfos(bool isGpuWaited) noexcept;
+
+	void _EvictOldCursorInfos(uint64_t completedFenceValue) noexcept;
 
 	void _OnCursorsRegChanged(wil::RegistryChangeKind) noexcept;
 
@@ -190,12 +178,6 @@ private:
 
 	phmap::flat_hash_map<_CursorInfoKey, _CursorInfo> _cursorInfos;
 
-	// 保存临时资源未被释放的 _CursorInfo。保存键而不是指针，以防 _cursorInfos 扩容后失效
-	SmallVector<_CursorInfoKey, 1> _cursorInfosWithTempResources;
-
-	// 保存 _cursorBaseSize 改变后失效的 _CursorInfo
-	SmallVector<_CursorInfo, 0> _retiredCursorInfos;
-
 	// 保存解析失败的光标以避免重复尝试
 	phmap::flat_hash_set<HCURSOR> _unresolvableCursors;
 
@@ -210,16 +192,9 @@ private:
 	std::chrono::steady_clock::time_point _curFrameSeqEndTime;
 
 	// 用于从渲染目标复制光标下区域
-	winrt::com_ptr<ID3D12Resource> _tempOriginTexture;
+	winrt::com_ptr<D3D12MA::Allocation> _tempOriginTextureAllocation;
 	SizeU _tempOriginTextureSize{};
-	uint32_t _tempOriginTextureSrvOffset = std::numeric_limits<uint32_t>::max();
-	
-	struct _RetiredTempOriginTexture {
-		winrt::com_ptr<ID3D12Resource> texture;
-		uint64_t fenceValue;
-		uint32_t srvOffset;
-	};
-	SmallVector<_RetiredTempOriginTexture, 1> _retiredTempOriginTextures;
+	uint32_t _tempOriginTextureSrvOffset = UINT_MAX;
 
 	winrt::com_ptr<ID3D12RootSignature> _colorRootSignature;
 	winrt::com_ptr<ID3D12PipelineState> _colorPSO;

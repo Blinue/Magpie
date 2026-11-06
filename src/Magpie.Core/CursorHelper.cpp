@@ -356,7 +356,7 @@ static bool LoadAniFromFileMap(
 				if (aniHeader.fl & AF_SEQUENCE) {
 					frameSequence.resize(aniHeader.cSteps);
 					// 用于检查 seq 块是否存在
-					frameSequence[0].first = std::numeric_limits<uint32_t>::max();
+					frameSequence[0].first = UINT_MAX;
 				} else {
 					frameSequence.resize(aniHeader.cFrames);
 					// 逐帧播放

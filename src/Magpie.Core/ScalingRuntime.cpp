@@ -175,20 +175,24 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 		if (scalingWindow) {
 			_State(ScalingState::Scaling);
 
-			const auto now = steady_clock::now();
-			// 限制检测光标移动的频率
-			const milliseconds timeout(scalingWindow.Options().Is3DGameMode() ? 8 : 2);
-			nanoseconds rest = timeout - (now - scalingWindow.GetLastRenderTime());
-			if (rest < 1us) {
+			if (scalingWindow.WantRender()) {
 				scalingWindow.Render();
-				rest = timeout;
+			} else {
+				const steady_clock::time_point now = steady_clock::now();
+				// 限制检测光标移动的频率
+				const milliseconds timeout(scalingWindow.Options().Is3DGameMode() ? 8 : 2);
+				nanoseconds rest = timeout - (now - scalingWindow.GetLastRenderTime());
+				if (rest < 1us) {
+					scalingWindow.Render();
+					rest = timeout;
+				}
+
+				// 值为 1000000
+				constexpr auto ratio = std::ratio_divide<std::milli, std::nano>().num;
+				// 向上取整
+				const DWORD restMs = DWORD((rest.count() + ratio - 1) / ratio);
+				MsgWaitForMultipleObjectsEx(0, nullptr, restMs, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
 			}
-			
-			// 值为 1000000
-			constexpr auto ratio = std::ratio_divide<std::milli, std::nano>().num;
-			// 向上取整
-			const DWORD restMs = DWORD((rest.count() + ratio - 1) / ratio);
-			MsgWaitForMultipleObjectsEx(0, nullptr, restMs, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
 		} else if (scalingWindow.IsSrcRepositioning()) {
 			std::optional<bool> repositioning =
 				IsSrcRepositioning(scalingWindow.SrcHandle());

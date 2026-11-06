@@ -472,6 +472,21 @@ void HomeViewModel::IsFP16Disabled(bool value) {
 	RaisePropertyChanged(L"IsFP16Disabled");
 }
 
+bool HomeViewModel::IsResourceAliasingDisabled() const noexcept {
+	return AppSettings::Get().IsResourceAliasingDisabled();
+}
+
+void HomeViewModel::IsResourceAliasingDisabled(bool value) {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.IsResourceAliasingDisabled() == value) {
+		return;
+	}
+
+	settings.IsResourceAliasingDisabled(value);
+	RaisePropertyChanged(L"IsResourceAliasingDisabled");
+}
+
 int HomeViewModel::DuplicateFrameDetectionMode() const noexcept {
 	return (int)AppSettings::Get().DuplicateFrameDetectionMode();
 }
@@ -493,7 +508,14 @@ void HomeViewModel::DuplicateFrameDetectionMode(int value) {
 }
 
 int HomeViewModel::HighestShaderModel() const noexcept {
-	return (int)AppSettings::Get().HighestShaderModel();
+	::Magpie::HighestShaderModel value = AppSettings::Get().HighestShaderModel();
+
+	// 和 UI 相反，HighestShaderModel 中 SM 从低到高排序
+	if (value == ::Magpie::HighestShaderModel::NotLimited) {
+		return 0;
+	} else {
+		return (int)::Magpie::HighestShaderModel::COUNT - (int)value;
+	}
 }
 
 void HomeViewModel::HighestShaderModel(int value) {
@@ -501,7 +523,9 @@ void HomeViewModel::HighestShaderModel(int value) {
 		return;
 	}
 
-	auto version = (::Magpie::HighestShaderModel)value;
+	assert(value < (int)::Magpie::HighestShaderModel::COUNT);
+	auto version = value == 0 ? ::Magpie::HighestShaderModel::NotLimited :
+		::Magpie::HighestShaderModel((int)::Magpie::HighestShaderModel::COUNT - value);
 
 	AppSettings& settings = AppSettings::Get();
 	if (settings.HighestShaderModel() == version) {

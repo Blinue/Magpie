@@ -100,9 +100,9 @@ private:
 	std::unique_ptr<GraphicsCaptureFrameSource> _frameSource;
 	std::optional<EffectsDrawer> _effectsDrawer;
 
-	uint32_t _inputSrvBaseOffset = std::numeric_limits<uint32_t>::max();
-	uint32_t _outputUavBaseOffset = std::numeric_limits<uint32_t>::max();
-	uint32_t _outputSrvBaseOffset = std::numeric_limits<uint32_t>::max();
+	uint32_t _inputSrvBaseOffset = UINT_MAX;
+	uint32_t _outputUavBaseOffset = UINT_MAX;
+	uint32_t _outputSrvBaseOffset = UINT_MAX;
 
 	bool _isScRGB = false;
 	std::atomic<bool> _isMonitorThreadInitialized;

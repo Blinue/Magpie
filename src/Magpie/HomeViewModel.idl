@@ -43,6 +43,7 @@ namespace Magpie {
 		Boolean IsSaveEffectSources;
 		Boolean IsWarningsAreErrors;
 		Boolean IsFP16Disabled;
+		Boolean IsResourceAliasingDisabled;
 		Int32 DuplicateFrameDetectionMode;
 		Int32 HighestShaderModel;
 	}

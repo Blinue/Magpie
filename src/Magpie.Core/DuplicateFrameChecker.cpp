@@ -4,8 +4,8 @@
 #include "DirectXHelper.h"
 #include "Logger.h"
 #include "ScalingWindow.h"
-#include "shaders/DuplicateFrameCS.h"
-#include "shaders/DuplicateFrameCS_NoBoundsChecking.h"
+#include "shaders/DuplicateFrameCS_SM5.h"
+#include "shaders/DuplicateFrameCS_NoBoundsChecking_SM5.h"
 
 namespace Magpie {
 
@@ -43,8 +43,10 @@ bool DuplicateFrameChecker::Initialize(
 	_frameSrvs.resize(captureFrameCount);
 
 	HRESULT hr = d3d11Device->CreateComputeShader(
-		disableBoundsChecking ? DuplicateFrameCS_NoBoundsChecking : DuplicateFrameCS,
-		disableBoundsChecking ? sizeof(DuplicateFrameCS_NoBoundsChecking) : sizeof(DuplicateFrameCS),
+		disableBoundsChecking ?
+			DuplicateFrameCS_NoBoundsChecking_SM5 : DuplicateFrameCS_SM5,
+		disableBoundsChecking ?
+			sizeof(DuplicateFrameCS_NoBoundsChecking_SM5) : sizeof(DuplicateFrameCS_SM5),
 		nullptr,
 		_dupFrameCS.put()
 	);
@@ -164,7 +166,7 @@ HRESULT DuplicateFrameChecker::CheckFrame(
 	}
 
 	// 第一帧无需检查重复帧
-	if (_oldFrameIdx == std::numeric_limits<uint32_t>::max()) {
+	if (_oldFrameIdx == UINT_MAX) {
 		return S_OK;
 	}
 
@@ -234,7 +236,7 @@ void DuplicateFrameChecker::OnFrameAdopted(uint32_t frameIdx) noexcept {
 }
 
 void DuplicateFrameChecker::OnCaptureStopped() noexcept {
-	_oldFrameIdx = std::numeric_limits<uint32_t>::max();
+	_oldFrameIdx = UINT_MAX;
 	std::fill(_frameSrvs.begin(), _frameSrvs.end(), nullptr);
 }
 

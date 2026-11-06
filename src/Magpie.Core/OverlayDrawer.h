@@ -79,7 +79,7 @@ private:
 
 	float _dpiScale = 1.0f;
 
-	//uint32_t _lastFPS = std::numeric_limits<uint32_t>::max();
+	//uint32_t _lastFPS = UINT_MAX;
 	float _lastToolbarAlpha = -1.0f;
 
 	ImFont* _iconFont = nullptr;

@@ -6,7 +6,7 @@
 // 但是，如果此处列出的文件中的任何一个在生成之间有更新，它们全部都将被重新编译。
 // 请勿在此处添加要频繁更新的文件，这将使得性能优势无效。
 
-// Windows 头文件
+// Windows
 #include <SDKDDKVer.h>
 #include <Windows.h>
 #include <windowsx.h>
@@ -15,11 +15,11 @@
 #undef GetCurrentTime
 #undef GetNextSibling
 
-// DirectX 头文件
+// DirectX
 #include <dxgi1_6.h>
 #include <d3d12.h>
 
-// C++ 运行时
+// 标准库
 #include <cstdlib>
 #include <string>
 #include <string_view>

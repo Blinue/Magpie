@@ -67,13 +67,33 @@ public:
 			_pendingBarriers.begin(),
 			_pendingBarriers.end(),
 			[&](const D3D12_RESOURCE_BARRIER& barrier) {
-				return barrier.Transition.pResource == resource;
+				return barrier.Type == D3D12_RESOURCE_BARRIER_TYPE_TRANSITION &&
+					barrier.Transition.pResource == resource;
 			}
 		);
 		assert(it == _pendingBarriers.end());
 #endif
 		_pendingBarriers.push_back(
 			CD3DX12_RESOURCE_BARRIER::Transition(resource, stateBefore, stateAfter, 0));
+	}
+
+	void InsertAliasingBarrier(ID3D12Resource* resourceBefore, ID3D12Resource* resourceAfter) {
+#ifdef _DEBUG
+		// 检查是否存在冗余的状态转换
+		auto it = std::find_if(
+			_pendingBarriers.begin(),
+			_pendingBarriers.end(),
+			[&](const D3D12_RESOURCE_BARRIER& barrier) {
+				return barrier.Type == D3D12_RESOURCE_BARRIER_TYPE_ALIASING &&
+					barrier.Aliasing.pResourceBefore == resourceBefore &&
+					barrier.Aliasing.pResourceAfter == resourceAfter;
+			}
+		);
+		assert(it == _pendingBarriers.end());
+#endif
+
+		_pendingBarriers.push_back(
+			CD3DX12_RESOURCE_BARRIER::Aliasing(resourceBefore, resourceAfter));
 	}
 
 	void CopyBufferRegion(
@@ -219,7 +239,7 @@ public:
 
 private:
 	D3D12_PRIMITIVE_TOPOLOGY _curTrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_UNDEFINED;
-	uint32_t _curRtvDescriptorOffset = std::numeric_limits<uint32_t>::max();
+	uint32_t _curRtvDescriptorOffset = UINT_MAX;
 };
 
 }

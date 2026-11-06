@@ -1,8 +1,10 @@
 #pragma once
 #include "CatmullRomDrawer.h"
+#include "D3D12Context.h"
 #include "EffectDrawerBase.h"
-#include "EffectTextureFormat.h"
+#include "ScreenshotDrawer.h"
 #include "SmallVector.h"
+#include <D3D12MemAlloc.h>
 
 namespace Magpie {
 
@@ -51,28 +53,25 @@ public:
 	// -1: 效果的输出画面
 	void ExportAsync(int effectIdx, int passIdx = -1, uint32_t outputIdx = 0) noexcept;
 
-	void OnResized(SizeU rendererSize, SizeU& outputSize) noexcept;
+	HRESULT OnResized(SizeU rendererSize, SizeU& outputSize) noexcept;
 
-	void OnColorInfoChanged(const ColorInfo& colorInfo) noexcept;
+	HRESULT OnColorInfoChanged(const ColorInfo& colorInfo) noexcept;
 
 	void OnProducerFrameCompleted(uint64_t fenceValue) noexcept;
 
 private:
-	// 如果提供了 textureSrvOffset 则不需要 texture 和 textureFormat，否则需要
-	HRESULT _DrawScreenshot(
-		ComputeContext& computeContext,
-		uint32_t textureSrvOffset,
-		ID3D12Resource* texture,
-		EffectTextureFormat textureFormat,
-		SizeU textureSize,
-		uint64_t frameFenceValue
-	) noexcept;
-
-	uint32_t _CalcDescriptorCount() const noexcept;
-
 	void _UpdateEffectBindings() noexcept;
 
-	HRESULT _InitializeScreenshotRootSignature() noexcept;
+	HRESULT _BuildMemPool(const SmallVectorImpl<EffectDrawerState>& effectDrawerStates) noexcept;
+
+	void _DrawGap(
+		ComputeContext& computeContext,
+		uint32_t startEffectIdx,
+		uint32_t effectInputSrvOffset,
+		ID3D12Resource* outputTexture,
+		SizeU outputSize,
+		uint32_t outputUavOffset
+	) noexcept;
 
 	D3D12Context* _d3d12Context = nullptr;
 	winrt::DispatcherQueue _dispatcher{ nullptr };
@@ -82,9 +81,14 @@ private:
 	SizeU _rendererSize{};
 	ColorInfo _colorInfo;
 
+	// 所有效果共用的显存池。出于析构顺序考虑必须在 _effectDatas 前声明
+	winrt::com_ptr<D3D12MA::Allocation> _defaultMemPoolAllocation;
+	// 如果显卡支持在一个堆中同时存储纹理和缓冲区则不使用这个成员
+	winrt::com_ptr<D3D12MA::Allocation> _bufferMemPoolAllocation;
+
 	struct _EffectData {
 		std::unique_ptr<EffectDrawerBase> drawer;
-		const EffectInfo* effectInfo = nullptr;
+		EffectDrawerInfo drawerInfo;
 		SizeU outputSize{};
 		winrt::com_ptr<ID3D12Resource> outputTexture;
 		EffectDebugInfo debugInfo;
@@ -92,12 +96,14 @@ private:
 
 	SmallVector<_EffectData> _effectDatas;
 	CatmullRomDrawer _catmullRomDrawer;
+	ScreenshotDrawer _screenshotDrawer;
 
 	// 描述符的布局是 SRV|UAV|SRV|UAV|...
-	uint32_t _descriptorBaseOffset = std::numeric_limits<uint32_t>::max();
+	uint32_t _descriptorBaseOffset = UINT_MAX;
+	uint32_t _descriptorCount = 0;
 
 	winrt::com_ptr<ID3D12QueryHeap> _queryHeap;
-	winrt::com_ptr<ID3D12Resource> _queryResultBuffer;
+	winrt::com_ptr<D3D12MA::Allocation> _queryResultBufferAllocation;
 	UINT64 _timestampFrequency = 0;
 
 	struct _ExportTask {
@@ -108,29 +114,6 @@ private:
 	};
 	// 不知为何如果默认初始化 clang-cl 会编译失败
 	std::atomic<_ExportTask> _exportTask{};
-
-	struct _ScreenshotData {
-		uint64_t fenceValue = 0;
-		winrt::com_ptr<ID3D12Resource> buffer;
-		SizeU textureSize{};
-		EffectTextureFormat textureFormat = EffectTextureFormat::R16G16B16A16_UNORM;
-		uint32_t rowPitch = 0;
-		// 由于导出是异步的需要备份 colorInfo
-		ColorInfo colorInfo;
-
-		// 用于把要导出的纹理转换为 R16G16B16A16_FLOAT 格式
-		winrt::com_ptr<ID3D12Resource> tempTexture;
-		uint32_t descriptorBaseOffset = std::numeric_limits<uint32_t>::max();
-		
-		// 通常只需要 tempTexture 的 UAV，但导出最终输出画面时需要额外为环形缓冲创建 SRV
-		bool hasSRV = false;
-	};
-	SmallVector<_ScreenshotData> _screenshotDatas;
-
-	winrt::com_ptr<ID3D12RootSignature> _screenshotRootSignature;
-	winrt::com_ptr<ID3D12PipelineState> _screenshotPSO;
-
-	uint32_t _pendingScreenshotCount = 0;
 };
 
 }

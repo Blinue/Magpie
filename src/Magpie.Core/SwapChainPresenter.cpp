@@ -15,11 +15,11 @@ SwapChainPresenter::~SwapChainPresenter() noexcept {
 	if (_d3d12Context) {
 		auto& rtvDescriptorHeap = _d3d12Context->GetDescriptorHeap(true);
 
-		if (_rtvBaseOffset != std::numeric_limits<uint32_t>::max()) {
+		if (_rtvBaseOffset != UINT_MAX) {
 			rtvDescriptorHeap.Free(_rtvBaseOffset, _bufferCount);
 		}
 
-		if (_rawRtvBaseOffset != std::numeric_limits<uint32_t>::max()) {
+		if (_rawRtvBaseOffset != UINT_MAX) {
 			rtvDescriptorHeap.Free(_rawRtvBaseOffset, _bufferCount);
 		}
 	}
@@ -74,10 +74,16 @@ bool SwapChainPresenter::Initialize(
 		.AlphaMode = DXGI_ALPHA_MODE_IGNORE,
 		// 支持时始终启用 DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING
 		.Flags = UINT((_isTearingSupported ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0)
-		| DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT)
+			| DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT)
 	};
 
 	winrt::com_ptr<IDXGISwapChain1> dxgiSwapChain;
+
+	// IDXGIFactory2::CreateSwapChainForHwnd 可能使用已废弃的 ID3D12Device::CheckFeatureSupport
+#ifdef _DEBUG
+	d3d12Context.PushDebugLayerWarnings(std::array{ D3D12_MESSAGE_ID_DEPRECATED_API });
+#endif
+
 	HRESULT hr = dxgiFactory->CreateSwapChainForHwnd(
 		d3d12Context.GetCommandQueue(),
 		hwndAttach,
@@ -86,6 +92,11 @@ bool SwapChainPresenter::Initialize(
 		nullptr,
 		dxgiSwapChain.put()
 	);
+
+#ifdef _DEBUG
+	d3d12Context.PopDebugLayerWarnings();
+#endif
+
 	if (FAILED(hr)) {
 		Logger::Get().ComError("IDXGIFactory2::CreateSwapChainForHwnd 失败", hr);
 		return false;
@@ -318,12 +329,12 @@ HRESULT SwapChainPresenter::OnColorInfoChanged(const ColorInfo& colorInfo) noexc
 
 	auto& rtvDescriptorHeap = _d3d12Context->GetDescriptorHeap(true);
 	if (_isScRGB) {
-		if (_rawRtvBaseOffset != std::numeric_limits<uint32_t>::max()) {
+		if (_rawRtvBaseOffset != UINT_MAX) {
 			rtvDescriptorHeap.Free(_rawRtvBaseOffset, _bufferCount);
-			_rawRtvBaseOffset = std::numeric_limits<uint32_t>::max();
+			_rawRtvBaseOffset = UINT_MAX;
 		}
 	} else {
-		if (_rawRtvBaseOffset == std::numeric_limits<uint32_t>::max()) {
+		if (_rawRtvBaseOffset == UINT_MAX) {
 			HRESULT hr = rtvDescriptorHeap.Alloc(_bufferCount, _rawRtvBaseOffset);
 			if (FAILED(hr)) {
 				Logger::Get().ComError("DescriptorHeap::Alloc 失败", hr);
@@ -350,6 +361,11 @@ HRESULT SwapChainPresenter::OnColorInfoChanged(const ColorInfo& colorInfo) noexc
 HRESULT SwapChainPresenter::_RecreateBuffers() noexcept {
 	std::fill(_frameBuffers.begin(), _frameBuffers.end(), nullptr);
 
+	// IDXGISwapChain::ResizeBuffers 可能使用已废弃的 ID3D12Device::CheckFeatureSupport
+#ifdef _DEBUG
+	_d3d12Context->PushDebugLayerWarnings(std::array{ D3D12_MESSAGE_ID_DEPRECATED_API });
+#endif
+
 	// 不要更改最大帧延迟，一来调整大小期间不会有帧排队，二来交换链不大支持中途改变
 	// 最大帧延迟，需要额外等待 FrameLatencyWaitableObject 来修正内部状态。
 	HRESULT hr = _dxgiSwapChain->ResizeBuffers(
@@ -358,6 +374,11 @@ HRESULT SwapChainPresenter::_RecreateBuffers() noexcept {
 		UINT((_isTearingSupported ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0)
 			| DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT)
 	);
+
+#ifdef _DEBUG
+	_d3d12Context->PopDebugLayerWarnings();
+#endif
+
 	if (FAILED(hr)) {
 		Logger::Get().ComError("IDXGISwapChain::ResizeBuffers", hr);
 		return hr;

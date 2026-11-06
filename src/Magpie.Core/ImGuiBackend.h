@@ -1,4 +1,5 @@
 #pragma once
+#include <D3D12MemAlloc.h>
 #include <imgui.h>
 #include <parallel_hashmap/phmap.h>
 #include "SmallVector.h"
@@ -42,10 +43,10 @@ private:
 
 	struct _FrameResource {
 		uint64_t fenceValue = 0;
-		winrt::com_ptr<ID3D12Resource> vertexBuffer;
-		winrt::com_ptr<ID3D12Resource> indexBuffer;
-		int vertexBufferSize = 0;
-		int indexBufferSize = 0;
+		int vertexCount = 0;
+		int indexCount = 0;
+		winrt::com_ptr<D3D12MA::Allocation> vertexBufferAllocation;
+		winrt::com_ptr<D3D12MA::Allocation> indexBufferAllocation;
 		void* vertexBufferData = nullptr;
 		void* indexBufferData = nullptr;
 	};
@@ -66,19 +67,11 @@ private:
 	float _sdrWhiteLevel = 1.0f;
 
 	struct _TextureData {
-		winrt::com_ptr<ID3D12Resource> texture;
+		winrt::com_ptr<D3D12MA::Allocation> textureAllocation;
 		uint64_t fenceValue = 0;
 	};
 	// 使用 SRV 偏移量（同时也是 ImTextureID）作为键
 	phmap::flat_hash_map<uint32_t, _TextureData> _textureDatas;
-
-	struct _UploadBuffer {
-		winrt::com_ptr<ID3D12Resource> buffer;
-		void* bufferData = nullptr;
-		uint32_t size = 0;
-		uint64_t fenceValue = 0;
-	};
-	SmallVector<_UploadBuffer> _uploadBuffers;
 
 	SmallVector<_FrameResource, 0> _frameResources;
 

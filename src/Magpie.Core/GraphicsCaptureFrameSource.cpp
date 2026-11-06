@@ -3,8 +3,8 @@
 #include "DebugInfo.h"
 #include "DirectXHelper.h"
 #include "DirtyRectsOptimizer.h"
-#include "DuplicateFrameChecker.h"
 #include "D3D12Context.h"
+#include "GpuResourceManager.h"
 #include "Logger.h"
 #include "ScalingWindow.h"
 #include "Win32Helper.h"
@@ -248,7 +248,7 @@ bool GraphicsCaptureFrameSource::Initialize(
 	_captureFrameResourceTable.reserve(captureFrameCount);
 
 	if (options.duplicateFrameDetectionMode != DuplicateFrameDetectionMode::Never) {
-		_duplicateFrameChecker = std::make_unique<DuplicateFrameChecker>();
+		_duplicateFrameChecker.emplace();
 		// 不使用脏区域时可以跳过边界检查，因为捕获帧右下两边没有多余像素
 		if (!_duplicateFrameChecker->Initialize(
 			_d3d11Device.get(),
@@ -561,7 +561,10 @@ HRESULT GraphicsCaptureFrameSource::Update(uint32_t& outputIdx) noexcept {
 		};
 
 		if (canCopyResource()) {
-			_copyCommandList->CopyResource(curSlot.output.get(), curCASlot.sharedResource.get());
+			_copyCommandList->CopyResource(
+				curSlot.output.get(),
+				curCASlot.sharedResource.get()
+			);
 		} else {
 			CD3DX12_TEXTURE_COPY_LOCATION src(curCASlot.sharedResource.get(), 0);
 			CD3DX12_TEXTURE_COPY_LOCATION dest(curSlot.output.get(), 0);
@@ -886,62 +889,62 @@ bool GraphicsCaptureFrameSource::_CreateBridgeDeviceResources(IDXGIAdapter1* dxg
 
 HRESULT GraphicsCaptureFrameSource::_CreateDisplayDependentResources() noexcept {
 	ID3D12Device5* device = _d3d12Context->GetDevice();
+	
+	const uint64_t slotCount = _slots.size();
+	const SizeU texSize = { _frameBox.right - _frameBox.left, _frameBox.bottom - _frameBox.top };
 
 	// 创建每帧输出纹理
 	{
-		CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_DEFAULT);
+		SmallVector<ID3D12Resource**, 3> outputs(slotCount);
+		for (uint64_t i = 0; i < slotCount; ++i) {
+			outputs[i] = _slots[i].output.put();
+		}
 
-		D3D12_HEAP_FLAGS heapFlags = _d3d12Context->IsHeapFlagCreateNotZeroedSupported() ?
-			D3D12_HEAP_FLAG_CREATE_NOT_ZEROED : D3D12_HEAP_FLAG_NONE;
-
-		CD3DX12_RESOURCE_DESC texDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+		HRESULT hr = _d3d12Context->GetGpuResourceManager().CreateTextures(
+			D3D12_HEAP_TYPE_DEFAULT,
 			_isScRGB ? DXGI_FORMAT_R16G16B16A16_FLOAT : DXGI_FORMAT_B8G8R8A8_TYPELESS,
-			UINT64(_frameBox.right - _frameBox.left),
-			_frameBox.bottom - _frameBox.top,
-			1, 1, 1, 0,
-			D3D12_RESOURCE_FLAG_NONE
+			texSize,
+			D3D12_RESOURCE_FLAG_NONE,
+			D3D12_RESOURCE_STATE_COMMON,
+			_outputAllocation.put(),
+			outputs
 		);
-
-		for (_FrameResourceSlot& slot : _slots) {
-			HRESULT hr = device->CreateCommittedResource(&heapProps, heapFlags,
-				&texDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&slot.output));
-			if (FAILED(hr)) {
-				Logger::Get().ComError("CreateCommittedResource 失败", hr);
-				return hr;
-			}
+		if (FAILED(hr)) {
+			Logger::Get().ComError("GpuResourceManager::CreateTextures 失败", hr);
+			return hr;
 		}
 	}
-
+	
 	if (!_bridgeDevice) {
 		return S_OK;
 	}
 
 	// 跨适配器捕获时创建跨适配器共享纹理
 
-	CD3DX12_RESOURCE_DESC textureDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+	CD3DX12_RESOURCE_DESC texDesc = CD3DX12_RESOURCE_DESC::Tex2D(
 		_isScRGB ? DXGI_FORMAT_R16G16B16A16_FLOAT : DXGI_FORMAT_B8G8R8A8_UNORM,
-		UINT64(_frameBox.right - _frameBox.left),
-		_frameBox.bottom - _frameBox.top,
+		texSize.width,
+		texSize.height,
 		1, 1, 1, 0,
 		D3D12_RESOURCE_FLAG_ALLOW_CROSS_ADAPTER,
 		D3D12_TEXTURE_LAYOUT_ROW_MAJOR
 	);
 
-	D3D12_RESOURCE_ALLOCATION_INFO textureInfo =
-		_bridgeDevice->GetResourceAllocationInfo(0, 1, &textureDesc);
+	D3D12_RESOURCE_ALLOCATION_INFO texAllocInfo =
+		_bridgeDevice->GetResourceAllocationInfo(0, 1, &texDesc);
 
-	const uint32_t frameCount = ScalingWindow::Get().Options().maxProducerInFlightFrames;
+	uint64_t texPitch = DirectXHelper::Align(texAllocInfo.SizeInBytes, texAllocInfo.Alignment);
 
 	// 创建跨适配器共享堆。应遵循“写入者创建”的原则，否则可能无法正确同步，Intel 集显作为
 	// 捕获设备时存在这个问题。
 	{
 		const bool isCreateNotZeroedSupported = (bool)_bridgeDevice.try_as<ID3D12Device8>();
 		CD3DX12_HEAP_DESC heapDesc(
-			textureInfo.SizeInBytes * frameCount,
+			texPitch * (slotCount - 1) + texAllocInfo.SizeInBytes,
 			D3D12_HEAP_TYPE_DEFAULT,
-			0,
+			texAllocInfo.Alignment,
 			D3D12_HEAP_FLAG_SHARED | D3D12_HEAP_FLAG_SHARED_CROSS_ADAPTER |
-			(isCreateNotZeroedSupported ? D3D12_HEAP_FLAG_CREATE_NOT_ZEROED : D3D12_HEAP_FLAG_NONE)
+				(isCreateNotZeroedSupported ? D3D12_HEAP_FLAG_CREATE_NOT_ZEROED : D3D12_HEAP_FLAG_NONE)
 		);
 		HRESULT hr = _bridgeDevice->CreateHeap(&heapDesc, IID_PPV_ARGS(&_bridgeHeap));
 		if (FAILED(hr)) {
@@ -964,13 +967,13 @@ HRESULT GraphicsCaptureFrameSource::_CreateDisplayDependentResources() noexcept 
 		}
 	}
 
-	for (uint32_t i = 0; i < frameCount; ++i) {
+	for (uint64_t i = 0; i < slotCount; ++i) {
 		_FrameCrossAdapterResourceSlot& curSlot = _crossAdapterSlots[i];
 
 		HRESULT hr = _bridgeDevice->CreatePlacedResource(
 			_bridgeHeap.get(),
-			textureInfo.SizeInBytes * i,
-			&textureDesc,
+			texPitch * i,
+			&texDesc,
 			D3D12_RESOURCE_STATE_COMMON,
 			nullptr,
 			IID_PPV_ARGS(&curSlot.bridgeResource)
@@ -982,8 +985,8 @@ HRESULT GraphicsCaptureFrameSource::_CreateDisplayDependentResources() noexcept 
 
 		hr = device->CreatePlacedResource(
 			_sharedHeap.get(),
-			textureInfo.SizeInBytes * i,
-			&textureDesc,
+			texPitch * i,
+			&texDesc,
 			D3D12_RESOURCE_STATE_COMMON,
 			nullptr,
 			IID_PPV_ARGS(&curSlot.sharedResource)

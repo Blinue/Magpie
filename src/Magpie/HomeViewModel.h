@@ -103,6 +103,9 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel>, wil::notify_property_chang
 	bool IsFP16Disabled() const noexcept;
 	void IsFP16Disabled(bool value);
 
+	bool IsResourceAliasingDisabled() const noexcept;
+	void IsResourceAliasingDisabled(bool value);
+
 	int DuplicateFrameDetectionMode() const noexcept;
 	void DuplicateFrameDetectionMode(int value);
 

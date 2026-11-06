@@ -1,13 +1,14 @@
 #pragma once
+#include "DuplicateFrameChecker.h"
 #include "SmallVector.h"
 #include <d3d11_4.h>
+#include <D3D12MemAlloc.h>
 #include <ShlObj.h>
 #include <winrt/Windows.Graphics.Capture.h>
 
 namespace Magpie {
 
 class D3D12Context;
-class DuplicateFrameChecker;
 
 enum class FrameSourceState {
 	WaitingForFirstFrame,
@@ -97,7 +98,7 @@ private:
 	SmallVector<RectU> _latestFrameDirtyRects;
 
 	std::vector<std::pair<ID3D11Texture2D*, winrt::com_ptr<ID3D12Resource>>> _captureFrameResourceTable;
-	std::unique_ptr<DuplicateFrameChecker> _duplicateFrameChecker;
+	std::optional<DuplicateFrameChecker> _duplicateFrameChecker;
 	winrt::Windows::Graphics::Capture::Direct3D11CaptureFrame _newFrame{ nullptr };
 	SmallVector<RectU> _newFrameDirtyRects;
 	uint32_t _newCaptureFrameResourceIdx = 0;
@@ -126,6 +127,8 @@ private:
 	};
 
 	std::vector<_FrameResourceSlot> _slots;
+	// 存储所有输出纹理
+	winrt::com_ptr<D3D12MA::Allocation> _outputAllocation;
 	uint32_t _curFrameIdx = 0;
 	
 	D3D12_BOX _frameBox{};

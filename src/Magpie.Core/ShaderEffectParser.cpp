@@ -515,46 +515,6 @@ static bool ResolveHeaderSortName(
 	return true;
 }
 
-static bool ResolveHeaderUse(
-	std::string_view& source,
-	ParserState& state,
-	void* data
-) noexcept {
-	std::string_view flags;
-	if (!GetNextStringUntilLineEnd<false>(source, state, flags)) {
-		return false;
-	}
-
-	static constexpr std::array FLAG_INFOS = {
-		std::make_pair("DYNAMIC", EffectFlags::UseDynamic)
-	};
-
-	std::bitset<FLAG_INFOS.size()> processed;
-
-	for (std::string_view& token : StrHelper::Split(flags, ',')) {
-		StrHelper::Trim(token);
-		std::string flag = StrHelper::ToUpperCase(token);
-
-		auto it = std::find_if(FLAG_INFOS.begin(), FLAG_INFOS.end(), [&](const auto& flagInfo) {
-			return flagInfo.first == flag;
-		});
-		if (it != FLAG_INFOS.end()) {
-			size_t idx = it - FLAG_INFOS.begin();
-
-			if (processed[idx]) {
-				return false;
-			}
-			processed[idx] = true;
-
-			((EffectInfo*)data)->flags |= it->second;
-		} else {
-			Logger::Get().Warn(StrHelper::Concat("未知的 USE 标志: ", token));
-		}
-	}
-
-	return true;
-}
-
 static bool ResolveHeaderCapability(
 	std::string_view& source,
 	ParserState& state,
@@ -616,7 +576,6 @@ static bool ResolveHeaderBlock(
 	static constexpr std::array COMMAND_INFOS = {
 		CommandInfo{ "VERSION", ResolveHeaderVersion, true },
 		CommandInfo{ "SORT_NAME", ResolveHeaderSortName, false },
-		CommandInfo{ "USE", ResolveHeaderUse, false },
 		CommandInfo{ "CAPABILITY", ResolveHeaderCapability, false },
 		CommandInfo{ "SCALE_FACTOR", ResolveHeaderScaleFactor, false },
 	};
@@ -1275,7 +1234,7 @@ static bool ResolvePassBlock(
 	ShaderEffectDrawInfo& drawInfo
 ) noexcept {
 	// Pass 序号从 1 开始
-	size_t passIdxBase1;
+	uint64_t passIdxBase1;
 	if (!GetNextNumber(source, state, passIdxBase1)) {
 		return false;
 	}
@@ -1341,10 +1300,36 @@ static bool ResolvePassBlock(
 		return false;
 	}
 
-	// 最后一个通道的输出只能是 OUTPUT
 	if (passIdxBase1 == drawInfo.passes.size()) {
+		// 最后一个通道的输出只能是 OUTPUT
 		if (curPassDesc.outputs.size() != 1 || curPassDesc.outputs[0] != 1) {
 			state.errorMsg = "最后一个通道的输出只能是 OUTPUT";
+			return false;
+		}
+	} else {
+		// 只有最后一个通道能写入 OUTPUT
+		if (Contains(curPassDesc.outputs, 1u)) {
+			state.errorMsg = "只有最后一个通道能写入 OUTPUT";
+			return false;
+		}
+	}
+
+	// 中间纹理必须先写入再读取
+	for (uint32_t input : curPassDesc.inputs) {
+		if (input < 2 || !drawInfo.textures[(uint64_t)input - 2].source.empty()) {
+			continue;
+		}
+
+		bool isWritten = false;
+		for (uint64_t i = 0, end = passIdxBase1 - 1; i < end; ++i) {
+			if (Contains(drawInfo.passes[i].outputs, input)) {
+				isWritten = true;
+				break;
+			}
+		}
+		if (!isWritten) {
+			state.errorMsg = fmt::format("纹理 {} 未写入就读取",
+				drawInfo.textures[(size_t)input - 2].name);
 			return false;
 		}
 	}

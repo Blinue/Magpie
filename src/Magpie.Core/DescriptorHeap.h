@@ -44,7 +44,7 @@ private:
 	wil::srwlock _freeBlocksLock;
 
 	// end(offset+size) -> size
-	// 以 offset+size 作为键可以大大降低删除和插入键的频率
+	// 以 end 作为键可以大大降低删除和插入键的频率
 #ifdef _DEBUG
 	// phmap::btree_map 没有 natvis，调试不方便
 	std::map<uint32_t, uint32_t> _freeBlocks;

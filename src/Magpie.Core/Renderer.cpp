@@ -41,6 +41,109 @@ static void SetGpuPriority() noexcept {
 	}
 }
 
+static void LogDeviceInfo(const D3D12Context& d3d12Context) noexcept {
+	std::string_view featureLevel = "未知";
+	{
+		D3D_FEATURE_LEVEL featureLevels[] = {
+			D3D_FEATURE_LEVEL_12_2,
+			D3D_FEATURE_LEVEL_12_1,
+			D3D_FEATURE_LEVEL_12_0,
+			D3D_FEATURE_LEVEL_11_1,
+			D3D_FEATURE_LEVEL_11_0
+		};
+		D3D12_FEATURE_DATA_FEATURE_LEVELS featureData = {
+			.NumFeatureLevels = (UINT)std::size(featureLevels),
+			.pFeatureLevelsRequested = featureLevels
+		};
+		HRESULT hr = d3d12Context.CheckFeatureSupport(
+			D3D12_FEATURE_FEATURE_LEVELS, &featureData, sizeof(featureData));
+		if (SUCCEEDED(hr)) {
+			switch (featureData.MaxSupportedFeatureLevel) {
+			case D3D_FEATURE_LEVEL_12_2:
+				featureLevel = "12.2";
+				break;
+			case D3D_FEATURE_LEVEL_12_1:
+				featureLevel = "12.1";
+				break;
+			case D3D_FEATURE_LEVEL_12_0:
+				featureLevel = "12.0";
+				break;
+			case D3D_FEATURE_LEVEL_11_1:
+				featureLevel = "11.1";
+				break;
+			case D3D_FEATURE_LEVEL_11_0:
+				featureLevel = "11.0";
+				break;
+			default:
+				break;
+			}
+		} else {
+			Logger::Get().ComWarn("D3D12Context::CheckFeatureSupport 失败", hr);
+		}
+	}
+
+	std::string_view shaderModel = "未知";
+	switch (d3d12Context.GetShaderModel()) {
+	case D3D_SHADER_MODEL_6_10:
+		shaderModel = "6.10";
+		break;
+	case D3D_SHADER_MODEL_6_9:
+		shaderModel = "6.9";
+		break;
+	case D3D_SHADER_MODEL_6_8:
+		shaderModel = "6.8";
+		break;
+	case D3D_SHADER_MODEL_6_7:
+		shaderModel = "6.7";
+		break;
+	case D3D_SHADER_MODEL_6_6:
+		shaderModel = "6.6";
+		break;
+	case D3D_SHADER_MODEL_6_5:
+		shaderModel = "6.5";
+		break;
+	case D3D_SHADER_MODEL_6_4:
+		shaderModel = "6.4";
+		break;
+	case D3D_SHADER_MODEL_6_3:
+		shaderModel = "6.3";
+		break;
+	case D3D_SHADER_MODEL_6_2:
+		shaderModel = "6.2";
+		break;
+	case D3D_SHADER_MODEL_6_1:
+		shaderModel = "6.1";
+		break;
+	case D3D_SHADER_MODEL_6_0:
+		shaderModel = "6.0";
+		break;
+	case D3D_SHADER_MODEL_5_1:
+		shaderModel = "5.1";
+		break;
+	default:
+		break;
+	}
+
+	constexpr const char* boolStrs[] = { "否","是" };
+
+	Logger::Get().Info(fmt::format(R"(已创建 D3D12 设备
+	功能级别: {}
+	shader model 版本: {}
+	根签名版本: {}
+	集成显卡: {}
+	Resizable BAR 支持: {}
+	min16float 支持: {}
+	原生 16 位标量支持: {})",
+		featureLevel,
+		shaderModel,
+		d3d12Context.GetRootSignatureVersion() == D3D_ROOT_SIGNATURE_VERSION_1_1 ? "1.1" : "1.0",
+		boolStrs[d3d12Context.IsUMA()],
+		boolStrs[d3d12Context.IsGPUUploadHeapSupported()],
+		boolStrs[d3d12Context.IsMinFloat16Supported()],
+		boolStrs[d3d12Context.IsNative16BitSupported()]
+	));
+}
+
 ScalingError Renderer::Initialize(
 	HWND hwndAttach,
 	HMONITOR hMonitor,
@@ -60,7 +163,8 @@ ScalingError Renderer::Initialize(
 		D3D12_COMMAND_QUEUE_PRIORITY_HIGH,
 		D3D12_COMMAND_LIST_TYPE_DIRECT,
 		_csuDescriptorHeap,
-		_rtvDescriptorHeap
+		_rtvDescriptorHeap,
+		_gpuResourceManager
 	)) {
 		Logger::Get().Error("初始化 D3D12Context 失败");
 		return ScalingError::ScalingFailedGeneral;
@@ -111,6 +215,26 @@ ScalingError Renderer::Initialize(
 		Logger::Get().Error("DescriptorHeap::Initialize 失败");
 		return ScalingError::ScalingFailedGeneral;
 	}
+
+	{
+#ifdef _DEBUG
+		// D3D12MA 使用了已废弃的 ID3D12Device::CheckFeatureSupport
+		_d3d12Context.PushDebugLayerWarnings(std::array{ D3D12_MESSAGE_ID_DEPRECATED_API });
+		auto se = wil::scope_exit([&] { _d3d12Context.PopDebugLayerWarnings(); });
+#endif
+
+		if (!_gpuResourceManager.Initialize(
+			_d3d12Context.GetDevice(),
+			_d3d12Context.GetDXGIAdapter(),
+			_csuDescriptorHeap,
+			_rtvDescriptorHeap
+		)) {
+			Logger::Get().Error("GpuResourceManager::Initialize 失败");
+			return ScalingError::ScalingFailedGeneral;
+		}
+	}
+	
+	LogDeviceInfo(_d3d12Context);
 
 	_graphicsContext.Initialize(_d3d12Context);
 
@@ -553,6 +677,10 @@ HRESULT Renderer::_RenderImpl(HCURSOR hCursor, POINT cursorPos, bool waitForGpu)
 		assert(false);
 		return S_OK;
 	}
+
+	auto& gpuResourceManager = _d3d12Context.GetGpuResourceManager();
+	gpuResourceManager.OnFrameCompleted(completedFenceValue, true);
+	gpuResourceManager.OnFrameBegan(frameFenceValue, true);
 
 	// SwapChain::BeginFrame 和 D3D12Context::BeginFrame 无顺序要求，不过
 	// 前者通常等待时间更久，将它放在前面可以减少等待次数。

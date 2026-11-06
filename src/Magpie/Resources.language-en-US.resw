@@ -1147,4 +1147,7 @@
   <data name="Root_ProfileFlyout_DeleteConfirmationText" xml:space="preserve">
     <value>Are you sure you want to delete "{}"?</value>
   </data>
+  <data name="Home_Advanced_DeveloperOptions_DisableResourceAliasing.Content" xml:space="preserve">
+    <value>Disable resource aliasing</value>
+  </data>
 </root>

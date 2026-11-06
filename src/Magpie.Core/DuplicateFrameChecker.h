@@ -46,7 +46,7 @@ private:
 	winrt::com_ptr<ID3D11SamplerState> _sampler;
 	std::vector<winrt::com_ptr<ID3D11ShaderResourceView>> _frameSrvs;
 
-	uint32_t _oldFrameIdx = std::numeric_limits<uint32_t>::max();
+	uint32_t _oldFrameIdx = UINT_MAX;
 	uint32_t _curTargetValue = 0;
 
 	// 用于检查重复帧

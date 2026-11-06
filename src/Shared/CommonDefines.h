@@ -41,6 +41,11 @@ bool IsApprox(T l, T r) noexcept {
 	return std::abs(l - r) < FLOAT_EPSILON<T>;
 }
 
+template <typename C, typename T, std::enable_if_t<std::is_constructible_v<std::span<const T>, C>, int> = 0>
+bool Contains(const C& container, const T& value) noexcept {
+	return std::find(container.begin(), container.end(), value) != container.end();
+}
+
 // 单位为微秒
 template <typename Fn>
 uint32_t Measure(const Fn& func) noexcept {

@@ -51,7 +51,9 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="EffectsMemPoolBuilder.h" />
     <ClInclude Include="EffectTextureFormat.h" />
+    <ClInclude Include="GpuResourceManager.h" />
     <ClInclude Include="include\AppXReader.h" />
     <ClInclude Include="include\resource.h" />
     <ClInclude Include="include\ScreenshotFilenameTemplateHelper.h" />
@@ -70,6 +72,7 @@
     <ClInclude Include="MemStream.h" />
     <ClInclude Include="OverlayDrawer.h" />
     <ClInclude Include="OverlayHelper.h" />
+    <ClInclude Include="ScreenshotDrawer.h" />
     <ClInclude Include="TextureHelper.h" />
     <ClInclude Include="DirtyRectsOptimizer.h" />
     <ClInclude Include="DuplicateFrameChecker.h" />
@@ -106,6 +109,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AppXReader.cpp" />
+    <ClCompile Include="EffectsMemPoolBuilder.cpp" />
+    <ClCompile Include="GpuResourceManager.cpp" />
     <ClCompile Include="KeepScreenOnHelper.cpp" />
     <ClCompile Include="AppFolderManager.cpp" />
     <ClCompile Include="CatmullRomDrawer.cpp" />
@@ -115,6 +120,7 @@
     <ClCompile Include="ImGuiBackend.cpp" />
     <ClCompile Include="ImGuiImpl.cpp" />
     <ClCompile Include="OverlayDrawer.cpp" />
+    <ClCompile Include="ScreenshotDrawer.cpp" />
     <ClCompile Include="TextureHelper.cpp" />
     <ClCompile Include="DirtyRectsOptimizer.cpp" />
     <ClCompile Include="DuplicateFrameChecker.cpp" />
@@ -210,8 +216,6 @@
     <ItemGroup>
       <FxCompile>
         <ShaderModel>5.1</ShaderModel>
-        <VariableName>%(Filename)_SM5</VariableName>
-        <HeaderFileOutput>$(GeneratedFilesDir)\shaders\%(Filename)_SM5.h</HeaderFileOutput>
       </FxCompile>
       <!-- 检查重复帧的着色器由 D3D11 使用 -->
       <FxCompile Include="shaders\DuplicateFrameCS.hlsl">
@@ -222,9 +226,41 @@
         <ShaderType>Compute</ShaderType>
         <ShaderModel>5.0</ShaderModel>
       </FxCompile>
+      <FxCompile>
+        <VariableName>%(Filename)_SM5</VariableName>
+        <HeaderFileOutput>$(GeneratedFilesDir)\shaders\%(Filename)_SM5.h</HeaderFileOutput>
+      </FxCompile>
     </ItemGroup>
     <!-- 和 FxCompile 一致，不传 ToolPath 和 AdditionalOptions 是刻意为之 -->
-    <FXC Condition="'%(FxCompile.ExcludedFromBuild)' != 'true'" Source="%(FxCompile.Identity)" AdditionalIncludeDirectories="%(FxCompile.AdditionalIncludeDirectories)" SuppressStartupBanner="%(FxCompile.SuppressStartupBanner)" EntryPointName="%(FxCompile.EntryPointName)" TreatWarningAsError="%(FxCompile.TreatWarningAsError)" ShaderType="%(FxCompile.ShaderType)" ShaderModel="%(FxCompile.ShaderModel)" AllResourcesBound="%(FxCompile.AllResourcesBound)" EnableUnboundedDescriptorTables="%(FxCompile.EnableUnboundedDescriptorTables)" SetRootSignature="%(FxCompile.SetRootSignature)" PreprocessorDefinitions="%(FxCompile.PreprocessorDefinitions)" HeaderFileOutput="%(FxCompile.HeaderFileOutput)" ObjectFileOutput="%(FxCompile.ObjectFileOutput)" AssemblerOutput="%(FxCompile.AssemblerOutput)" AssemblerOutputFile="%(FxCompile.AssemblerOutputFile)" VariableName="%(FxCompile.VariableName)" DisableOptimizations="%(FxCompile.DisableOptimizations)" EnableDebuggingInformation="%(FxCompile.EnableDebuggingInformation)" ConsumeExportFile="%(FxCompile.ConsumeExportFile)" ExcludedInputPaths="%(FxCompile.ExcludedInputPaths)" ToolArchitecture="$(FxCompileToolArchitecture)" TrackerLogDirectory="%(FxCompile.TrackerLogDirectory)" TrackedInputFilesToIgnore="@(FxCompileNoDependencies)" TrackedOutputFilesToIgnore="@(FxTrackedOutputFilesToIgnore)" TrackFileAccess="$(TrackFileAccess)" MinimalRebuildFromTracking="%(FxCompile.MinimalRebuildFromTracking)" />
+    <FXC
+        Condition                       = "'%(FxCompile.ExcludedFromBuild)' != 'true'"
+        Source                          = "%(FxCompile.Identity)"
+        AdditionalIncludeDirectories    = "%(FxCompile.AdditionalIncludeDirectories)"
+        SuppressStartupBanner           = "%(FxCompile.SuppressStartupBanner)"
+        EntryPointName                  = "%(FxCompile.EntryPointName)"
+        TreatWarningAsError             = "%(FxCompile.TreatWarningAsError)"
+        ShaderType                      = "%(FxCompile.ShaderType)"
+        ShaderModel                     = "%(FxCompile.ShaderModel)"
+        AllResourcesBound               = "%(FxCompile.AllResourcesBound)"
+        EnableUnboundedDescriptorTables = "%(FxCompile.EnableUnboundedDescriptorTables)"
+        SetRootSignature                = "%(FxCompile.SetRootSignature)"
+        PreprocessorDefinitions         = "%(FxCompile.PreprocessorDefinitions)"
+        HeaderFileOutput                = "%(FxCompile.HeaderFileOutput)"
+        ObjectFileOutput                = "%(FxCompile.ObjectFileOutput)"
+        AssemblerOutput                 = "%(FxCompile.AssemblerOutput)"
+        AssemblerOutputFile             = "%(FxCompile.AssemblerOutputFile)"
+        VariableName                    = "%(FxCompile.VariableName)"
+        DisableOptimizations            = "%(FxCompile.DisableOptimizations)"
+        EnableDebuggingInformation      = "%(FxCompile.EnableDebuggingInformation)"
+        ConsumeExportFile               = "%(FxCompile.ConsumeExportFile)"
+        ExcludedInputPaths              = "%(FxCompile.ExcludedInputPaths)"
+        ToolArchitecture                = "$(FxCompileToolArchitecture)"
+        TrackerLogDirectory             = "%(FxCompile.TrackerLogDirectory)"
+        TrackedInputFilesToIgnore       = "@(FxCompileNoDependencies)"
+        TrackedOutputFilesToIgnore      = "@(FxTrackedOutputFilesToIgnore)"
+        TrackFileAccess                 = "$(TrackFileAccess)"
+        MinimalRebuildFromTracking      = "%(FxCompile.MinimalRebuildFromTracking)"
+    />
   </Target>
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\packages\Microsoft.Windows.CppWinRT.3.0.260818.1\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('..\..\packages\Microsoft.Windows.CppWinRT.3.0.260818.1\build\native\Microsoft.Windows.CppWinRT.targets')" />

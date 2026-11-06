@@ -3,7 +3,9 @@
 #include "D3D12Context.h"
 #include "DescriptorHeap.h"
 #include "DirectXHelper.h"
+#include "EffectsMemPoolBuilder.h"
 #include "EffectsService.h"
+#include "GpuResourceManager.h"
 #include "Logger.h"
 #include "TextureHelper.h"
 #include "ScalingOptions.h"
@@ -22,9 +24,8 @@ namespace Magpie {
 
 ShaderEffectDrawer::~ShaderEffectDrawer() noexcept {
 #ifdef _DEBUG
-	if (_descriptorBaseOffset != std::numeric_limits<uint32_t>::max()) {
-		_d3d12Context->GetDescriptorHeap().Free(
-			_descriptorBaseOffset, (uint32_t)_textureDescriptorMap.size());
+	if (_descriptorBaseOffset != UINT_MAX) {
+		_d3d12Context->GetDescriptorHeap().Free(_descriptorBaseOffset, _descriptorCount);
 	}
 #endif
 
@@ -33,9 +34,10 @@ ShaderEffectDrawer::~ShaderEffectDrawer() noexcept {
 	}
 }
 
-const EffectInfo* ShaderEffectDrawer::Initialize(
+HRESULT ShaderEffectDrawer::Initialize(
 	D3D12Context& d3d12Context,
-	const EffectOption& effectOption
+	const EffectOption& effectOption,
+	EffectDrawerInfo& effectDrawerInfo
 ) noexcept {
 	_d3d12Context = &d3d12Context;
 	_effectOption = &effectOption;
@@ -43,10 +45,13 @@ const EffectInfo* ShaderEffectDrawer::Initialize(
 	_effectInfo = EffectsService::Get().GetEffect(effectOption.name);
 	if (!_effectInfo) {
 		Logger::Get().Error("EffectsService::GetEffect 失败");
-		return nullptr;
+		return E_FAIL;
 	}
 
-	return _effectInfo;
+	effectDrawerInfo.scaleFactor = _effectInfo->scaleFactor;
+	effectDrawerInfo.minFrameRate = _effectInfo->minFrameRate;
+	effectDrawerInfo.flags = EffectDrawerFlags::SupportOutputAliasing;
+	return S_OK;
 }
 
 void ShaderEffectDrawer::Bind(SizeU inputSize, SizeU outputSize, const ColorInfo& colorInfo) noexcept {
@@ -55,6 +60,7 @@ void ShaderEffectDrawer::Bind(SizeU inputSize, SizeU outputSize, const ColorInfo
 		(inputSize.width * _effectInfo->scaleFactor != outputSize.width ||
 			inputSize.height * _effectInfo->scaleFactor != outputSize.height)));
 
+	// 如果上一次计算的纹理尺寸不合法则再次尝试
 	if (_error != _Error::NoError && _error != _Error::InvalidTextureSize) {
 		return;
 	}
@@ -70,11 +76,8 @@ void ShaderEffectDrawer::Bind(SizeU inputSize, SizeU outputSize, const ColorInfo
 	} else {
 		_inputSize = inputSize;
 		_outputSize = outputSize;
-		_shouldUpdateSizeDependentResources = true;
+		_shouldUpdateTextures = true;
 	}
-
-	// 如果上一次计算的纹理尺寸不合法则再次尝试
-	_error = _Error::NoError;
 
 	bool wasSrgb = _acKind != winrt::AdvancedColorKind::StandardDynamicRange;
 	bool isSrgb = colorInfo.kind != winrt::AdvancedColorKind::StandardDynamicRange;
@@ -82,6 +85,8 @@ void ShaderEffectDrawer::Bind(SizeU inputSize, SizeU outputSize, const ColorInfo
 	_acKind = colorInfo.kind;
 	_maxLuminance = colorInfo.maxLuminance;
 	_sdrWhiteLevel = colorInfo.sdrWhiteLevel;
+
+	_error = _Error::NoError;
 
 	if (!_compilationTaskId.empty()) {
 		if (wasSrgb == isSrgb) {
@@ -91,6 +96,8 @@ void ShaderEffectDrawer::Bind(SizeU inputSize, SizeU outputSize, const ColorInfo
 		EffectsService::Get().ReleaseTask(_compilationTaskId);
 		_drawInfo = nullptr;
 	}
+
+	_shouldUpdateTextures = true;
 
 	const ScalingOptions& options = ScalingWindow::Get().Options();
 	_compilationTaskId = EffectsService::Get().SubmitCompileShaderEffectTask(
@@ -116,19 +123,9 @@ HRESULT ShaderEffectDrawer::Update(EffectDrawerState& state, EffectDebugInfo& de
 		return S_OK;
 	}
 
-	if (_drawInfo) {
-		if (_shouldUpdateSizeDependentResources) {
-			HRESULT hr = _UpdateSizeDependentResources();
-			if (FAILED(hr)) {
-				Logger::Get().ComError("_UpdateSizeDependentResources 失败", hr);
-				return hr;
-			} else if (hr == S_FALSE) {
-				assert(_error != _Error::NoError);
-				state = EffectDrawerState::Error;
-				return S_OK;
-			}
-		}
-	} else {
+	bool shouldBuildMemPool = false;
+
+	if (!_drawInfo) {
 		if (!EffectsService::Get().GetTaskResult(_compilationTaskId, &_drawInfo)) {
 			_error = _Error::CompilationFailed;
 			state = EffectDrawerState::Error;
@@ -140,16 +137,55 @@ HRESULT ShaderEffectDrawer::Update(EffectDrawerState& state, EffectDebugInfo& de
 			return S_OK;
 		}
 
-		HRESULT hr = _CreateDeviceResources();
+		// 初始化不会改变的资源
+		HRESULT hr = _InitializeCommonResources();
 		if (FAILED(hr)) {
-			Logger::Get().ComError("_CreateDeviceResources 失败", hr);
+			Logger::Get().ComError("_InitializeCommonResources 失败", hr);
 			return hr;
-		} else if (hr == S_FALSE) {
-			assert(_error != _Error::NoError);
+		}
+
+		if (_error != _Error::NoError) {
 			state = EffectDrawerState::Error;
 			return S_OK;
 		}
+		
+		hr = _CreatePSOs();
+		if (FAILED(hr)) {
+			Logger::Get().ComError("_CreatePSOs 失败", hr);
+			return hr;
+		}
+
+		if (_hasNonPersistentResource) {
+			// 如果有纹理的格式变了则需要重新构建内存池
+			for (const ShaderEffectTextureDesc& effectTexDesc : _drawInfo->textures) {
+				if (effectTexDesc.format == EffectTextureFormat::COLOR_SPACE_ADAPTIVE) {
+					shouldBuildMemPool = true;
+					break;
+				}
+			}
+		}
 	}
+
+	if (_shouldUpdateTextures) {
+		_shouldUpdateTextures = false;
+
+		if (_hasNonPersistentResource) {
+			if (_ComputeNonPersistentTextureSizes()) {
+				shouldBuildMemPool = true;
+			}
+			
+			if (_error != _Error::NoError) {
+				state = EffectDrawerState::Error;
+				return S_OK;
+			}
+		}
+		
+		_UpdateConstants();
+
+		_ComputeDispatchCounts();
+	}
+
+	state = shouldBuildMemPool ? EffectDrawerState::WantUpdateResources : EffectDrawerState::Ready;
 
 	if (debugInfo.passInfos.empty()) {
 		uint32_t passCount = (uint32_t)_drawInfo->passes.size();
@@ -174,7 +210,152 @@ HRESULT ShaderEffectDrawer::Update(EffectDrawerState& state, EffectDebugInfo& de
 		}
 	}
 	
-	state = EffectDrawerState::Ready;
+	return S_OK;
+}
+
+// 每个通道的输出纹理都重新申请，同时当某个纹理的内容不再被需要就将它释放。每次重新申请可能
+// 会获得不同的偏移量，这意味着一个 ShaderEffectTextureDesc 可能对应多个纹理资源。
+// 示例:
+// 通道 1: INPUT       -> tex1   | 申请 tex1
+// 通道 2: INPUT, tex1 -> tex2   | 申请 tex2，释放 INPUT (不再使用) 和 tex1 (不再读取)
+// 通道 3: tex2        -> tex1   | 申请 tex1，倒数第二个通道无需释放
+// 通道 4: tex1        -> OUTPUT | 最后一个通道无需申请和释放
+void ShaderEffectDrawer::BuildMemPool(EffectsMemPoolBuilder& memPoolBuilder) noexcept {
+	assert(_error == _Error::NoError && _drawInfo);
+
+	if (!_hasNonPersistentResource) {
+		return;
+	}
+
+	uint32_t passCount = (uint32_t)_drawInfo->passes.size();
+	uint32_t textureCount = (uint32_t)_drawInfo->textures.size();
+	if (passCount == 1 || textureCount == 0) {
+		return;
+	}
+
+	ID3D12Device5* device = _d3d12Context->GetDevice();
+	SmallVector<D3D12_RESOURCE_ALLOCATION_INFO> allocInfos(textureCount);
+
+	// 计算每个纹理的大小和对齐
+	for (uint32_t i = 0; i < textureCount; ++i) {
+		DXGI_FORMAT dxgiFormat = _GetDxgiFormat(_drawInfo->textures[i].format);
+		SizeU texSize = _textureSizes[i];
+		
+		CD3DX12_RESOURCE_DESC resDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+			dxgiFormat, texSize.width, texSize.height, 1, 1, 1, 0,
+			D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+
+		allocInfos[i] = device->GetResourceAllocationInfo(0, 1, &resDesc);
+	}
+
+	SmallVector<uint32_t> texIdxToResId(textureCount, UINT_MAX);
+
+	// 检查是否所有通道都不读取 INPUT
+	{
+		bool canDiscardInput = true;
+		for (uint32_t i = 0; i < passCount; ++i) {
+			if (Contains(_drawInfo->passes[i].inputs, 0u)) {
+				canDiscardInput = false;
+				break;
+			}
+		}
+		if (canDiscardInput) {
+			memPoolBuilder.DiscardInput();
+		}
+	}
+	
+	for (uint32_t i = 0;; ++i) {
+		const ShaderEffectPassDesc& passDesc = _drawInfo->passes[i];
+
+		// 分配输出纹理内存
+		for (uint32_t output : passDesc.outputs) {
+			assert(output >= 2);
+			uint32_t texIdx = output - 2;
+			texIdxToResId[texIdx] = memPoolBuilder.AllocResource(allocInfos[texIdx]);
+		}
+
+		// 最后一个通道只会输出到 OUTPUT，因此无需分配和释放纹理。倒数第二个通道不需要释放纹理。
+		if (i + 2 == passCount) {
+			break;
+		}
+
+		// 如果之后的通道不读取当前输入纹理则可以释放。注意应在分配输出纹理后释放，否则输入
+		// 和输出内存可能重叠。
+		for (uint32_t input : passDesc.inputs) {
+			assert(input != 1);
+
+			// 从文件读取的纹理不能释放内存
+			if (input >= 2 && !_drawInfo->textures[(size_t)input - 2].source.empty()) {
+				continue;
+			}
+
+			// 之后的通道以当前纹理为输入则不能释放，为输出则可以释放。如果之后的通道不使用
+			// 当前纹理也可以释放。
+			bool canDiscard = true;
+			for (uint32_t j = i + 1; j < passCount; ++j) {
+				const ShaderEffectPassDesc& passDesc1 = _drawInfo->passes[j];
+
+				if (Contains(passDesc1.inputs, input)) {
+					canDiscard = false;
+					break;
+				}
+
+				if (Contains(passDesc1.outputs, input)) {
+					break;
+				}
+			}
+			if (canDiscard) {
+				if (input == 0) {
+					memPoolBuilder.DiscardInput();
+				} else {
+					assert(texIdxToResId[(size_t)input - 2] != UINT_MAX);
+					memPoolBuilder.DiscardResource(texIdxToResId[(size_t)input - 2]);
+				}
+			}
+		}
+	}
+}
+
+HRESULT ShaderEffectDrawer::CreateResourcesInMemPool(
+	D3D12MA::Allocation* textureAllocation,
+	D3D12MA::Allocation* /*bufferAllocation*/,
+	std::span<const uint64_t> resourceOffsets
+) noexcept {
+	assert(_error == _Error::NoError && _drawInfo);
+
+	if (!_hasNonPersistentResource) {
+		return S_OK;
+	}
+
+	// 退休旧资源
+	{
+		auto& gpuResourceMaanger = _d3d12Context->GetGpuResourceManager();
+
+		const uint32_t texResCount = (uint32_t)_textureResourceDatas.size();
+		for (uint32_t i = _persistentResourceCount; i < texResCount; ++i) {
+			gpuResourceMaanger.RetireResource(std::move(_textureResourceDatas[i].resource), false);
+		}
+		_textureResourceDatas.resize(_persistentResourceCount);
+
+		if (_descriptorBaseOffset != UINT_MAX) {
+			gpuResourceMaanger.RetireDescriptors(
+				_descriptorBaseOffset, _descriptorCount, false, false);
+			_descriptorBaseOffset = UINT_MAX;
+		}
+	}
+	
+	HRESULT hr = _CreateNonPersistentResources(textureAllocation, resourceOffsets);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("_CreateNonPersistentResources 失败", hr);
+		return hr;
+	}
+
+	hr = _CreateDescritors();
+	if (FAILED(hr)) {
+		Logger::Get().ComError("_CreateDescritors 失败", hr);
+		return hr;
+	}
+
 	return S_OK;
 }
 
@@ -182,6 +363,7 @@ HRESULT ShaderEffectDrawer::Draw(
 	ComputeContext& computeContext,
 	uint32_t inputSrvOffset,
 	uint32_t outputUavOffset,
+	ID3D12Resource* aliasedOutput,
 	EffectDrawerExportData& exportData
 ) noexcept {
 	assert(_error == _Error::NoError && _drawInfo);
@@ -193,23 +375,27 @@ HRESULT ShaderEffectDrawer::Draw(
 	if (_shouldUpdateConstantBuffer) {
 		_shouldUpdateConstantBuffer = false;
 
-		computeContext.CopyBufferRegion(_constantBuffer.get(), 0,
-			_constantUploadBuffer.get(), 0, _constantsDataSize, false);
+		computeContext.CopyBufferRegion(
+			_constantBufferAllocation->GetResource(), 0,
+			_constantUploadBufferAllocation->GetResource(), 0,
+			_constantsDataSize, false
+		);
 
 		computeContext.InsertTransitionBarrier(
-			_constantBuffer.get(),
+			_constantBufferAllocation->GetResource(),
 			D3D12_RESOURCE_STATE_COPY_DEST,
 			D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER
 		);
 	}
 
 	if (!_textureSourceDatas.empty()) {
-		for (const _TextureSourceData& sourceData : _textureSourceDatas) {
-			if (_textureStates[sourceData.targetTextureIdx] != D3D12_RESOURCE_STATE_COPY_DEST) {
-				continue;
-			}
+		auto& gpuResourceManager = _d3d12Context->GetGpuResourceManager();
 
-			const ShaderEffectTextureDesc& effectTexDesc = _drawInfo->textures[sourceData.targetTextureIdx];
+		for (_TextureSourceData& sourceData : _textureSourceDatas) {
+			_TextureResourceData& texResData = _textureResourceDatas[sourceData.targetTexResIdx];
+			assert(texResData.state == D3D12_RESOURCE_STATE_COPY_DEST);
+
+			const ShaderEffectTextureDesc& effectTexDesc = _drawInfo->textures[sourceData.targetTexResIdx];
 			DXGI_FORMAT format = EFFECT_TEXTURE_FORMAT_PROPS[(uint32_t)effectTexDesc.format].dxgiFormat;
 
 			CD3DX12_RESOURCE_DESC texDesc = CD3DX12_RESOURCE_DESC::Tex2D(
@@ -220,64 +406,84 @@ HRESULT ShaderEffectDrawer::Draw(
 				&textureLayout, nullptr, nullptr, nullptr);
 
 			computeContext.CopyTextureRegion(
-				CD3DX12_TEXTURE_COPY_LOCATION(_textures[sourceData.targetTextureIdx].get()),
+				CD3DX12_TEXTURE_COPY_LOCATION(texResData.resource.get()),
 				0,
 				0,
-				CD3DX12_TEXTURE_COPY_LOCATION(sourceData.uploadBuffer.get(), textureLayout)
+				CD3DX12_TEXTURE_COPY_LOCATION(sourceData.uploadBufferAllocation->GetResource(), textureLayout)
 			);
 
-			computeContext.InsertTransitionBarrier(
-				_textures[sourceData.targetTextureIdx].get(),
-				D3D12_RESOURCE_STATE_COPY_DEST,
-				D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE
-			);
-			_textureStates[sourceData.targetTextureIdx] = D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+			gpuResourceManager.RetireResource(std::move(sourceData.uploadBufferAllocation), false);
 		}
+
+		_textureSourceDatas.clear();
 	}
 
 	const uint32_t passCount = (uint32_t)_passDatas.size();
 
-	for (uint32_t i = 0; i < passCount; ++i) {
-		const _PassData& curPassData = _passDatas[i];
-		const ShaderEffectPassDesc& curPassDesc = _drawInfo->passes[i];
+	for (uint32_t passIdx = 0; passIdx < passCount; ++passIdx) {
+		const _PassData& curPassData = _passDatas[passIdx];
+		const ShaderEffectPassDesc& curPassDesc = _drawInfo->passes[passIdx];
+		const uint64_t inputCount = curPassData.inputTexResIdxes.size();
+		const uint64_t outputCount = curPassData.outputTexResIdxes.size();
 
 		computeContext.SetPipelineState(curPassData.pso.get());
 		computeContext.SetRootSignature(curPassData.rootSignature.get());
 
 		// 合并状态转换
-		for (uint32_t input : curPassDesc.inputs) {
-			if (input == 0) {
+		for (size_t i = 0; i < inputCount; ++i) {
+			uint32_t inputTexResIdx = curPassData.inputTexResIdxes[i];
+
+			// INPUT 是 UINT_MAX
+			if (inputTexResIdx == UINT_MAX) {
+				assert(curPassDesc.inputs[i] == 0);
 				continue;
 			}
 
-			auto oldState = std::exchange(_textureStates[size_t(input - 2)],
-				D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+			_TextureResourceData& texResData = _textureResourceDatas[inputTexResIdx];
+
+			D3D12_RESOURCE_STATES oldState =
+				std::exchange(texResData.state, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 			if (oldState != D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE) {
 				computeContext.InsertTransitionBarrier(
-					_textures[size_t(input - 2)].get(),
+					texResData.resource.get(),
 					oldState,
 					D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE
 				);
 			}
 		}
 
-		for (uint32_t output : curPassDesc.outputs) {
-			if (output == 1) {
+		for (size_t i = 0; i < outputCount; ++i) {
+			uint32_t outputTexResIdx = curPassData.outputTexResIdxes[i];
+
+			// OUTPUT 是 UINT_MAX
+			if (outputTexResIdx == UINT_MAX) {
+				assert(curPassDesc.outputs[i] == 1);
+
+				// 由于声明了 SupportOutputAliasing，我们负责为 OUTPUT 插入别名屏障
+				if (aliasedOutput) {
+					computeContext.InsertAliasingBarrier(nullptr, aliasedOutput);
+				}
+
 				continue;
 			}
 
-			auto oldState = std::exchange(_textureStates[size_t(output - 2)],
-				D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+			_TextureResourceData& texResData = _textureResourceDatas[outputTexResIdx];
+
+			computeContext.InsertAliasingBarrier(nullptr, texResData.resource.get());
+
+			D3D12_RESOURCE_STATES oldState =
+				std::exchange(texResData.state, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 			if (oldState != D3D12_RESOURCE_STATE_UNORDERED_ACCESS) {
 				computeContext.InsertTransitionBarrier(
-					_textures[size_t(output - 2)].get(),
+					texResData.resource.get(),
 					oldState,
 					D3D12_RESOURCE_STATE_UNORDERED_ACCESS
 				);
 			}
 		}
 
-		computeContext.SetComputeRootConstantBufferView(0, _constantBuffer->GetGPUVirtualAddress());
+		computeContext.SetComputeRootConstantBufferView(
+			0, _constantBufferAllocation->GetResource()->GetGPUVirtualAddress());
 
 		uint32_t rootParameterIndex = 1;
 
@@ -290,66 +496,56 @@ HRESULT ShaderEffectDrawer::Draw(
 		}
 
 		// 不需要额外的描述符时 passData.descriptorBaseOffset 为 UINT_MAX
-		if (curPassData.descriptorBaseOffset != std::numeric_limits<uint32_t>::max()) {
+		if (curPassData.descriptorBaseOffset != UINT_MAX) {
 			computeContext.SetRootDescriptorTable(rootParameterIndex++, curPassData.descriptorBaseOffset);
 		}
 
 		computeContext.Dispatch(curPassData.dispatchCount.first, curPassData.dispatchCount.second);
 
 		// 导出输出纹理
-		if ((int)i == exportData.passIdx) {
-			// 不会导出最后一个通道，因此只会导出中间纹理
+		if ((int)passIdx == exportData.passIdx) {
+			auto& gpuResourceManager = _d3d12Context->GetGpuResourceManager();
+
 			assert(curPassDesc.outputs[exportData.outputIdx] >= 2);
 			uint32_t exportTexIdx = curPassDesc.outputs[exportData.outputIdx] - 2;
-			ID3D12Resource* exportTexture = _textures[exportTexIdx].get();
+			uint32_t exportTexResIdx = curPassData.outputTexResIdxes[exportData.outputIdx];
+			// 不会导出最后一个通道，因此只会导出中间纹理
+			assert(exportTexResIdx != UINT_MAX);
 
-			ID3D12Device5* device = _d3d12Context->GetDevice();
+			_TextureResourceData& exportTexResData = _textureResourceDatas[exportTexResIdx];
 
-			{
-				D3D12_RESOURCE_DESC desc = exportTexture->GetDesc();
-				exportData.textureSize.width = (uint32_t)desc.Width;
-				exportData.textureSize.height = desc.Height;
-			}
-
+			exportData.textureSize = _textureSizes[exportTexIdx];
 			exportData.textureFormat = _drawInfo->textures[exportTexIdx].format;
+
 			const EffectTextureFormatProps& textureFormatProps =
 				EFFECT_TEXTURE_FORMAT_PROPS[(uint32_t)exportData.textureFormat];
 
-			exportData.rowPitch = DirectXHelper::Align(
-				exportData.textureSize.width * textureFormatProps.texelSize,
-				D3D12_TEXTURE_DATA_PITCH_ALIGNMENT
+			uint32_t rowSize;
+			size_t bufferSize;
+			DirectXHelper::ComputeBufferLayout(exportData.textureSize,
+				textureFormatProps.texelSize, rowSize, exportData.rowPitch, bufferSize);
+
+			HRESULT hr = gpuResourceManager.CreateBuffer(
+				D3D12_HEAP_TYPE_READBACK,
+				bufferSize,
+				D3D12_RESOURCE_STATE_COPY_DEST,
+				exportData.readbackBufferAllocation.put()
 			);
-
-			{
-				CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_READBACK);
-
-				D3D12_HEAP_FLAGS heapFlags = _d3d12Context->IsHeapFlagCreateNotZeroedSupported() ?
-					D3D12_HEAP_FLAG_CREATE_NOT_ZEROED : D3D12_HEAP_FLAG_NONE;
-
-				CD3DX12_RESOURCE_DESC bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(
-					(UINT64)exportData.rowPitch * exportData.textureSize.height);
-
-				HRESULT hr = device->CreateCommittedResource(
-					&heapProps,
-					heapFlags,
-					&bufferDesc,
-					D3D12_RESOURCE_STATE_COPY_DEST,
-					nullptr,
-					IID_PPV_ARGS(&exportData.readbackBuffer)
-				);
-				if (FAILED(hr)) {
-					Logger::Get().ComError("CreateCommittedResource 失败", hr);
-					return hr;
-				}
+			if (FAILED(hr)) {
+				Logger::Get().ComError("GpuResourceManager::CreateBuffer 失败", hr);
+				return hr;
 			}
-
-			computeContext.InsertTransitionBarrier(exportTexture,
-				D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
-			_textureStates[exportTexIdx] = D3D12_RESOURCE_STATE_COPY_SOURCE;
+			
+			computeContext.InsertTransitionBarrier(
+				exportTexResData.resource.get(),
+				D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+				D3D12_RESOURCE_STATE_COPY_SOURCE
+			);
+			exportTexResData.state = D3D12_RESOURCE_STATE_COPY_SOURCE;
 
 			computeContext.CopyTextureRegion(
 				CD3DX12_TEXTURE_COPY_LOCATION(
-					exportData.readbackBuffer.get(),
+					exportData.readbackBufferAllocation->GetResource(),
 					D3D12_PLACED_SUBRESOURCE_FOOTPRINT{
 						.Footprint = {
 							.Format = textureFormatProps.dxgiFormat,
@@ -362,7 +558,7 @@ HRESULT ShaderEffectDrawer::Draw(
 				),
 				0,
 				0,
-				CD3DX12_TEXTURE_COPY_LOCATION(exportTexture)
+				CD3DX12_TEXTURE_COPY_LOCATION(exportTexResData.resource.get())
 			);
 		}
 	}
@@ -370,17 +566,336 @@ HRESULT ShaderEffectDrawer::Draw(
 	return S_OK;
 }
 
-HRESULT ShaderEffectDrawer::_CreateDeviceResources() noexcept {
+HRESULT ShaderEffectDrawer::_InitializeCommonResources() noexcept {
+	if (!_passDatas.empty()) {
+		return S_OK;
+	}
+
+	_textureSizes.resize(_drawInfo->textures.size());
+	_passDatas.resize(_drawInfo->passes.size());
+
+	HRESULT hr = _CreatePersistentResources();
+	if (FAILED(hr)) {
+		Logger::Get().ComError("_CreatePersistentResources 失败", hr);
+		return hr;
+	} else if (hr == S_FALSE) {
+		return S_FALSE;
+	}
+
+	{
+		uint64_t passCount = _drawInfo->passes.size();
+		uint64_t textureCount = _drawInfo->textures.size();
+		SmallVector<uint32_t> texIdxToTexResIdx(textureCount, UINT_MAX);
+
+		uint32_t curTexResIdx = 0;
+		for (uint64_t i = 0; i < textureCount; ++i) {
+			if (_drawInfo->textures[i].source.empty()) {
+				_hasNonPersistentResource = true;
+			} else {
+				texIdxToTexResIdx[i] = curTexResIdx++;
+			}
+		}
+
+		for (uint64_t i = 0; i < passCount; ++i) {
+			_PassData& passData = _passDatas[i];
+			const ShaderEffectPassDesc& passDesc = _drawInfo->passes[i];
+			uint64_t inputCount = passDesc.inputs.size();
+
+			passData.inputTexResIdxes.resize(inputCount, UINT_MAX);
+			passData.outputTexResIdxes.resize(passDesc.outputs.size(), UINT_MAX);
+
+			for (uint64_t j = 0; j < inputCount; ++j) {
+				uint32_t input = passDesc.inputs[j];
+				if (input >= 2) {
+					passData.inputTexResIdxes[j] = texIdxToTexResIdx[(uint64_t)input - 2];
+				}
+			}
+		}
+	}
+
+	// 如果无需使用显存池那么描述符布局不会变，只需创建一次
+	if (!_hasNonPersistentResource) {
+		hr = _CreateDescritors();
+		if (FAILED(hr)) {
+			Logger::Get().ComError("_CreateDescritors 失败", hr);
+			return hr;
+		}
+	}
+
+	hr = _CreateConstantBuffer();
+	if (FAILED(hr)) {
+		Logger::Get().ComError("_CreateConstantBuffer 失败", hr);
+		return hr;
+	}
+
+	return S_OK;
+}
+
+// 有纹理尺寸变化时返回真
+bool ShaderEffectDrawer::_ComputeNonPersistentTextureSizes() noexcept {
+	uint32_t textureCount = (uint32_t)_drawInfo->textures.size();
+	if (textureCount == 0) {
+		return false;
+	}
+
+	std::optional<mu::Parser> exprParser;
+	bool hasSizeChange = false;
+
+	for (uint32_t i = 0; i < textureCount; ++i) {
+		const ShaderEffectTextureDesc& effectTexDesc = _drawInfo->textures[i];
+
+		// 从文件读取的纹理在 _CreatePersistentResources 中获取尺寸
+		if (!effectTexDesc.source.empty()) {
+			continue;
+		}
+
+		if (!exprParser.has_value()) {
+			exprParser.emplace();
+			exprParser->DefineConst("INPUT_WIDTH", _inputSize.width);
+			exprParser->DefineConst("INPUT_HEIGHT", _inputSize.height);
+			exprParser->DefineConst("OUTPUT_WIDTH", _outputSize.width);
+			exprParser->DefineConst("OUTPUT_HEIGHT", _outputSize.height);
+		}
+
+		SizeU texSize{};
+		try {
+			exprParser->SetExpr(effectTexDesc.widthExpr);
+			texSize.width = (uint32_t)std::max(0L, std::lround(exprParser->Eval()));
+			exprParser->SetExpr(effectTexDesc.heightExpr);
+			texSize.height = (uint32_t)std::max(0L, std::lround(exprParser->Eval()));
+		} catch (const mu::ParserError& e) {
+			Logger::Get().Error(fmt::format("计算纹理 {} 尺寸失败: {}",
+				effectTexDesc.name, e.GetMsg()));
+		}
+
+		if (texSize.width == 0 || texSize.width > D3D12_REQ_TEXTURE2D_U_OR_V_DIMENSION ||
+			texSize.height == 0 || texSize.height > D3D12_REQ_TEXTURE2D_U_OR_V_DIMENSION)
+		{
+			_error = _Error::InvalidTextureSize;
+			Logger::Get().Error(fmt::format("纹理 {} 尺寸无效", effectTexDesc.name));
+			return false;
+		}
+
+		if (std::exchange(_textureSizes[i], texSize) != texSize) {
+			hasSizeChange = true;
+		}
+	}
+
+	return hasSizeChange;
+}
+
+HRESULT ShaderEffectDrawer::_CreatePersistentResources() noexcept {
+	uint32_t textureCount = (uint32_t)_drawInfo->textures.size();
+	if (textureCount == 0) {
+		_persistentResourceCount = 0;
+		_persistentResourcesAllocation = nullptr;
+		return S_OK;
+	}
+
 	ID3D12Device5* device = _d3d12Context->GetDevice();
-	const ScalingOptions& options = ScalingWindow::Get().Options();
+	D3D12MA::Allocator* allocator = _d3d12Context->GetGpuResourceManager().GetAllocator();
+
+	struct PersistentResourceInfo {
+		CD3DX12_RESOURCE_DESC resDesc;
+		uint64_t offset;
+	};
+	SmallVector<PersistentResourceInfo> persistentResourceInfos;
+	uint64_t persistentAllocationSize = 0;
+	uint64_t persistentAllocationAlignment = 1;
+
+	for (uint32_t i = 0; i < textureCount; ++i) {
+		const ShaderEffectTextureDesc& effectTexDesc = _drawInfo->textures[i];
+
+		if (effectTexDesc.source.empty()) {
+			continue;
+		}
+
+		auto& gpuResourceManager = _d3d12Context->GetGpuResourceManager();
+		DXGI_FORMAT dxgiFormat = EFFECT_TEXTURE_FORMAT_PROPS[(uint32_t)effectTexDesc.format].dxgiFormat;
+
+		size_t delimPos = _effectInfo->name.find_last_of('\\');
+		std::wstring texPath = StrHelper::UTF8ToUTF16(delimPos == std::string::npos ?
+			effectTexDesc.source : StrHelper::Concat(
+				std::string_view(_effectInfo->name.c_str(), delimPos + 1), effectTexDesc.source));
+
+		_TextureSourceData& sourceData = _textureSourceDatas.emplace_back();
+		
+		// 可能会把 dxgiFormat 修改为 sRGB
+		HRESULT hr = TextureHelper::LoadFromFile(
+			AppFolderManager::Get().GetBuiltInShaderEffectsDir() / texPath,
+			gpuResourceManager,
+			dxgiFormat,
+			sourceData.textureSize,
+			sourceData.uploadBufferAllocation.put()
+		);
+		if (FAILED(hr)) {
+			Logger::Get().ComError(fmt::format("加载纹理 {} 数据失败", effectTexDesc.name), hr);
+			_error = _Error::InvalidTextureSource;
+			return S_FALSE;
+		}
+
+		sourceData.targetTexResIdx = (uint32_t)persistentResourceInfos.size();
+
+		PersistentResourceInfo& prInfo = persistentResourceInfos.emplace_back();
+		prInfo.resDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+			dxgiFormat, sourceData.textureSize.width, sourceData.textureSize.height, 1, 1);
+
+		D3D12_RESOURCE_ALLOCATION_INFO allocInfo =
+			device->GetResourceAllocationInfo(0, 1, &prInfo.resDesc);
+
+		prInfo.offset = DirectXHelper::Align(persistentAllocationSize, allocInfo.Alignment);
+		persistentAllocationSize = prInfo.offset + allocInfo.SizeInBytes;
+		persistentAllocationAlignment = std::max(persistentAllocationAlignment, allocInfo.Alignment);
+
+		_textureSizes[i] = sourceData.textureSize;
+	}
+
+	_persistentResourceCount = (uint32_t)persistentResourceInfos.size();
+
+	if (_persistentResourceCount == 0) {
+		_persistentResourcesAllocation = nullptr;
+		return S_OK;
+	}
+
+	D3D12MA::CALLOCATION_DESC allocDesc(
+		D3D12_HEAP_TYPE_DEFAULT,
+		D3D12MA::ALLOCATION_FLAG_NONE,
+		nullptr,
+		D3D12MA_RECOMMENDED_HEAP_FLAGS | D3D12_HEAP_FLAG_ALLOW_ONLY_NON_RT_DS_TEXTURES
+	);
+
+	// Allocator::AllocateMemory 要求 SizeInBytes 是 64KiB 的整数倍
+	D3D12_RESOURCE_ALLOCATION_INFO blockAllocInfo = {
+		.SizeInBytes = DirectXHelper::Align(persistentAllocationSize, 64ull << 10),
+		.Alignment = persistentAllocationAlignment
+	};
+
+	HRESULT hr = allocator->AllocateMemory(
+		&allocDesc, &blockAllocInfo, _persistentResourcesAllocation.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("D3D12MA::Allocator::AllocateMemory 失败", hr);
+		return hr;
+	}
+
+	uint32_t persistentResourceCount = (uint32_t)persistentResourceInfos.size();
+	// 持久保存的资源放在最前
+	_textureResourceDatas.resize(persistentResourceCount);
+
+	for (uint32_t i = 0; i < persistentResourceCount; ++i) {
+		const PersistentResourceInfo& prInfo = persistentResourceInfos[i];
+		_TextureResourceData& texResData = _textureResourceDatas[i];
+
+		hr = allocator->CreateAliasingResource(
+			_persistentResourcesAllocation.get(),
+			prInfo.offset,
+			&prInfo.resDesc,
+			D3D12_RESOURCE_STATE_COPY_DEST,
+			nullptr,
+			IID_PPV_ARGS(&texResData.resource)
+		);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("D3D12MA::Allocator::CreateAliasingResource 失败", hr);
+			return hr;
+		}
+
+		texResData.state = D3D12_RESOURCE_STATE_COPY_DEST;
+	}
+
+	return S_OK;
+}
+
+// 常量缓冲区布局如下：
+// uint2 __inputSize;
+// uint2 __outputSize;
+// float2 __inputPt;
+// float2 __outputPt;
+// float2 __scale;
+// ↓ PS 样式参数 ↓
+// [float2 __pass1OutputPt;]
+// [float2 __pass2OutputPt;]
+// [...]
+// ↓ WCG/HDR 参数 ↓
+// [float __maxLuminance;]
+// [float __sdrWhiteLevel;]
+// ↓ 效果参数 ↓
+// [float param1;]
+// [uint param2;]
+// [...]
+// 此方法只更新 _constantUploadBuffer，_constantBuffer 将在 Draw 中更新。
+void ShaderEffectDrawer::_UpdateConstants() noexcept {
+	assert(_constantBufferAllocation);
+
+	using Constant32 = DirectXHelper::Constant32;
+	// SmallVector<Constant32> 中数据地址偏移量是 16 字节，alignas(16) 使 SmallVector
+	// 和其中数据都对齐到 16 字节边界。
+	alignas(16) SmallVector<Constant32, 32> constants;
+	assert((uint8_t*)constants.data() - (uint8_t*)&constants == 16);
+
+	constants.emplace_back(Constant32::UInt(_inputSize.width));
+	constants.emplace_back(Constant32::UInt(_inputSize.height));
+	constants.emplace_back(Constant32::UInt(_outputSize.width));
+	constants.emplace_back(Constant32::UInt(_outputSize.height));
+	constants.emplace_back(Constant32::Float(1.0f / _inputSize.width));
+	constants.emplace_back(Constant32::Float(1.0f / _inputSize.height));
+	constants.emplace_back(Constant32::Float(1.0f / _outputSize.width));
+	constants.emplace_back(Constant32::Float(1.0f / _outputSize.height));
+	constants.emplace_back(Constant32::Float((float)_outputSize.width / _inputSize.width));
+	constants.emplace_back(Constant32::Float((float)_outputSize.height / _inputSize.height));
+
+	// PS 样式参数
+	for (uint32_t i = 0, end = (uint32_t)_drawInfo->passes.size() - 1; i < end; ++i) {
+		if (bool(_drawInfo->passes[i].flags & ShaderEffectPassFlags::PSStyle)) {
+			uint32_t output = _drawInfo->passes[i].outputs[0];
+			SizeU textureSize = output == 1 ? _outputSize : _textureSizes[size_t(output - 2)];
+			constants.emplace_back(Constant32::Float(1.0f / textureSize.width));
+			constants.emplace_back(Constant32::Float(1.0f / textureSize.height));
+		}
+	}
+
+	// WCG/HDR 参数
+	if (bool(_effectInfo->flags & EffectFlags::SupportAdvancedColor) &&
+		_acKind != winrt::AdvancedColorKind::StandardDynamicRange)
+	{
+		constants.emplace_back(Constant32::Float(_maxLuminance));
+		constants.emplace_back(Constant32::Float(_sdrWhiteLevel));
+	}
+
+	// 效果参数
+	if (!ScalingWindow::Get().Options().IsInlineParams()) {
+		for (const EffectParameterDesc& paramDesc : _effectInfo->params) {
+			auto it = _effectOption->parameters.find(paramDesc.name);
+			float value = it == _effectOption->parameters.end() ? paramDesc.defaultValue : it->second;
+			switch (paramDesc.type) {
+			case EffectParameterType::Float:
+				constants.emplace_back(Constant32::Float(value));
+				break;
+			case EffectParameterType::Int:
+				constants.emplace_back(Constant32::Int(std::lround(value)));
+				break;
+			default:
+				assert(paramDesc.type == EffectParameterType::UInt);
+				constants.emplace_back(Constant32::UInt((uint32_t)std::lround(value)));
+				break;
+			}
+		}
+	}
+
+	_constantsDataSize = (uint32_t)constants.size() * 4;
+	assert(_constantsDataSize <= _constantUploadBufferAllocation->GetResource()->GetDesc().Width);
+	std::memcpy(_constantUploadBufferData, constants.data(), _constantsDataSize);
+
+	_shouldUpdateConstantBuffer = true;
+}
+
+HRESULT ShaderEffectDrawer::_CreatePSOs() noexcept {
+	ID3D12Device5* device = _d3d12Context->GetDevice();
 
 	const uint32_t passCount = (uint32_t)_drawInfo->passes.size();
-	_passDatas.resize(passCount);
 
 	for (uint32_t passIdx = 0; passIdx < passCount; ++passIdx) {
 		_PassData& curPassData = _passDatas[passIdx];
 		const ShaderEffectPassDesc& curPassDesc = _drawInfo->passes[passIdx];
-		
+
 		winrt::com_ptr<ID3DBlob> signature;
 
 		std::array<D3D12_ROOT_PARAMETER1, 4> rootParams;
@@ -438,7 +953,7 @@ HRESULT ShaderEffectDrawer::_CreateDeviceResources() noexcept {
 		} else {
 			otherOutputs = curPassDesc.outputs;
 		}
-		
+
 		if (!otherInputs.empty() || !otherOutputs.empty()) {
 			const uint32_t startIdx = curDescriptorRangeIdx;
 
@@ -527,446 +1042,75 @@ HRESULT ShaderEffectDrawer::_CreateDeviceResources() noexcept {
 		}
 	}
 
-	// 描述符布局不会变化
-	if (_descriptorBaseOffset == std::numeric_limits<uint32_t>::max()) {
-		// [(通道序号, 需要的描述符数量)]
-		SmallVector<std::pair<uint32_t, uint32_t>> descriptorCounts;
+	return S_OK;
+}
 
-		for (uint32_t passIdx = 0; passIdx < passCount; ++passIdx) {
-			const ShaderEffectPassDesc& curPassDesc = _drawInfo->passes[passIdx];
+HRESULT ShaderEffectDrawer::_CreateConstantBuffer() noexcept {
+	const ScalingOptions& options = ScalingWindow::Get().Options();
+	auto& gpuResourceManager = _d3d12Context->GetGpuResourceManager();
 
-			uint32_t curPassDescriptorCount =
-				(uint32_t)curPassDesc.inputs.size() + (uint32_t)curPassDesc.outputs.size();
-
-			if (!curPassDesc.inputs.empty() && curPassDesc.inputs[0] == 0) {
-				--curPassDescriptorCount;
-			}
-			if (curPassDesc.outputs[0] == 1) {
-				--curPassDescriptorCount;
-			}
-
-			if (curPassDescriptorCount != 0) {
-				descriptorCounts.emplace_back(passIdx, curPassDescriptorCount);
-			}
-		}
-
-		// 不需要额外的描述符时 passData.descriptorBaseOffset 为 UINT_MAX
-		if (!descriptorCounts.empty()) {
-			// 按需要的描述符数量从多到少排序，这可以提高复用描述符的概率
-			std::sort(
-				descriptorCounts.begin(),
-				descriptorCounts.end(),
-				[](const auto& pair1, const auto& pair2) {
-					return pair1.second > pair2.second;
-				}
-			);
-
-			for (const auto& pair : descriptorCounts) {
-				const ShaderEffectPassDesc& curPassDesc = _drawInfo->passes[pair.first];
-				SmallVector<uint32_t> curPassDescriptors;
-
-				if (!curPassDesc.inputs.empty()) {
-					auto begin = curPassDesc.inputs.begin() + uint32_t(curPassDesc.inputs[0] == 0);
-					auto end = curPassDesc.inputs.end();
-					curPassDescriptors.reserve(curPassDescriptors.size() + (end - begin));
-					for (auto it = begin; it != end; ++it) {
-						curPassDescriptors.push_back(*it - 2);
-					}
-				}
-
-				{
-					auto begin = curPassDesc.outputs.begin() + uint32_t(curPassDesc.outputs[0] == 1);
-					auto end = curPassDesc.outputs.end();
-					curPassDescriptors.reserve(curPassDescriptors.size() + (end - begin));
-					uint32_t textureCount = (uint32_t)_drawInfo->textures.size();
-					for (auto it = begin; it != end; ++it) {
-						// 为了和 SRV 做区分，UAV 的索引加上纹理总数
-						curPassDescriptors.push_back(*it - 2 + textureCount);
-					}
-				}
-
-				assert(curPassDescriptors.size() == pair.second);
-
-				// 寻找可以复用的区域
-				auto it = std::search(
-					_textureDescriptorMap.begin(),
-					_textureDescriptorMap.end(),
-					curPassDescriptors.begin(),
-					curPassDescriptors.end()
-				);
-				if (it == _textureDescriptorMap.end()) {
-					_passDatas[pair.first].descriptorBaseOffset = (uint32_t)_textureDescriptorMap.size();
-
-					_textureDescriptorMap.insert(
-						_textureDescriptorMap.end(),
-						curPassDescriptors.begin(),
-						curPassDescriptors.end()
-					);
-				} else {
-					_passDatas[pair.first].descriptorBaseOffset =
-						uint32_t(it - _textureDescriptorMap.begin());
-				}
-			}
-		}
-
-		if (!_textureDescriptorMap.empty()) {
-			HRESULT hr = _d3d12Context->GetDescriptorHeap()
-				.Alloc((uint32_t)_textureDescriptorMap.size(), _descriptorBaseOffset);
-			if (FAILED(hr)) {
-				Logger::Get().ComError("DescriptorHeap::Alloc 失败", hr);
-				return hr;
-			}
-
-			for (_PassData& passData : _passDatas) {
-				if (passData.descriptorBaseOffset != std::numeric_limits<uint32_t>::max()) {
-					passData.descriptorBaseOffset += _descriptorBaseOffset;
-				}
-			}
+	// 10 个内置常量
+	uint32_t paramCount = 10;
+	// PS 样式需要额外常量，除了最后一个通道
+	for (uint32_t i = 0, end = (uint32_t)_drawInfo->passes.size() - 1; i < end; ++i) {
+		if (bool(_drawInfo->passes[i].flags & ShaderEffectPassFlags::PSStyle)) {
+			paramCount += 2;
 		}
 	}
-
-	// 常量缓冲区可以复用
-	if (!_constantBuffer) {
-		// 10 个内置常量
-		uint32_t paramCount = 10;
-		// PS 样式需要额外常量，除了最后一个通道
-		for (uint32_t i = 0, end = (uint32_t)_drawInfo->passes.size() - 1; i < end; ++i) {
-			if (bool(_drawInfo->passes[i].flags & ShaderEffectPassFlags::PSStyle)) {
-				paramCount += 2;
-			}
-		}
-		// WCG/HDR 需要额外常量，始终预留位置使常量缓冲区可以复用
-		paramCount += 2;
-		// 未启用内联参数时每个参数占用一个常量
-		if (!options.IsInlineParams()) {
-			paramCount += (uint32_t)_effectInfo->params.size();
-		}
-		
-		D3D12_HEAP_FLAGS heapFlag = _d3d12Context->IsHeapFlagCreateNotZeroedSupported() ?
-			D3D12_HEAP_FLAG_CREATE_NOT_ZEROED : D3D12_HEAP_FLAG_NONE;
-
-		CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_UPLOAD);
-
-		CD3DX12_RESOURCE_DESC bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(UINT64(paramCount * 4));
-
-		HRESULT hr = device->CreateCommittedResource(
-			&heapProperties,
-			heapFlag,
-			&bufferDesc,
-			D3D12_RESOURCE_STATE_GENERIC_READ,
-			nullptr,
-			IID_PPV_ARGS(&_constantUploadBuffer)
-		);
-		if (FAILED(hr)) {
-			Logger::Get().ComError("CreateCommittedResource 失败", hr);
-			return hr;
-		}
-
-		heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
-		// 常量缓冲区必须对齐到 256 字节
-		bufferDesc.Width = (bufferDesc.Width + 255) & ~255;
-		hr = device->CreateCommittedResource(
-			&heapProperties,
-			heapFlag,
-			&bufferDesc,
-			D3D12_RESOURCE_STATE_COMMON,
-			nullptr,
-			IID_PPV_ARGS(&_constantBuffer)
-		);
-		if (FAILED(hr)) {
-			Logger::Get().ComError("CreateCommittedResource 失败", hr);
-			return hr;
-		}
-
-		// 无需解除映射
-		D3D12_RANGE readRange{};
-		hr = _constantUploadBuffer->Map(0, &readRange, &_constantUploadBufferData);
-		if (FAILED(hr)) {
-			Logger::Get().ComError("ID3D12Resource::Map 失败", hr);
-			return hr;
-		}
+	// WCG/HDR 需要额外常量，始终预留位置使常量缓冲区可以复用
+	paramCount += 2;
+	// 未启用内联参数时每个参数占用一个常量
+	if (!options.IsInlineParams()) {
+		paramCount += (uint32_t)_effectInfo->params.size();
 	}
 
-	HRESULT hr = _UpdateSizeDependentResources();
+	uint32_t uploadBufferSize = paramCount * 4;
+
+	HRESULT hr = gpuResourceManager.CreateBuffer(
+		D3D12_HEAP_TYPE_UPLOAD,
+		uploadBufferSize,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		_constantUploadBufferAllocation.put()
+	);
 	if (FAILED(hr)) {
-		Logger::Get().ComError("_UpdateSizeDependentResources 失败", hr);
+		Logger::Get().ComError("GpuResourceManager::CreateBuffer 失败", hr);
 		return hr;
-	} else if (hr == S_FALSE) {
-		return S_FALSE;
+	}
+
+	hr = gpuResourceManager.CreateBuffer(
+		D3D12_HEAP_TYPE_DEFAULT,
+		DirectXHelper::Align(uploadBufferSize, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT),
+		D3D12_RESOURCE_STATE_COMMON,
+		_constantBufferAllocation.put()
+	);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("GpuResourceManager::CreateBuffer 失败", hr);
+		return hr;
+	}
+
+	// 无需解除映射
+	D3D12_RANGE readRange{};
+	hr = _constantUploadBufferAllocation->GetResource()->Map(
+		0, &readRange, &_constantUploadBufferData);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("ID3D12Resource::Map 失败", hr);
+		return hr;
 	}
 
 	return S_OK;
 }
 
-// 常量缓冲区布局如下：
-// uint2 __inputSize;
-// uint2 __outputSize;
-// float2 __inputPt;
-// float2 __outputPt;
-// float2 __scale;
-// ↓ PS 样式参数 ↓
-// [float2 __pass1OutputPt;]
-// [float2 __pass2OutputPt;]
-// [...]
-// ↓ WCG/HDR 参数 ↓
-// [float __maxLuminance;]
-// [float __sdrWhiteLevel;]
-// ↓ 效果参数 ↓
-// [float param1;]
-// [uint param2;]
-// [...]
-// 此方法只更新 _constantUploadBuffer，_constantBuffer 将在 Draw 中更新。
-void ShaderEffectDrawer::_UpdateConstants() noexcept {
-	assert(_constantBuffer);
+void ShaderEffectDrawer::_ComputeDispatchCounts() noexcept {
+	uint32_t passCount = (uint32_t)_drawInfo->passes.size();
 
-	using Constant32 = DirectXHelper::Constant32;
-	// SmallVector 中数据地址偏移量是 16 字节，alignas(16) 使 SmallVector
-	// 和其中数据都对齐到 16 字节边界。
-	alignas(16) SmallVector<Constant32, 32> constants;
-	assert((uint8_t*)constants.data() - (uint8_t*)&constants == 16);
-
-	constants.emplace_back(Constant32::UInt(_inputSize.width));
-	constants.emplace_back(Constant32::UInt(_inputSize.height));
-	constants.emplace_back(Constant32::UInt(_outputSize.width));
-	constants.emplace_back(Constant32::UInt(_outputSize.height));
-	constants.emplace_back(Constant32::Float(1.0f / _inputSize.width));
-	constants.emplace_back(Constant32::Float(1.0f / _inputSize.height));
-	constants.emplace_back(Constant32::Float(1.0f / _outputSize.width));
-	constants.emplace_back(Constant32::Float(1.0f / _outputSize.height));
-	constants.emplace_back(Constant32::Float((float)_outputSize.width / _inputSize.width));
-	constants.emplace_back(Constant32::Float((float)_outputSize.height / _inputSize.height));
-
-	// PS 样式参数
-	for (uint32_t i = 0, end = (uint32_t)_drawInfo->passes.size() - 1; i < end; ++i) {
-		if (bool(_drawInfo->passes[i].flags & ShaderEffectPassFlags::PSStyle)) {
-			uint32_t output = _drawInfo->passes[i].outputs[0];
-			if (output == 1) {
-				constants.emplace_back(Constant32::Float(1.0f / _outputSize.width));
-				constants.emplace_back(Constant32::Float(1.0f / _outputSize.height));
-			} else {
-				D3D12_RESOURCE_DESC texDesc = _textures[size_t(output - 2)]->GetDesc();
-				constants.emplace_back(Constant32::Float(1.0f / texDesc.Width));
-				constants.emplace_back(Constant32::Float(1.0f / texDesc.Height));
-			}
-		}
-	}
-
-	// WCG/HDR 参数
-	if (bool(_effectInfo->flags & EffectFlags::SupportAdvancedColor) &&
-		_acKind != winrt::AdvancedColorKind::StandardDynamicRange)
-	{
-		constants.emplace_back(Constant32::Float(_maxLuminance));
-		constants.emplace_back(Constant32::Float(_sdrWhiteLevel));
-	}
-
-	// 效果参数
-	if (!ScalingWindow::Get().Options().IsInlineParams()) {
-		for (const EffectParameterDesc& paramDesc : _effectInfo->params) {
-			auto it = _effectOption->parameters.find(paramDesc.name);
-			float value = it == _effectOption->parameters.end() ? paramDesc.defaultValue : it->second;
-			switch (paramDesc.type) {
-			case EffectParameterType::Float:
-				constants.emplace_back(Constant32::Float(value));
-				break;
-			case EffectParameterType::Int:
-				constants.emplace_back(Constant32::Int(std::lround(value)));
-				break;
-			default:
-				assert(paramDesc.type == EffectParameterType::UInt);
-				constants.emplace_back(Constant32::UInt((uint32_t)std::lround(value)));
-				break;
-			}
-		}
-	}
-
-	_constantsDataSize = (uint32_t)constants.size() * 4;
-	assert(_constantsDataSize <= _constantUploadBuffer->GetDesc().Width);
-	std::memcpy(_constantUploadBufferData, constants.data(), _constantsDataSize);
-
-	_shouldUpdateConstantBuffer = true;
-}
-
-HRESULT ShaderEffectDrawer::_UpdateSizeDependentResources() noexcept {
-	_shouldUpdateSizeDependentResources = false;
-
-	const uint32_t textureCount = (uint32_t)_drawInfo->textures.size();
-	if (textureCount != 0) {
-		ID3D12Device5* device = _d3d12Context->GetDevice();
-
-		_textures.resize(textureCount);
-		_textureStates.resize(textureCount);
-
-		mu::Parser exprParser;
-		exprParser.DefineConst("INPUT_WIDTH", _inputSize.width);
-		exprParser.DefineConst("INPUT_HEIGHT", _inputSize.height);
-		exprParser.DefineConst("OUTPUT_WIDTH", _outputSize.width);
-		exprParser.DefineConst("OUTPUT_HEIGHT", _outputSize.height);
-
-		for (uint32_t texIdx = 0; texIdx < textureCount; ++texIdx) {
-			const ShaderEffectTextureDesc& effectTexDesc = _drawInfo->textures[texIdx];
-
-			DXGI_FORMAT dxgiFormat;
-
-			if (effectTexDesc.source.empty()) {
-				SizeU texSize{};
-				try {
-					exprParser.SetExpr(effectTexDesc.widthExpr);
-					texSize.width = (uint32_t)std::max(0L, std::lround(exprParser.Eval()));
-					exprParser.SetExpr(effectTexDesc.heightExpr);
-					texSize.height = (uint32_t)std::max(0L, std::lround(exprParser.Eval()));
-				} catch (const mu::ParserError& e) {
-					Logger::Get().Error(fmt::format("计算纹理 {} 尺寸失败: {}",
-						effectTexDesc.name, e.GetMsg()));
-				}
-
-				if (texSize.width == 0 || texSize.width > D3D12_REQ_TEXTURE2D_U_OR_V_DIMENSION ||
-					texSize.height == 0 || texSize.height > D3D12_REQ_TEXTURE2D_U_OR_V_DIMENSION)
-				{
-					_error = _Error::InvalidTextureSize;
-					Logger::Get().Error(fmt::format("纹理 {} 尺寸无效", effectTexDesc.name));
-					return S_FALSE;
-				}
-
-				if (effectTexDesc.format == EffectTextureFormat::COLOR_SPACE_ADAPTIVE) {
-					if (_acKind == winrt::AdvancedColorKind::StandardDynamicRange) {
-						dxgiFormat = DXGI_FORMAT_R10G10B10A2_UNORM;
-					} else {
-						dxgiFormat = DXGI_FORMAT_R16G16B16A16_FLOAT;
-					}
-				} else {
-					dxgiFormat = EFFECT_TEXTURE_FORMAT_PROPS[(uint32_t)effectTexDesc.format].dxgiFormat;
-				}
-
-				if (_textures[texIdx]) {
-					D3D12_RESOURCE_DESC texDesc = _textures[texIdx]->GetDesc();
-					if (texDesc.Width == texSize.width && texDesc.Height == texSize.height &&
-						texDesc.Format == dxgiFormat) {
-						continue;
-					}
-				}
-
-				CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_DEFAULT);
-
-				D3D12_HEAP_FLAGS heapFlags = _d3d12Context->IsHeapFlagCreateNotZeroedSupported() ?
-					D3D12_HEAP_FLAG_CREATE_NOT_ZEROED : D3D12_HEAP_FLAG_NONE;
-
-				CD3DX12_RESOURCE_DESC texDesc = CD3DX12_RESOURCE_DESC::Tex2D(dxgiFormat,
-					texSize.width, texSize.height, 1, 1, 1, 0,
-					D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS
-				);
-
-				HRESULT hr = device->CreateCommittedResource(&heapProps, heapFlags, &texDesc,
-					D3D12_RESOURCE_STATE_UNORDERED_ACCESS, nullptr, IID_PPV_ARGS(&_textures[texIdx]));
-				if (FAILED(hr)) {
-					Logger::Get().ComError("CreateCommittedResource 失败", hr);
-					return hr;
-				}
-
-				_textureStates[texIdx] = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
-			} else {
-				if (_textures[texIdx]) {
-					continue;
-				}
-
-				dxgiFormat = EFFECT_TEXTURE_FORMAT_PROPS[(uint32_t)effectTexDesc.format].dxgiFormat;
-
-				size_t delimPos = _effectInfo->name.find_last_of('\\');
-				std::wstring texPath = StrHelper::UTF8ToUTF16(delimPos == std::string::npos ?
-					effectTexDesc.source : StrHelper::Concat(
-						std::string_view(_effectInfo->name.c_str(), delimPos + 1), effectTexDesc.source));
-
-				_TextureSourceData& sourceData = _textureSourceDatas.emplace_back();
-				// 可能会把 dxgiFormat 修改为 sRGB
-				sourceData.uploadBuffer = TextureHelper::LoadFromFile(
-					AppFolderManager::Get().GetBuiltInShaderEffectsDir() / texPath,
-					*_d3d12Context,
-					dxgiFormat,
-					sourceData.textureSize
-				);
-				if (!sourceData.uploadBuffer) {
-					_error = _Error::InvalidTextureSource;
-					Logger::Get().Error(fmt::format("加载纹理 {} 数据失败", effectTexDesc.name));
-					return S_FALSE;
-				}
-
-				CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_DEFAULT);
-
-				D3D12_HEAP_FLAGS heapFlags = _d3d12Context->IsHeapFlagCreateNotZeroedSupported() ?
-					D3D12_HEAP_FLAG_CREATE_NOT_ZEROED : D3D12_HEAP_FLAG_NONE;
-
-				CD3DX12_RESOURCE_DESC texDesc = CD3DX12_RESOURCE_DESC::Tex2D(
-					dxgiFormat, sourceData.textureSize.width, sourceData.textureSize.height,
-					1, 1, 1, 0, D3D12_RESOURCE_FLAG_NONE);
-
-				HRESULT hr = device->CreateCommittedResource(&heapProps, heapFlags, &texDesc,
-					D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(&_textures[texIdx]));
-				if (FAILED(hr)) {
-					Logger::Get().ComError("CreateCommittedResource 失败", hr);
-					return hr;
-				}
-
-				sourceData.targetTextureIdx = texIdx;
-				_textureStates[texIdx] = D3D12_RESOURCE_STATE_COPY_DEST;
-			}
-
-			if (!_textureDescriptorMap.empty()) {
-				auto& descriptorHeap = _d3d12Context->GetDescriptorHeap();
-				const uint32_t descriptorSize = descriptorHeap.GetDescriptorSize();
-
-				CD3DX12_CPU_DESCRIPTOR_HANDLE baseHandle(
-					descriptorHeap.GetCpuHandle(_descriptorBaseOffset));
-
-				CD3DX12_SHADER_RESOURCE_VIEW_DESC srvDesc =
-					CD3DX12_SHADER_RESOURCE_VIEW_DESC::Tex2D(dxgiFormat, 1);
-
-				for (auto it = _textureDescriptorMap.begin();; ++it) {
-					it = std::find(it, _textureDescriptorMap.end(), texIdx);
-					if (it == _textureDescriptorMap.end()) {
-						break;
-					}
-
-					size_t offset = it - _textureDescriptorMap.begin();
-					device->CreateShaderResourceView(_textures[texIdx].get(), &srvDesc,
-						CD3DX12_CPU_DESCRIPTOR_HANDLE(baseHandle, (INT)offset, descriptorSize));
-				}
-
-				// 从文件加载的纹理不能作为输出
-				if (effectTexDesc.source.empty()) {
-					// 为了和 SRV 做区分，UAV 的索引加上纹理总数
-					uint32_t uavIdx = texIdx + textureCount;
-					CD3DX12_UNORDERED_ACCESS_VIEW_DESC uavDesc =
-						CD3DX12_UNORDERED_ACCESS_VIEW_DESC::Tex2D(dxgiFormat);
-
-					for (auto it = _textureDescriptorMap.begin();; ++it) {
-						it = std::find(it, _textureDescriptorMap.end(), uavIdx);
-						if (it == _textureDescriptorMap.end()) {
-							break;
-						}
-
-						size_t offset = it - _textureDescriptorMap.begin();
-						device->CreateUnorderedAccessView(_textures[texIdx].get(), nullptr, &uavDesc,
-							CD3DX12_CPU_DESCRIPTOR_HANDLE(baseHandle, (INT)offset, descriptorSize));
-					}
-				} else {
-					assert(std::find(
-						_textureDescriptorMap.begin(),
-						_textureDescriptorMap.end(),
-						texIdx + textureCount
-					) == _textureDescriptorMap.end());
-				}
-			}
-		}
-	}
-	
-	for (uint32_t passIdx = 0; passIdx < _passDatas.size(); ++passIdx) {
+	for (uint32_t passIdx = 0; passIdx < passCount; ++passIdx) {
 		const ShaderEffectPassDesc& curPassDesc = _drawInfo->passes[passIdx];
 
 		SizeU outputSize;
 		if (curPassDesc.outputs[0] == 1) {
 			outputSize = _outputSize;
 		} else {
-			D3D12_RESOURCE_DESC texDesc = _textures[size_t(curPassDesc.outputs[0] - 2)]->GetDesc();
-			outputSize = { (uint32_t)texDesc.Width,(uint32_t)texDesc.Height };
+			outputSize = _textureSizes[size_t(curPassDesc.outputs[0] - 2)];
 		}
 
 		_passDatas[passIdx].dispatchCount = {
@@ -974,9 +1118,271 @@ HRESULT ShaderEffectDrawer::_UpdateSizeDependentResources() noexcept {
 			(outputSize.height + curPassDesc.blockSize.height - 1) / curPassDesc.blockSize.height
 		};
 	}
+}
 
-	_UpdateConstants();
+HRESULT ShaderEffectDrawer::_CreateNonPersistentResources(
+	D3D12MA::Allocation* textureAllocation,
+	std::span<const uint64_t> resourceOffsets
+) noexcept {
+	D3D12MA::Allocator* allocator = _d3d12Context->GetGpuResourceManager().GetAllocator();
+	const uint32_t passCount = (uint32_t)_drawInfo->passes.size();
+	const uint32_t textureCount = (uint32_t)_drawInfo->textures.size();
+
+	// (texIdx, offset) -> texResIdx
+	// 用于确保纹理名和偏移量相同时不会重复创建资源
+	phmap::flat_hash_map<std::pair<uint32_t, uint64_t>, uint32_t> texResMap;
+	SmallVector<uint32_t> texIdxToTexResIdx(textureCount, UINT_MAX);
+	uint32_t curOffsetIdx = 0;
+
+	// _textureResourceDatas 中持久保存的资源放在最前
+	_textureResourceDatas.resize(_persistentResourceCount);
+
+	for (uint32_t i = 0; i < passCount; ++i) {
+		_PassData& passData = _passDatas[i];
+		const ShaderEffectPassDesc& passDesc = _drawInfo->passes[i];
+		uint32_t inputCount = (uint32_t)passDesc.inputs.size();
+		uint32_t outputCount = (uint32_t)passDesc.outputs.size();
+		
+		// 计算 passData.inputTexResIdxes
+		for (uint32_t j = 0; j < inputCount; ++j) {
+			uint32_t input = passDesc.inputs[j];
+			if (input >= 2) {
+				uint32_t texResIdx = texIdxToTexResIdx[(uint64_t)input - 2];
+				if (texResIdx != UINT_MAX) {
+					passData.inputTexResIdxes[j] = texResIdx;
+				}
+			}
+		}
+
+		if (i + 1 == passCount) {
+			continue;
+		}
+
+		// 计算 passData.outputTexResIdxes 和创建纹理资源
+		for (uint32_t j = 0; j < outputCount; ++j) {
+			assert(passDesc.outputs[j] >= 2);
+			uint32_t texIdx = passDesc.outputs[j] - 2;
+			uint64_t resourceOffset = resourceOffsets[curOffsetIdx++];
+
+			// 确保不在同一个偏移量处重复创建资源
+			{
+				auto it = texResMap.find(std::make_pair(texIdx, resourceOffset));
+				if (it != texResMap.end()) {
+					passData.outputTexResIdxes[j] = it->second;
+					continue;
+				}
+
+				uint32_t texResIdx = (uint32_t)_textureResourceDatas.size();
+				texResMap.emplace(std::make_pair(texIdx, resourceOffset), texResIdx);
+
+				texIdxToTexResIdx[texIdx] = texResIdx;
+				passData.outputTexResIdxes[j] = texResIdx;
+			}
+
+			_TextureResourceData& texResData = _textureResourceDatas.emplace_back();
+			DXGI_FORMAT dxgiFormat = _GetDxgiFormat(_drawInfo->textures[texIdx].format);
+			SizeU texSize = _textureSizes[texIdx];
+
+			CD3DX12_RESOURCE_DESC texDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+				dxgiFormat, texSize.width, texSize.height, 1, 1, 1, 0,
+				D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+
+			HRESULT hr = allocator->CreateAliasingResource(
+				textureAllocation,
+				resourceOffset,
+				&texDesc,
+				D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+				nullptr,
+				IID_PPV_ARGS(&texResData.resource)
+			);
+			if (FAILED(hr)) {
+				Logger::Get().ComError("D3D12MA::Allocator::CreateAliasingResource 失败", hr);
+				return hr;
+			}
+
+			texResData.state = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+		}
+	}
+
 	return S_OK;
+}
+
+void ShaderEffectDrawer::_ComputeDescriptorLayout(
+	SmallVectorImpl<std::pair<uint32_t, DXGI_FORMAT>>& descriptorLayout,
+	SmallVectorImpl<uint32_t>& passDescriptorOffsets
+) const noexcept {
+	const uint32_t texResCount = (uint32_t)_textureResourceDatas.size();
+	const uint32_t passCount = (uint32_t)_passDatas.size();
+	// [(通道序号, 需要的描述符数量)]
+	SmallVector<std::pair<uint32_t, uint32_t>> descriptorCounts;
+
+	// 计算每个通道需要的描述符数量
+	for (uint32_t passIdx = 0; passIdx < passCount; ++passIdx) {
+		const _PassData& passData = _passDatas[passIdx];
+
+		uint32_t curPassDescriptorCount =
+			(uint32_t)passData.inputTexResIdxes.size() +
+			(uint32_t)passData.outputTexResIdxes.size();
+
+		if (!passData.inputTexResIdxes.empty() &&
+			passData.inputTexResIdxes[0] == UINT_MAX) {
+			--curPassDescriptorCount;
+		}
+
+		if (passData.outputTexResIdxes[0] == UINT_MAX) {
+			--curPassDescriptorCount;
+		}
+
+		if (curPassDescriptorCount != 0) {
+			descriptorCounts.emplace_back(passIdx, curPassDescriptorCount);
+		}
+	}
+
+	if (descriptorCounts.empty()) {
+		return;
+	}
+
+	// 按需要的描述符数量从多到少排序，这可以提高复用描述符的概率
+	std::sort(
+		descriptorCounts.begin(),
+		descriptorCounts.end(),
+		[](const auto& l, const auto& r) { return l.second > r.second; }
+	);
+
+	passDescriptorOffsets.resize(passCount);
+
+	// 计算描述符布局
+	for (auto [passIdx, descriptorCount] : descriptorCounts) {
+		const ShaderEffectPassDesc& passDesc = _drawInfo->passes[passIdx];
+		const _PassData& passData = _passDatas[passIdx];
+		const uint32_t inputCount = (uint32_t)passDesc.inputs.size();
+		const uint32_t outputCount = (uint32_t)passDesc.outputs.size();
+
+		SmallVector<std::pair<uint32_t, DXGI_FORMAT>> curPassDescriptorLayout;
+		curPassDescriptorLayout.reserve(inputCount + outputCount);
+
+		for (uint32_t i = 0; i < inputCount; ++i) {
+			uint32_t input = passDesc.inputs[i];
+			if (input < 2) {
+				continue;
+			}
+
+			curPassDescriptorLayout.emplace_back(
+				passData.inputTexResIdxes[i],
+				_GetDxgiFormat(_drawInfo->textures[(uint64_t)input - 2].format)
+			);
+		}
+
+		for (uint32_t i = 0; i < outputCount; ++i) {
+			uint32_t output = passDesc.outputs[i];
+			if (output < 2) {
+				continue;
+			}
+
+			// 为了和 SRV 做区分，UAV 的索引加上纹理资源总数
+			curPassDescriptorLayout.emplace_back(
+				passData.outputTexResIdxes[i] + texResCount,
+				_GetDxgiFormat(_drawInfo->textures[(uint64_t)output - 2].format)
+			);
+		}
+
+		assert(curPassDescriptorLayout.size() == descriptorCount);
+
+		// 寻找可以复用的区域
+		auto it = std::search(
+			descriptorLayout.begin(),
+			descriptorLayout.end(),
+			curPassDescriptorLayout.begin(),
+			curPassDescriptorLayout.end(),
+			[](const auto& l, const auto& r) { return l.first == r.first; }
+		);
+		if (it == descriptorLayout.end()) {
+			passDescriptorOffsets[passIdx] = (uint32_t)descriptorLayout.size();
+
+			descriptorLayout.insert(
+				descriptorLayout.end(),
+				curPassDescriptorLayout.begin(),
+				curPassDescriptorLayout.end()
+			);
+		} else {
+			passDescriptorOffsets[passIdx] = uint32_t(it - descriptorLayout.begin());
+		}
+	}
+}
+
+HRESULT ShaderEffectDrawer::_CreateDescritors() noexcept {
+	// [(纹理资源索引, 纹理格式)]
+	// UAV 的索引加上纹理资源总数以和 SRV 区分。
+	SmallVector<std::pair<uint32_t, DXGI_FORMAT>> descriptorLayout;
+	SmallVector<uint32_t> passDescriptorOffsets;
+	_ComputeDescriptorLayout(descriptorLayout, passDescriptorOffsets);
+
+	if (descriptorLayout.empty()) {
+		// 不需要额外的描述符
+		for (_PassData& passData : _passDatas) {
+			passData.descriptorBaseOffset = UINT_MAX;
+		}
+
+		return S_OK;
+	}
+
+	// 申请描述符空间
+	auto& descriptorHeap = _d3d12Context->GetDescriptorHeap();
+	assert(_descriptorBaseOffset == UINT_MAX);
+	_descriptorCount = (uint32_t)descriptorLayout.size();
+	HRESULT hr = descriptorHeap.Alloc(_descriptorCount, _descriptorBaseOffset);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("DescriptorHeap::Alloc 失败", hr);
+		return hr;
+	}
+	
+	// 计算 passData.descriptorBaseOffset
+	uint64_t passCount = _passDatas.size();
+	for (uint64_t i = 0; i < passCount; ++i) {
+		_passDatas[i].descriptorBaseOffset = _descriptorBaseOffset + passDescriptorOffsets[i];
+	}
+
+	ID3D12Device5* device = _d3d12Context->GetDevice();
+	CD3DX12_CPU_DESCRIPTOR_HANDLE cpuHandle(descriptorHeap.GetCpuHandle(_descriptorBaseOffset));
+	uint32_t descriptorSize = descriptorHeap.GetDescriptorSize();
+	const uint32_t texResCount = (uint32_t)_textureResourceDatas.size();
+
+	// 创建描述符
+	for (auto [texResIdx, dxgiFormat] : descriptorLayout) {
+		// 为了和 SRV 做区分，UAV 的索引加上了纹理资源总数
+		bool isUAV = texResIdx >= texResCount;
+		if (isUAV) {
+			texResIdx -= texResCount;
+		}
+
+		ID3D12Resource* texture = _textureResourceDatas[texResIdx].resource.get();
+
+		if (isUAV) {
+			CD3DX12_UNORDERED_ACCESS_VIEW_DESC uavDesc =
+				CD3DX12_UNORDERED_ACCESS_VIEW_DESC::Tex2D(dxgiFormat);
+			device->CreateUnorderedAccessView(texture, nullptr, &uavDesc, cpuHandle);
+		} else {
+			CD3DX12_SHADER_RESOURCE_VIEW_DESC srvDesc =
+				CD3DX12_SHADER_RESOURCE_VIEW_DESC::Tex2D(dxgiFormat, 1);
+			device->CreateShaderResourceView(texture, &srvDesc, cpuHandle);
+		}
+
+		cpuHandle.Offset(descriptorSize);
+	}
+
+	return S_OK;
+}
+
+DXGI_FORMAT ShaderEffectDrawer::_GetDxgiFormat(EffectTextureFormat texFormat) const noexcept {
+	if (texFormat == EffectTextureFormat::COLOR_SPACE_ADAPTIVE) {
+		if (_acKind == winrt::AdvancedColorKind::StandardDynamicRange) {
+			return DXGI_FORMAT_R10G10B10A2_UNORM;
+		} else {
+			return DXGI_FORMAT_R16G16B16A16_FLOAT;
+		}
+	} else {
+		return EFFECT_TEXTURE_FORMAT_PROPS[(uint32_t)texFormat].dxgiFormat;
+	}
 }
 
 }

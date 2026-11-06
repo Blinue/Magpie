@@ -2525,9 +2525,9 @@ void Pass9(uint2 blockStart, uint3 threadId) {
 				target2.w * kernelsL10[28 + index]);
 
 			// ACNet 工作在 YUV 颜色空间
-			float3 originC = INPUT.SampleLevel(sam1, (destPos + 0.5f) * outputPt, 0).rgb;
+			MF3 originC = INPUT.SampleLevel(sam1, (destPos + 0.5f) * outputPt, 0).rgb;
 			MF2 originUV = mul(srgb2uv, EncodeSrgb(originC));
-			OUTPUT[destPos] = MF4(DecodeSrgb(mul(yuv2srgb, MF3(newY, originUV))), 1);
+			OUTPUT[destPos] = MF4(DecodeSrgb(saturate(mul(yuv2srgb, MF3(newY, originUV)))), 1);
 		}
 	}
 }

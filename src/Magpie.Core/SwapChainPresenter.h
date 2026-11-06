@@ -49,8 +49,8 @@ private:
 
 	SizeU _size{};
 	uint32_t _bufferCount = 0;
-	uint32_t _rtvBaseOffset = std::numeric_limits<uint32_t>::max();
-	uint32_t _rawRtvBaseOffset = std::numeric_limits<uint32_t>::max();
+	uint32_t _rtvBaseOffset = UINT_MAX;
+	uint32_t _rawRtvBaseOffset = UINT_MAX;
 	
 	bool _isScRGB = false;
 	bool _isTearingSupported = false;

@@ -47,6 +47,10 @@ public:
 		return _lastRenderTime;
 	}
 
+	bool WantRender() const noexcept {
+		return _wantRender;
+	}
+
 	const ScalingOptions& Options() const noexcept {
 		return _options;
 	}
@@ -204,6 +208,7 @@ private:
 	bool _areResizeHelperWindowsVisible = false;
 	bool _isSrcRepositioning = false;
 	bool _isCursorOnOverlayCaptionArea = false;
+	bool _wantRender = false;
 };
 
 }

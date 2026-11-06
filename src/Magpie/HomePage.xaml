@@ -300,6 +300,10 @@
 							<CheckBox x:Uid="Home_Advanced_DeveloperOptions_DisableFontCache"
 							          IsChecked="{x:Bind ViewModel.IsFontCacheDisabled, Mode=TwoWay}" />
 						</local:SettingsCard>
+						<local:SettingsCard ContentAlignment="Left">
+							<CheckBox x:Uid="Home_Advanced_DeveloperOptions_DisableResourceAliasing"
+							          IsChecked="{x:Bind ViewModel.IsResourceAliasingDisabled, Mode=TwoWay}" />
+						</local:SettingsCard>
 						<local:SettingsCard x:Uid="Home_Advanced_DeveloperOptions_DuplicateFrameDetection"
 						                    IsWrapEnabled="True">
 							<ComboBox DropDownOpened="ComboBox_DropDownOpened"
@@ -314,6 +318,7 @@
 							<ComboBox DropDownOpened="ComboBox_DropDownOpened"
 							          SelectedIndex="{x:Bind ViewModel.HighestShaderModel, Mode=TwoWay}">
 								<ComboBoxItem x:Uid="Home_Advanced_DeveloperOptions_HighestShaderModel_NotLimited" />
+								<x:String>6.10</x:String>
 								<x:String>6.9</x:String>
 								<x:String>6.8</x:String>
 								<x:String>6.7</x:String>

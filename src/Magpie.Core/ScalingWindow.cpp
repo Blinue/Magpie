@@ -387,6 +387,7 @@ void ScalingWindow::TakeScreenshot() noexcept {
 
 void ScalingWindow::Render(bool onDeviceLost) noexcept {
 	_lastRenderTime = std::chrono::steady_clock::now();
+	_wantRender = false;
 
 	bool isSrcRepositioning = false;
 	if (!_UpdateSrcState(isSrcRepositioning)) {
@@ -545,23 +546,28 @@ LRESULT ScalingWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) n
 	}
 	case CommonSharedConstants::WM_CONSUMER_RENDER:
 	{
-		// 调整窗口大小时会进入 OS 的内部循环，我们的消息循环没有机会调用 Render。幸运的是
-		// 内部循环会正常分发消息，因此有必要在窗口过程中执行渲染以避免调整大小时渲染暂停。
 		if (!_renderer) {
 			return 0;
 		}
-		
-		// 删除消息队列中的其他 WM_CONSUMER_RENDER 以避免重复渲染
-		{
-			MSG msg1;
-			while (PeekMessage(&msg1, Handle(), CommonSharedConstants::WM_CONSUMER_RENDER,
-				CommonSharedConstants::WM_CONSUMER_RENDER, PM_REMOVE)
-			) {
-				// 不做处理
+
+		// 通常应避免在处理消息时渲染，一旦渲染时间太长会堵塞消息循环。唯一的例外是调整窗口大小/移动
+		// 窗口时会进入 OS 的内部循环，除了在这里我们没机会调用 Render。
+		if (_isResizing || _isMoving) {
+			// 删除消息队列中的其他 WM_CONSUMER_RENDER 以避免重复渲染
+			{
+				MSG msg1;
+				while (PeekMessage(&msg1, Handle(), CommonSharedConstants::WM_CONSUMER_RENDER,
+					CommonSharedConstants::WM_CONSUMER_RENDER, PM_REMOVE
+				)) {
+					// 不做处理
+				}
 			}
+
+			Render();
+		} else {
+			_wantRender = true;
 		}
 
-		Render();
 		return 0;
 	}
 	case WM_ENTERSIZEMOVE:
@@ -2279,10 +2285,10 @@ void ScalingWindow::_DelayedStop(bool onSrcHung, bool onSrcRepositioning) const 
 	_dispatcher.TryEnqueue([runId(RunId()), onSrcRepositioning]() {
 		if (runId == RunId()) {
 			if (onSrcRepositioning) {
-				ScalingWindow::Get()._isSrcRepositioning = true;
-				ScalingWindow::Get().Destroy();
+				Get()._isSrcRepositioning = true;
+				Get().Destroy();
 			} else {
-				ScalingWindow::Get().Stop();
+				Get().Stop();
 			}
 		}
 	});

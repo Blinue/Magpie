@@ -32,7 +32,7 @@ void ComputeContext::SetRootDescriptorTable(
 	uint32_t rootParameterIndex,
 	uint32_t baseDescriptorOffset
 ) noexcept {
-	assert(baseDescriptorOffset != std::numeric_limits<uint32_t>::max());
+	assert(baseDescriptorOffset != UINT_MAX);
 
 	// 存在 DATA_STATIC 标志时 SetComputeRootDescriptorTable 会检查资源状态
 	if (_d3d12Context->GetRootSignatureVersion() >= D3D_ROOT_SIGNATURE_VERSION_1_1) {
@@ -74,7 +74,7 @@ void GraphicsContext::SetRootDescriptorTable(
 	uint32_t rootParameterIndex,
 	uint32_t baseDescriptorOffset
 ) noexcept {
-	assert(baseDescriptorOffset != std::numeric_limits<uint32_t>::max());
+	assert(baseDescriptorOffset != UINT_MAX);
 
 	// 存在 DATA_STATIC 标志时 SetGraphicsRootDescriptorTable 会检查资源状态
 	if (_d3d12Context->GetRootSignatureVersion() >= D3D_ROOT_SIGNATURE_VERSION_1_1) {
@@ -119,7 +119,7 @@ void GraphicsContext::RSSetScissorRect(const D3D12_RECT& rect) noexcept {
 }
 
 void GraphicsContext::OMSetRenderTarget(uint32_t rtvDescriptorOffset) noexcept {
-	assert(rtvDescriptorOffset != std::numeric_limits<uint32_t>::max());
+	assert(rtvDescriptorOffset != UINT_MAX);
 
 	if (rtvDescriptorOffset != _curRtvDescriptorOffset) {
 		_curRtvDescriptorOffset = rtvDescriptorOffset;
@@ -148,7 +148,7 @@ void GraphicsContext::ClearStateCache() noexcept {
 	_ClearStateCache();
 
 	_curTrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_UNDEFINED;
-	_curRtvDescriptorOffset = std::numeric_limits<uint32_t>::max();
+	_curRtvDescriptorOffset = UINT_MAX;
 }
 
 }

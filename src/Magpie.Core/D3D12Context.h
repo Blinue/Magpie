@@ -4,6 +4,7 @@
 namespace Magpie {
 
 class DescriptorHeap;
+class GpuResourceManager;
 
 class D3D12Context {
 public:
@@ -18,6 +19,7 @@ public:
 		D3D12_COMMAND_LIST_TYPE commandListType,
 		DescriptorHeap& csuDescriptorHeap,
 		DescriptorHeap& rtvDescriptorHeap,
+		GpuResourceManager& gpuResourceManager,
 		bool disableFrameFenceTracking = false
 	) noexcept;
 
@@ -32,6 +34,10 @@ public:
 
 	DescriptorHeap& GetDescriptorHeap(bool rtv = false) const noexcept {
 		return rtv ? *_rtvDescriptorHeap : *_csuDescriptorHeap;
+	}
+
+	GpuResourceManager& GetGpuResourceManager() const noexcept {
+		return *_gpuResourceManager;
 	}
 
 	IDXGIFactory7* GetDXGIFactory() const noexcept {
@@ -64,25 +70,17 @@ public:
 		return _rootSignatureVersion;
 	}
 
-	bool IsUMA() const noexcept {
-		return _isUMA;
-	}
+	bool IsUMA() const noexcept;
 
-	bool IsHeapFlagCreateNotZeroedSupported() const noexcept {
-		return _isHeapFlagCreateNotZeroedSupported;
-	}
+	bool IsGPUUploadHeapSupported() const noexcept;
 
-	bool IsGPUUploadHeapSupported() const noexcept {
-		return _isGPUUploadHeapSupported;
-	}
-
-	bool IsMinFloat16Supported() const noexcept {
-		return _isMinFloat16Supported;
-	}
+	bool IsMinFloat16Supported() const noexcept;
 
 	bool IsNative16BitSupported() const noexcept {
 		return _isNative16BitSupported;
 	}
+
+	bool IsResourceHeapTier2Supported() const noexcept;
 
 	HRESULT CheckFeatureSupport(
 		D3D12_FEATURE feature,
@@ -109,6 +107,12 @@ public:
 
 	HRESULT EndFrame() noexcept;
 
+#ifdef _DEBUG
+	void PushDebugLayerWarnings(std::span<const D3D12_MESSAGE_ID> msgIds) noexcept;
+
+	void PopDebugLayerWarnings() noexcept;
+#endif
+
 private:
 	HRESULT _CreateDXGIFactory() noexcept;
 
@@ -130,15 +134,17 @@ private:
 
 	void _QueryHighestShaderModel() noexcept;
 
-	void _LogDeviceInfo() noexcept;
-
 	DescriptorHeap* _csuDescriptorHeap = nullptr;
 	DescriptorHeap* _rtvDescriptorHeap = nullptr;
-
+	GpuResourceManager* _gpuResourceManager = nullptr;
+	
 	winrt::com_ptr<IDXGIFactory7> _dxgiFactory;
 	winrt::com_ptr<IDXGIAdapter4> _dxgiAdapter;
 	winrt::com_ptr<ID3D12Device5> _device;
 	winrt::com_ptr<ID3D12Device16> _device16;
+#ifdef _DEBUG
+	winrt::com_ptr<ID3D12InfoQueue> _infoQueue;
+#endif
 	winrt::com_ptr<ID3D12CommandQueue> _commandQueue;
 
 	std::vector<winrt::com_ptr<ID3D12CommandAllocator>> _commandAllocators;
@@ -152,11 +158,7 @@ private:
 
 	D3D_SHADER_MODEL _shaderModel = D3D_SHADER_MODEL_5_1;
 	D3D_ROOT_SIGNATURE_VERSION _rootSignatureVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
-	
-	bool _isUMA = false;
-	bool _isHeapFlagCreateNotZeroedSupported = false;
-	bool _isGPUUploadHeapSupported = false;
-	bool _isMinFloat16Supported = false;
+
 	bool _isNative16BitSupported = false;
 };
 

@@ -1,6 +1,6 @@
 #pragma once
 
-// Windows 头文件
+// Windows
 #include <SDKDDKVer.h>
 #include <Windows.h>
 #include <windowsx.h>
@@ -8,12 +8,12 @@
 // 避免 C++/WinRT 头文件的警告
 #undef GetCurrentTime
 
-// DirectX 头文件
+// DirectX
 #include <dxgi1_6.h>
 #include <d3d12.h>
 #include <d3dx12.h>
 
-// C++ 运行时
+// 标准库
 #include <cstdlib>
 #include <string>
 #include <string_view>

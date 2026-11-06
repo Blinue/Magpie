@@ -23,8 +23,7 @@ struct EffectParameterDesc {
 enum class EffectFlags {
 	None,
 	SupportFP16 = 1,
-	SupportAdvancedColor = 1 << 1,
-	UseDynamic = 1 << 2
+	SupportAdvancedColor = 1 << 1
 };
 DEFINE_ENUM_FLAG_OPERATORS(EffectFlags)
 

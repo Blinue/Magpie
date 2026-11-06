@@ -250,7 +250,7 @@ void DirtyRectsOptimizer::Execute(SmallVectorImpl<RectU>& dirtyRects) noexcept {
 	uint32_t totalPixels = CalcTotalPixels(dirtyRects);
 	
 	while (true) {
-		uint32_t minTotalPixels = std::numeric_limits<uint32_t>::max();
+		uint32_t minTotalPixels = UINT_MAX;
 		uint32_t targetRectCount = 0;
 		bool targetCanOptimize = false;
 		uint32_t targetIdx1 = 0;

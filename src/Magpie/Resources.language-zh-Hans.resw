@@ -1147,4 +1147,7 @@
   <data name="Root_ProfileFlyout_DeleteConfirmationText" xml:space="preserve">
     <value>确定删除“{}”？</value>
   </data>
+  <data name="Home_Advanced_DeveloperOptions_DisableResourceAliasing.Content" xml:space="preserve">
+    <value>禁用资源别名</value>
+  </data>
 </root>

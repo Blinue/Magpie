@@ -9,6 +9,114 @@
 
 namespace Magpie {
 
+static bool PtInWindow(HWND hWnd, POINT pt) noexcept {
+	// 检查窗口是否可见
+	if (!IsWindowVisible(hWnd)) {
+		return false;
+	}
+
+	// 检查是否在窗口内
+	RECT windowRect;
+	if (!GetWindowRect(hWnd, &windowRect) || !Win32Helper::PtInRect(windowRect, pt)) {
+		return false;
+	}
+
+	// 检查窗口是否对鼠标透明
+	if (GetWindowExStyle(hWnd) & WS_EX_TRANSPARENT) {
+		return false;
+	}
+
+	// 检查窗口是否被冻结。这个调用比较耗时，因此稍晚检查
+	{
+		UINT isCloaked = 0;
+		HRESULT hr = DwmGetWindowAttribute(hWnd, DWMWA_CLOAKED, &isCloaked, sizeof(isCloaked));
+		if (SUCCEEDED(hr) && isCloaked) {
+			return false;
+		}
+	}
+
+	// 进一步检查窗口是否对鼠标透明，这比较耗时，因此稍晚检查。除了 WS_EX_TRANSPARENT，还存在两种透明机制:
+	// 
+	// 1. 分层窗口
+	// 2. 使用 SetWindowRgn 自定义形状的窗口
+	// 
+	// 注意无需考虑 HTTRANSPARENT，它只能作用于子窗口。
+	// 
+	// 由于前者只能使客户区域透明，ChildWindowFromPointEx 可以完美处理，该接口
+	// 也会考虑自定义形状的窗口。反之如果位于非客户区，我们需手动处理后者。
+	//
+	// 可以参考 ChildWindowFromPointEx 的实现:
+	// https://github.com/Blinue/nt5src/blob/daad8a087a4e75422ec96b7911f1df4669989611/Source/XPSP1/NT/windows/core/ntuser/kernel/winwhere.c#L47
+
+	RECT clientRect;
+	if (!Win32Helper::GetClientScreenRect(hWnd, clientRect)) {
+		// 出错返回 true，因为已经确定光标在窗口内
+		return true;
+	}
+
+	if (Win32Helper::PtInRect(clientRect, pt)) {
+		// 使用 ChildWindowFromPointEx 检查客户区是否透明。
+		// 不关心子窗口，因此跳过尽可能多的子窗口以提高性能。
+		SetLastError(0);
+		if (ChildWindowFromPointEx(
+			hWnd,
+			{ pt.x - clientRect.left, pt.y - clientRect.top },
+			CWP_SKIPINVISIBLE | CWP_SKIPDISABLED | CWP_SKIPTRANSPARENT
+		)) {
+			return true;
+		}
+
+		// 如果因权限不足等原因失败则视为不透明
+		if (GetLastError() == 0) {
+			// 命中了透明像素
+			return false;
+		}
+	}
+
+	// 不在客户区或 ChildWindowFromPointEx 失败则检查窗口区域
+	static HRGN hRgn = CreateRectRgn(0, 0, 0, 0);
+	const int regionType = GetWindowRgn(hWnd, hRgn);
+	if (regionType == SIMPLEREGION || regionType == COMPLEXREGION) {
+		if (!PtInRegion(hRgn, pt.x - windowRect.left, pt.y - windowRect.top)) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+// 检测光标位于哪个窗口上，是否检测缩放窗口由 clickThroughHost 指定
+static HWND WindowFromPoint(HWND hwndScaling, const RECT& rendererRect, POINT pt, bool clickThroughHost) noexcept {
+	struct EnumData {
+		HWND result;
+		HWND hwndScaling;
+		RECT rendererRect;
+		POINT pt;
+		bool clickThroughHost;
+	} data = { NULL, hwndScaling, rendererRect, pt, clickThroughHost };
+
+	EnumWindows([](HWND hWnd, LPARAM lParam) {
+		EnumData& data = *(EnumData*)lParam;
+		if (hWnd == data.hwndScaling) {
+			if (Win32Helper::PtInRect(data.rendererRect, data.pt) && !data.clickThroughHost) {
+				data.result = hWnd;
+				return FALSE;
+			} else {
+				return TRUE;
+			}
+		}
+
+		if (PtInWindow(hWnd, data.pt)) {
+			data.result = hWnd;
+			return FALSE;
+		} else {
+			return TRUE;
+		}
+	}, (LPARAM)&data);
+
+	return data.result;
+}
+
 void CursorManager::Initialize(
 	const RECT& srcRect,
 	const RECT& rendererRect,
@@ -24,6 +132,10 @@ void CursorManager::Initialize(
 }
 
 CursorManager::~CursorManager() noexcept {
+	if (ScalingWindow::Get().Options().IsDebugMode()) {
+		return;
+	}
+
 	_ShowSystemCursor(true, true);
 	_RestoreClipCursor();
 
@@ -40,13 +152,49 @@ CursorManager::~CursorManager() noexcept {
 }
 
 std::pair<HCURSOR, POINT> CursorManager::Update() noexcept {
-	bool wasCapturedOnForeground = _isCapturedOnForeground;
+	// 调试模式下不改变光标位置或限制光标，否则调试很不方便
+	if (ScalingWindow::Get().Options().IsDebugMode()) {
+		CURSORINFO ci = { .cbSize = sizeof(CURSORINFO) };
+		GetCursorInfo(&ci);
 
-	_UpdateCursorState();
-	_UpdateCursorPos();
+		HWND hwndSrc = ScalingWindow::Get().SrcHandle();
+		HWND hwndScaling = ScalingWindow::Get().Handle();
 
-	if (_isCapturedOnForeground != wasCapturedOnForeground) {
-		ScalingWindow::Get().OnCursorCapturedOnForegroundChanged(_isCapturedOnForeground);
+		bool wasVirtualized = _isVirtualized;
+		bool isCursorOnSrc = WindowFromPoint(hwndScaling, _rendererRect, ci.ptScreenPos, true) == hwndSrc;
+		// 光标在叠加层上时停止虚拟化以和非调试模式保持一致
+		_isVirtualized = isCursorOnSrc && !_isOnOverlay;
+		
+		if (_isVirtualized != wasVirtualized) {
+			DWORD exStyle = GetWindowExStyle(hwndScaling);
+			if (_isVirtualized) {
+				exStyle |= WS_EX_TRANSPARENT;
+			} else {
+				exStyle &= ~WS_EX_TRANSPARENT;
+			}
+			SetWindowLong(hwndScaling, GWL_EXSTYLE, exStyle);
+
+			ScalingWindow::Get().OnCursorVirtualizationChanged(_isVirtualized);
+		}
+
+		_hCursor = ci.flags == CURSOR_SHOWING ? ci.hCursor : NULL;
+
+		// 光标在叠加层上时已停止虚拟化，但没改变光标位置，因此光标位置需要视为处于
+		// 虚拟化状态才能操作叠加层。
+		if (_isVirtualized || (isCursorOnSrc && _isOnOverlay)) {
+			_cursorPos = _SrcToScaling(ci.ptScreenPos, false);
+		} else {
+			_cursorPos = ci.ptScreenPos;
+		}
+	} else {
+		bool wasCapturedOnForeground = _isCapturedOnForeground;
+
+		_UpdateCursorState();
+		_UpdateCursorPos();
+
+		if (_isCapturedOnForeground != wasCapturedOnForeground) {
+			ScalingWindow::Get().OnCursorCapturedOnForegroundChanged(_isCapturedOnForeground);
+		}
 	}
 
 	return { _hCursor, _cursorPos };
@@ -60,6 +208,10 @@ void CursorManager::OnResized(const RECT& rendererRect, const RECT& destRect) no
 	_rendererRect = rendererRect;
 	_destRect = destRect;
 
+	if (ScalingWindow::Get().Options().IsDebugMode()) {
+		return;
+	}
+
 	if (_isVirtualized && !_isSrcMoving) {
 		// 确保光标的缩放后位置不变
 		_ReliableSetCursorPos(_ScalingToSrc(_cursorPos));
@@ -72,6 +224,10 @@ void CursorManager::OnResized(const RECT& rendererRect, const RECT& destRect) no
 
 void CursorManager::OnMovingChanged(bool value) noexcept {
 	_isMoving = value;
+
+	if (ScalingWindow::Get().Options().IsDebugMode()) {
+		return;
+	}
 
 	if (value) {
 		if (_isVirtualized) {
@@ -92,7 +248,7 @@ void CursorManager::OnMoved(const RECT& rendererRect, const RECT& destRect) noex
 void CursorManager::OnSrcMovingChanged(bool value) noexcept {
 	_isSrcMoving = value;
 
-	if (!_isVirtualized) {
+	if (ScalingWindow::Get().Options().IsDebugMode() || !_isVirtualized) {
 		return;
 	}
 
@@ -115,6 +271,10 @@ void CursorManager::OnSrcMovingChanged(bool value) noexcept {
 
 void CursorManager::OnSrcMoved(const RECT& srcRect) noexcept {
 	_srcRect = srcRect;
+
+	if (ScalingWindow::Get().Options().IsDebugMode()) {
+		return;
+	}
 
 	_ClearHitTestResult();
 }
@@ -369,114 +529,6 @@ void CursorManager::_ClearHitTestResult() noexcept {
 	_lastCompletedHitTestResult = HTNOWHERE;
 }
 
-static bool PtInWindow(HWND hWnd, POINT pt) noexcept {
-	// 检查窗口是否可见
-	if (!IsWindowVisible(hWnd)) {
-		return false;
-	}
-
-	// 检查是否在窗口内
-	RECT windowRect;
-	if (!GetWindowRect(hWnd, &windowRect) || !Win32Helper::PtInRect(windowRect, pt)) {
-		return false;
-	}
-
-	// 检查窗口是否对鼠标透明
-	if (GetWindowExStyle(hWnd) & WS_EX_TRANSPARENT) {
-		return false;
-	}
-
-	// 检查窗口是否被冻结。这个调用比较耗时，因此稍晚检查
-	{
-		UINT isCloaked = 0;
-		HRESULT hr = DwmGetWindowAttribute(hWnd, DWMWA_CLOAKED, &isCloaked, sizeof(isCloaked));
-		if (SUCCEEDED(hr) && isCloaked) {
-			return false;
-		}
-	}
-
-	// 进一步检查窗口是否对鼠标透明，这比较耗时，因此稍晚检查。除了 WS_EX_TRANSPARENT，还存在两种透明机制:
-	// 
-	// 1. 分层窗口
-	// 2. 使用 SetWindowRgn 自定义形状的窗口
-	// 
-	// 注意无需考虑 HTTRANSPARENT，它只能作用于子窗口。
-	// 
-	// 由于前者只能使客户区域透明，ChildWindowFromPointEx 可以完美处理，该接口
-	// 也会考虑自定义形状的窗口。反之如果位于非客户区，我们需手动处理后者。
-	//
-	// 可以参考 ChildWindowFromPointEx 的实现:
-	// https://github.com/Blinue/nt5src/blob/daad8a087a4e75422ec96b7911f1df4669989611/Source/XPSP1/NT/windows/core/ntuser/kernel/winwhere.c#L47
-
-	RECT clientRect;
-	if (!Win32Helper::GetClientScreenRect(hWnd, clientRect)) {
-		// 出错返回 true，因为已经确定光标在窗口内
-		return true;
-	}
-
-	if (Win32Helper::PtInRect(clientRect, pt)) {
-		// 使用 ChildWindowFromPointEx 检查客户区是否透明。
-		// 不关心子窗口，因此跳过尽可能多的子窗口以提高性能。
-		SetLastError(0);
-		if (ChildWindowFromPointEx(
-			hWnd,
-			{ pt.x - clientRect.left, pt.y - clientRect.top },
-			CWP_SKIPINVISIBLE | CWP_SKIPDISABLED | CWP_SKIPTRANSPARENT
-		)) {
-			return true;
-		}
-
-		// 如果因权限不足等原因失败则视为不透明
-		if (GetLastError() == 0) {
-			// 命中了透明像素
-			return false;
-		}
-	}
-
-	// 不在客户区或 ChildWindowFromPointEx 失败则检查窗口区域
-	static HRGN hRgn = CreateRectRgn(0, 0, 0, 0);
-	const int regionType = GetWindowRgn(hWnd, hRgn);
-	if (regionType == SIMPLEREGION || regionType == COMPLEXREGION) {
-		if (!PtInRegion(hRgn, pt.x - windowRect.left, pt.y - windowRect.top)) {
-			return false;
-		}
-	}
-
-	return true;
-}
-
-// 检测光标位于哪个窗口上，是否检测缩放窗口由 clickThroughHost 指定
-static HWND WindowFromPoint(HWND hwndScaling, const RECT& rendererRect, POINT pt, bool clickThroughHost) noexcept {
-	struct EnumData {
-		HWND result;
-		HWND hwndScaling;
-		RECT rendererRect;
-		POINT pt;
-		bool clickThroughHost;
-	} data{ NULL, hwndScaling, rendererRect, pt, clickThroughHost };
-
-	EnumWindows([](HWND hWnd, LPARAM lParam) {
-		EnumData& data = *(EnumData*)lParam;
-		if (hWnd == data.hwndScaling) {
-			if (Win32Helper::PtInRect(data.rendererRect, data.pt) && !data.clickThroughHost) {
-				data.result = hWnd;
-				return FALSE;
-			} else {
-				return TRUE;
-			}
-		}
-
-		if (PtInWindow(hWnd, data.pt)) {
-			data.result = hWnd;
-			return FALSE;
-		} else {
-			return TRUE;
-		}
-	}, (LPARAM)&data);
-
-	return data.result;
-}
-
 static bool IsEdgeArea(int16_t area) noexcept {
 	return area >= HTSIZEFIRST && area <= HTSIZELAST;
 }
@@ -535,7 +587,7 @@ void CursorManager::_UpdateCursorState() noexcept {
 		// 问题，叠加层将不会试图捕获光标。
 		_isCapturedOnForeground = false;
 
-		GUITHREADINFO info{ .cbSize = sizeof(info) };
+		GUITHREADINFO info = { .cbSize = sizeof(info) };
 		GetGUIThreadInfo(NULL, &info);
 
 		if (info.hwndCapture &&
@@ -1151,10 +1203,6 @@ bool CursorManager::_StopVirtualization(POINT& cursorPos, bool onDestroy) noexce
 }
 
 void CursorManager::_SetClipCursor(const RECT& clipRect, bool is3DGameMode) noexcept {
-	if (ScalingWindow::Get().Options().IsDebugMode()) {
-		return;
-	}
-
 	// 限制区域有变化才调用 ClipCursor，因为每次调用 ClipCursor 都会向前台窗口发送
 	// WM_MOUSEMOVE 消息，一些程序无法正确处理，如 GH#920 和 GH#927。
 	//

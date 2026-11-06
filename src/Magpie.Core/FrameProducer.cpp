@@ -4,6 +4,7 @@
 #include "DuplicateFrameChecker.h"
 #include "DescriptorHeap.h"
 #include "EffectDrawerBase.h"
+#include "GpuResourceManager.h"
 #include "GraphicsCaptureFrameSource.h"
 #include "Logger.h"
 #include "ScalingWindow.h"
@@ -124,7 +125,10 @@ void FrameProducer::OnResizedAsync(
 			return;
 		}
 
-		_effectsDrawer->OnResized(rendererSize, outputSize);
+		hr = _effectsDrawer->OnResized(rendererSize, outputSize);
+		if (!_CheckResult(hr, "EffectsDrawer::OnResized 失败")) {
+			return;
+		}
 
 		hr = _frameRingBuffer.OnResized(outputSize);
 		if (!_CheckResult(hr, "FrameRingBuffer::OnResized 失败")) {
@@ -174,7 +178,10 @@ void FrameProducer::OnColorInfoChangedAsync(
 			return;
 		}
 
-		_effectsDrawer->OnColorInfoChanged(colorInfo);
+		hr = _effectsDrawer->OnColorInfoChanged(colorInfo);
+		if (!_CheckResult(hr, "EffectsDrawer::OnColorInfoChanged 失败")) {
+			return;
+		}
 
 		hr = _frameRingBuffer.OnColorInfoChanged(colorInfo);
 		if (!_CheckResult(hr, "FrameRingBuffer::OnColorInfoChanged 失败")) {
@@ -312,7 +319,7 @@ void FrameProducer::_ProducerThreadProc(
 	_monitorThread.join();
 
 #ifdef _DEBUG
-	if (_inputSrvBaseOffset != std::numeric_limits<uint32_t>::max()) {
+	if (_inputSrvBaseOffset != UINT_MAX) {
 		auto& descriptorHeap = _d3d12Context.GetDescriptorHeap();
 		uint32_t maxInFlightFrameCount = ScalingWindow::Get().Options().maxProducerInFlightFrames;
 		descriptorHeap.Free(_inputSrvBaseOffset, 3 * maxInFlightFrameCount + 2);
@@ -483,7 +490,7 @@ HRESULT FrameProducer::_Render() noexcept {
 		Logger::Get().ComError("D3D12Context::BeginFrame 失败", hr);
 		return hr;
 	}
-	
+
 	ID3D12CommandQueue* commandQueue = _d3d12Context.GetCommandQueue();
 
 	uint32_t frameRingBufferIdx;
@@ -495,6 +502,8 @@ HRESULT FrameProducer::_Render() noexcept {
 		Logger::Get().ComError("FrameRingBuffer::ProducerBeginFrame 失败", hr);
 		return hr;
 	}
+
+	_d3d12Context.GetGpuResourceManager().OnFrameBegan(frameFenceValue, false);
 
 	uint32_t frameSourceOutputIdx;
 	hr = _frameSource->Update(frameSourceOutputIdx);
@@ -577,9 +586,13 @@ void FrameProducer::_MonitorThreadProc() noexcept {
 		ScalingWindow::Get().RequestNewFrame();
 
 		_dispatcher.TryEnqueue([this, runId(ScalingWindow::RunId())] {
-			if (runId == ScalingWindow::RunId()) {
-				_effectsDrawer->OnProducerFrameCompleted(_frameRingBuffer.GetProduerCompletedFenceValue());
+			if (runId != ScalingWindow::RunId()) {
+				return;
 			}
+
+			uint64_t completedFenceValue = _frameRingBuffer.GetProduerCompletedFenceValue();
+			_d3d12Context.GetGpuResourceManager().OnFrameCompleted(completedFenceValue, false);
+			_effectsDrawer->OnProducerFrameCompleted(completedFenceValue);
 		});
 		
 		HRESULT hr = _frameRingBuffer.SetEventOnNewFrame(producerFenceValue, newFrameEvent.get());

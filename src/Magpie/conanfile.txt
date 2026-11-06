@@ -8,6 +8,7 @@ muparser/2.3.5
 yas/7.1.0
 imgui/1.92.9b
 rapidhash/1.0
+d3d12-memory-allocator/3.0.1
 
 [generators]
 MSBuildDeps

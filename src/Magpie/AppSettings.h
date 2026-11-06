@@ -150,6 +150,15 @@ public:
 		SaveAsync();
 	}
 
+	bool IsResourceAliasingDisabled() const noexcept {
+		return _isResourceAliasingDisabled;
+	}
+
+	void IsResourceAliasingDisabled(bool value) noexcept {
+		_isResourceAliasingDisabled = value;
+		SaveAsync();
+	}
+
 	bool IsAllowScalingMaximized() const noexcept {
 		return _isAllowScalingMaximized;
 	}
@@ -342,6 +351,7 @@ private:
 	bool _isAutoCheckForUpdates = true;
 	bool _isCheckForPreviewUpdates = false;
 	bool _isFP16Disabled = false;
+	bool _isResourceAliasingDisabled = false;
 };
 
 }

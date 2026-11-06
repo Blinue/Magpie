@@ -627,7 +627,7 @@ winrt::fire_and_forget EffectsService::_CompileShaderEffectAsync(
 				profile = L"cs_6_1";
 				break;
 			default:
-				profile = L"cs_6_0";
+				profile = shaderModel > D3D_SHADER_MODEL_6_9 ? L"cs_6_9" : L"cs_6_0";
 				break;
 			}
 			arguments.push_back(profile);
@@ -686,7 +686,9 @@ winrt::fire_and_forget EffectsService::_CompileShaderEffectAsync(
 			dxcResult->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&messages), nullptr);
 			if (messages && messages->GetStringLength() > 0) {
 				logWarn(StrHelper::Concat("编译着色器输出: ", messages->GetStringPointer()));
-				return;
+				if (warningsAreErrors) {
+					return;
+				}
 			}
 
 			HRESULT compileStatus;
