@@ -515,7 +515,16 @@ HRESULT ShaderEffectDrawer::Draw(
 			_TextureResourceData& exportTexResData = _textureResourceDatas[exportTexResIdx];
 
 			exportData.textureSize = _textureSizes[exportTexIdx];
+
 			exportData.textureFormat = _drawInfo->textures[exportTexIdx].format;
+			assert(exportData.textureFormat != EffectTextureFormat::UNKNOWN);
+			if (exportData.textureFormat == EffectTextureFormat::COLOR_SPACE_ADAPTIVE) {
+				if (_acKind == winrt::AdvancedColorKind::StandardDynamicRange) {
+					exportData.textureFormat = EffectTextureFormat::R10G10B10A2_UNORM;
+				} else {
+					exportData.textureFormat = EffectTextureFormat::R16G16B16A16_FLOAT;
+				}
+			}
 
 			const EffectTextureFormatProps& textureFormatProps =
 				EFFECT_TEXTURE_FORMAT_PROPS[(uint32_t)exportData.textureFormat];
