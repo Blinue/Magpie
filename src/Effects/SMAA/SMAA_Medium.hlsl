@@ -1,14 +1,12 @@
 //!MAGPIE EFFECT
-//!VERSION 4
+//!VERSION 5
 //!SORT_NAME SMAA_1
-
+//!SCALE_FACTOR 1
 
 //!TEXTURE
 Texture2D INPUT;
 
 //!TEXTURE
-//!WIDTH INPUT_WIDTH
-//!HEIGHT INPUT_HEIGHT
 Texture2D OUTPUT;
 
 //!TEXTURE
@@ -40,7 +38,6 @@ SamplerState PointSampler;
 //!SAMPLER
 //!FILTER LINEAR
 SamplerState LinearSampler;
-
 
 //!COMMON
 

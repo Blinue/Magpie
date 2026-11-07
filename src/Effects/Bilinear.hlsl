@@ -1,5 +1,6 @@
 //!MAGPIE EFFECT
-//!VERSION 4
+//!VERSION 5
+//!CAPABILITY AdvancedColor
 
 //!TEXTURE
 Texture2D INPUT;

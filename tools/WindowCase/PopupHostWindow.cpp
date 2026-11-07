@@ -9,7 +9,7 @@ bool PopupHostWindow::Create() noexcept {
 		.cbSize = sizeof(WNDCLASSEX),
 		.style = CS_HREDRAW | CS_VREDRAW,
 		.lpfnWndProc = _WndProc,
-		.hInstance = Utils::GetModuleInstanceHandle(),
+		.hInstance = wil::GetModuleInstanceHandle(),
 		.hCursor = LoadCursor(nullptr, IDC_ARROW),
 		.hbrBackground = HBRUSH(COLOR_WINDOW + 1),
 		.lpszClassName = WINDOW_NAME
@@ -28,7 +28,7 @@ bool PopupHostWindow::Create() noexcept {
 		CW_USEDEFAULT,
 		NULL,
 		NULL,
-		Utils::GetModuleInstanceHandle(),
+		wil::GetModuleInstanceHandle(),
 		this
 	);
 	if (!Handle()) {
@@ -70,7 +70,7 @@ LRESULT PopupHostWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		const LRESULT ret = base_type::_MessageHandler(msg, wParam, lParam);
 
-		const HMODULE hInst = Utils::GetModuleInstanceHandle();
+		const HMODULE hInst = wil::GetModuleInstanceHandle();
 		_hwndBtn1 = CreateWindow(L"BUTTON", L"模态弹窗",
 			WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, Handle(), (HMENU)1, hInst, 0);
 		_hwndBtn2 = CreateWindow(L"BUTTON", L"模拟模态弹窗",
@@ -112,7 +112,7 @@ LRESULT PopupHostWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam)
 						.cbSize = sizeof(WNDCLASSEX),
 						.style = CS_HREDRAW | CS_VREDRAW,
 						.lpfnWndProc = _Popup2WndProc,
-						.hInstance = Utils::GetModuleInstanceHandle(),
+						.hInstance = wil::GetModuleInstanceHandle(),
 						.hCursor = LoadCursor(nullptr, IDC_ARROW),
 						.hbrBackground = HBRUSH(COLOR_WINDOW + 1),
 						.lpszClassName = POPUP2_WINDOW_NAME
@@ -134,7 +134,7 @@ LRESULT PopupHostWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam)
 					popupSize.cy,
 					Handle(),
 					NULL,
-					Utils::GetModuleInstanceHandle(),
+					wil::GetModuleInstanceHandle(),
 					this
 				);
 			} else {
@@ -144,7 +144,7 @@ LRESULT PopupHostWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam)
 						.cbSize = sizeof(WNDCLASSEX),
 						.style = CS_HREDRAW | CS_VREDRAW,
 						.lpfnWndProc = DefWindowProc,
-						.hInstance = Utils::GetModuleInstanceHandle(),
+						.hInstance = wil::GetModuleInstanceHandle(),
 						.hCursor = LoadCursor(nullptr, IDC_ARROW),
 						.hbrBackground = HBRUSH(COLOR_WINDOW + 1),
 						.lpszClassName = POPUP_WINDOW_NAME
@@ -166,7 +166,7 @@ LRESULT PopupHostWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam)
 					popupSize.cy,
 					btnId == 3 ? Handle() : NULL,
 					NULL,
-					Utils::GetModuleInstanceHandle(),
+					wil::GetModuleInstanceHandle(),
 					nullptr
 				);
 			}

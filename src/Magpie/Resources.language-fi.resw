@@ -481,9 +481,6 @@
   <data name="Profile_Cursor_DrawCursor_Interpolation.Header" xml:space="preserve">
     <value>Interpolaatioalgoritmi</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
-    <value>Bilineaarinen</value>
-  </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
     <value>Lähin-naapuri</value>
   </data>
@@ -680,9 +677,6 @@
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
     <value>Ei koskaan</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
-    <value>Salli tilastot dynaamista tunnistamista varten</value>
-  </data>
   <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
     <value>Dynaaminen tunnistus</value>
   </data>
@@ -865,12 +859,6 @@
   </data>
   <data name="Message_ScreenshotSaved" xml:space="preserve">
     <value>Kaappaus tallennettu nimellä {}</value>
-  </data>
-  <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
-    <value>Paina hiiren kakkospainiketta viedäksesi väliaikatilan tuloksen</value>
-  </data>
-  <data name="Overlay_Toolbar_TakeScreenshot_PopupTitle" xml:space="preserve">
-    <value>Vie väliaikatilan tulos</value>
   </data>
   <data name="Profile_WindowedScaling.Header" xml:space="preserve">
     <value>Ikkunoitu skaalaus</value>

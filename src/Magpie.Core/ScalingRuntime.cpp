@@ -161,18 +161,12 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 	ScalingWindow& scalingWindow = ScalingWindow::Get();
 	ScalingWindow::Dispatcher(_dispatcher);
 
-	time_point<steady_clock> lastRenderTime;
-
 	MSG msg;
 	while (true) {
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 			if (msg.message == WM_QUIT) {
 				scalingWindow.Stop();
 				return;
-			} else if (msg.message == CommonSharedConstants::WM_FRONTEND_RENDER &&
-				msg.hwnd == scalingWindow.Handle()) {
-				// 缩放窗口收到 WM_FRONTEND_RENDER 将执行渲染
-				lastRenderTime = steady_clock::now();
 			}
 
 			DispatchMessage(&msg);
@@ -181,24 +175,27 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 		if (scalingWindow) {
 			_State(ScalingState::Scaling);
 
-			const auto now = steady_clock::now();
-			// 限制检测光标移动的频率
-			const milliseconds timeout(scalingWindow.Options().Is3DGameMode() ? 8 : 2);
-			nanoseconds rest = timeout - (now - lastRenderTime);
-			if (rest.count() <= 0) {
-				lastRenderTime = now;
-				rest = timeout;
+			if (scalingWindow.WantRender()) {
 				scalingWindow.Render();
+			} else {
+				const steady_clock::time_point now = steady_clock::now();
+				// 限制检测光标移动的频率
+				const milliseconds timeout(scalingWindow.Options().Is3DGameMode() ? 8 : 2);
+				nanoseconds rest = timeout - (now - scalingWindow.GetLastRenderTime());
+				if (rest < 1us) {
+					scalingWindow.Render();
+					rest = timeout;
+				}
+
+				// 值为 1000000
+				constexpr auto ratio = std::ratio_divide<std::milli, std::nano>().num;
+				// 向上取整
+				const DWORD restMs = DWORD((rest.count() + ratio - 1) / ratio);
+				MsgWaitForMultipleObjectsEx(0, nullptr, restMs, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
 			}
-			
-			// 值为 1000000
-			constexpr auto ratio = std::ratio_divide<std::milli, std::nano>().num;
-			// 向上取整
-			const DWORD restMs = DWORD((rest.count() + ratio - 1) / ratio);
-			MsgWaitForMultipleObjectsEx(0, nullptr, restMs, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
 		} else if (scalingWindow.IsSrcRepositioning()) {
 			std::optional<bool> repositioning =
-				IsSrcRepositioning(scalingWindow.SrcTracker().Handle());
+				IsSrcRepositioning(scalingWindow.SrcHandle());
 			if (repositioning.has_value()) {
 				if (*repositioning) {
 					// 等待调整完成
@@ -216,7 +213,6 @@ void ScalingRuntime::_ScalingThreadProc() noexcept {
 			}
 		} else {
 			_State(ScalingState::Idle);
-			lastRenderTime = {};
 			WaitMessage();
 		}
 	}

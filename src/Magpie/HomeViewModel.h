@@ -82,6 +82,9 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel>, wil::notify_property_chang
 	bool IsBenchmarkMode() const noexcept;
 	void IsBenchmarkMode(bool value);
 
+	bool UseWarp() const noexcept;
+	void UseWarp(bool value);
+
 	bool IsTopmostDisabled() const noexcept;
 	void IsTopmostDisabled(bool value);
 
@@ -100,13 +103,14 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel>, wil::notify_property_chang
 	bool IsFP16Disabled() const noexcept;
 	void IsFP16Disabled(bool value);
 
+	bool IsResourceAliasingDisabled() const noexcept;
+	void IsResourceAliasingDisabled(bool value);
+
 	int DuplicateFrameDetectionMode() const noexcept;
 	void DuplicateFrameDetectionMode(int value);
 
-	bool IsDynamicDection() const noexcept;
-
-	bool IsStatisticsForDynamicDetectionEnabled() const noexcept;
-	void IsStatisticsForDynamicDetectionEnabled(bool value);
+	int HighestShaderModel() const noexcept;
+	void HighestShaderModel(int value);
 
 private:
 	void _ScalingService_IsTimerOnChanged(bool value, bool windowedMode);

@@ -363,9 +363,6 @@
   <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
     <value>ㄷ 최단입점</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
-    <value>〈 쌍선형</value>
-  </data>
   <data name="Profile_Cursor_DrawCursor_ScaleFactor.Header" xml:space="preserve">
     <value>스케일링 인수</value>
   </data>
@@ -745,9 +742,6 @@
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
     <value>감지 안 함</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
-    <value>동직 감지용 통계 사용</value>
-  </data>
   <data name="Home_TouchSupport_EnableTouchSupport.Header" xml:space="preserve">
     <value>터치 지원 사용</value>
   </data>
@@ -879,12 +873,6 @@
   </data>
   <data name="Profile_Toolbar_ScreenshotSaveDirectory.Header" xml:space="preserve">
     <value>스크린샷 저장 경로</value>
-  </data>
-  <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
-    <value>오른쪽 클릭으로 중간 단계 내보내기</value>
-  </data>
-  <data name="Overlay_Toolbar_TakeScreenshot_PopupTitle" xml:space="preserve">
-    <value>중간 단계 내보내기</value>
   </data>
   <data name="Home_TouchSupport_Warn.Title" xml:space="preserve">
     <value>툴바는 터치 입력을 지원하지 않습니다.</value>
