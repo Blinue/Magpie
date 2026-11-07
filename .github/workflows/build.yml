@@ -3,6 +3,7 @@ permissions:
   contents: read
 
 on:
+  workflow_dispatch:
   push:
     paths:
       [
@@ -22,10 +23,16 @@ on:
         'src/**',
       ]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: windows-2025-vs2026
+    timeout-minutes: 60
     strategy:
+      fail-fast: false
       matrix:
         compiler: ['MSVC', 'clang-cl']
         platform: ['x64', 'ARM64']
@@ -41,20 +48,21 @@ jobs:
           python-version: '3.14'
 
       - name: Setup Conan
-        run: pip install conan
+        run: python -m pip install "conan>=2,<3"
 
       - name: Load Conan cache
         uses: actions/cache@v6
         with:
           path: ~/.conan2/p
-          key: Conan-${{ hashFiles('src/**/conanfile.txt') }}-${{ matrix.compiler }}-${{ matrix.platform }}
+          key: Conan-${{ hashFiles('src/**/conanfile.txt', 'src/_ConanDeps/*.profile') }}-${{ matrix.compiler }}-${{ matrix.platform }}
 
+      # Forks build without the upstream TouchHelper signing credentials.
       - name: Build
-        if: github.ref != 'refs/heads/dev' && github.ref != 'refs/heads/main'
+        if: github.repository != 'Blinue/Magpie' || (github.ref != 'refs/heads/dev' && github.ref != 'refs/heads/main')
         run: python scripts/publish.py --compiler=${{ matrix.compiler }} --platform=${{ case(matrix.platform == 'x86-64-v3', 'x64 --clang-target-march=x86-64-v3', matrix.platform) }}
 
       - name: Build and sign
-        if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main'
+        if: github.repository == 'Blinue/Magpie' && (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main')
         run: python scripts/publish.py --compiler=${{ matrix.compiler }} --platform=${{ case(matrix.platform == 'x86-64-v3', 'x64  --clang-target-march=x86-64-v3', matrix.platform) }} --pfx-path=certs\Magpie.pfx --pfx-password="${{ secrets.MAGPIE_PFX_PASSWORD }}"
 
       - name: Save hash
@@ -66,3 +74,4 @@ jobs:
         with:
           name: Magpie-dev-${{ steps.hash.outputs.sha_short }}-${{ matrix.compiler }}-${{ matrix.platform }}
           path: ./publish/${{ case(matrix.platform == 'x86-64-v3', 'x64', matrix.platform) }}
+          if-no-files-found: error

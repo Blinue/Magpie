@@ -88,6 +88,7 @@ void ScalingOptions::Prepare() noexcept {
 	Is3DGameMode: {}
 	IsCaptureTitleBar: {}
 	IsAdjustCursorSpeed: {}
+	IsRemoteCursorEnabled: {}
 	IsDirectFlipDisabled: {}
 	cropping: {},{},{},{}
 	graphicsCardId:
@@ -125,6 +126,7 @@ void ScalingOptions::Prepare() noexcept {
 		Is3DGameMode(),
 		IsCaptureTitleBar(),
 		IsAdjustCursorSpeed(),
+		IsRemoteCursorEnabled(),
 		IsDirectFlipDisabled(),
 		cropping.Left, cropping.Top, cropping.Right, cropping.Bottom,
 		graphicsCardId.idx,

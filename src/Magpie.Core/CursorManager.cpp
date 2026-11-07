@@ -2,6 +2,7 @@
 #include "CursorManager.h"
 #include "Logger.h"
 #include "Renderer.h"
+#include "RemoteCursor.h"
 #include "ScalingOptions.h"
 #include "ScalingWindow.h"
 #include "Win32Helper.h"
@@ -95,7 +96,15 @@ static POINT ScalingToSrc(POINT pt, RoundMethod roundType = RoundMethod::Round) 
 	return result;
 }
 
+CursorManager::CursorManager() noexcept {
+	const ScalingOptions& options = ScalingWindow::Get().Options();
+	if (options.IsRemoteCursorEnabled() && !options.IsDebugMode()) {
+		_remoteCursor = std::make_unique<RemoteCursor>();
+	}
+}
+
 CursorManager::~CursorManager() noexcept {
+	_remoteCursor.reset();
 	_ShowSystemCursor(true, true);
 	_RestoreClipCursor();
 
@@ -1046,11 +1055,29 @@ void CursorManager::_ClipCursorOnSrcMoving() noexcept {
 }
 
 void CursorManager::_UpdateCursorPos() noexcept {
+	if (_remoteCursor && !_shouldDrawCursor) {
+		_remoteCursor->Update(0);
+	}
 	if (_shouldDrawCursor) {
 		CURSORINFO ci{ .cbSize = sizeof(CURSORINFO) };
 		if (!GetCursorInfo(&ci)) {
+			if (_remoteCursor) {
+				_remoteCursor->Update(0);
+			}
 			_hCursor = NULL;
 			return;
+		}
+
+		if (_remoteCursor) {
+			// 捕获鼠标的窗口拥有光标；否则取实际指针下的窗口（包括跨线程子窗口）。
+			GUITHREADINFO guiInfo{ .cbSize = sizeof(guiInfo) };
+			GetGUIThreadInfo(0, &guiInfo);
+			HWND hwndCursor = guiInfo.hwndCapture;
+			if (!hwndCursor) {
+				hwndCursor = ::WindowFromPoint(ci.ptScreenPos);
+			}
+			const DWORD cursorThreadId = hwndCursor ? GetWindowThreadProcessId(hwndCursor, nullptr) : 0;
+			_remoteCursor->Update(cursorThreadId, &ci);
 		}
 
 		if (ci.flags == CURSOR_SHOWING) {

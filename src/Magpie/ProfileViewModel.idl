@@ -66,6 +66,7 @@ namespace Magpie {
 		Double CroppingBottom;
 
 		Boolean IsAdjustCursorSpeed;
+		Boolean IsRemoteCursorEnabled;
 		Int32 CursorScaling;
 		Double CustomCursorScaleFactor;
 		Int32 CursorInterpolationMode;
