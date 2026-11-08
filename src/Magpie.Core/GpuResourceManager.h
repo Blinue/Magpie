@@ -35,6 +35,7 @@ public:
 	HRESULT CreateBuffer(
 		D3D12_HEAP_TYPE heapType,
 		UINT64 bufferSize,
+		D3D12_RESOURCE_FLAGS flags,
 		D3D12_RESOURCE_STATES initialResourceState,
 		D3D12MA::Allocation** allocation
 	) const noexcept;

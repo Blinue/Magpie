@@ -65,12 +65,13 @@ HRESULT GpuResourceManager::CreateResource(
 HRESULT GpuResourceManager::CreateBuffer(
 	D3D12_HEAP_TYPE heapType,
 	UINT64 bufferSize,
+	D3D12_RESOURCE_FLAGS flags,
 	D3D12_RESOURCE_STATES initialResourceState,
 	D3D12MA::Allocation** allocation
 ) const noexcept {
 	return CreateResource(
 		heapType,
-		CD3DX12_RESOURCE_DESC::Buffer(bufferSize),
+		CD3DX12_RESOURCE_DESC::Buffer(bufferSize, flags),
 		initialResourceState,
 		allocation
 	);

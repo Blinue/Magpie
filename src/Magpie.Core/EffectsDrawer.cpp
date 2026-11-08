@@ -79,6 +79,7 @@ bool EffectsDrawer::Initialize(
 		hr = gpuResourceManager.CreateBuffer(
 			D3D12_HEAP_TYPE_READBACK,
 			timestampCount * sizeof(UINT64),
+			D3D12_RESOURCE_FLAG_NONE,
 			D3D12_RESOURCE_STATE_COPY_DEST,
 			_queryResultBufferAllocation.put()
 		);

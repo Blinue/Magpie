@@ -96,18 +96,19 @@ public:
 			CD3DX12_RESOURCE_BARRIER::Aliasing(resourceBefore, resourceAfter));
 	}
 
+	void CopyResource(ID3D12Resource* destResource, ID3D12Resource* srcResource) noexcept {
+		_FlushBarriers();
+		_commandList->CopyResource(destResource, srcResource);
+	}
+
 	void CopyBufferRegion(
 		ID3D12Resource* destBuffer,
 		uint32_t destOffset,
 		ID3D12Resource* srcBuffer,
 		uint32_t srcOffset,
-		uint32_t numBytes,
-		bool shouldFlushBarriers
+		uint32_t numBytes
 	) noexcept {
-		if (shouldFlushBarriers) {
-			_FlushBarriers();
-		}
-		
+		_FlushBarriers();
 		_commandList->CopyBufferRegion(destBuffer, destOffset, srcBuffer, srcOffset, numBytes);
 	}
 
@@ -175,7 +176,12 @@ public:
 		const void* pData
 	) noexcept;
 
-	void SetComputeRootConstantBufferView(
+	void SetRootConstantBufferView(
+		uint32_t rootParameterIndex,
+		D3D12_GPU_VIRTUAL_ADDRESS bufferLocation
+	) noexcept;
+
+	void SetRootUnorderedAccessView(
 		uint32_t rootParameterIndex,
 		D3D12_GPU_VIRTUAL_ADDRESS bufferLocation
 	) noexcept;

@@ -378,7 +378,7 @@ HRESULT ShaderEffectDrawer::Draw(
 		computeContext.CopyBufferRegion(
 			_constantBufferAllocation->GetResource(), 0,
 			_constantUploadBufferAllocation->GetResource(), 0,
-			_constantsDataSize, false
+			_constantsDataSize
 		);
 
 		computeContext.InsertTransitionBarrier(
@@ -482,7 +482,7 @@ HRESULT ShaderEffectDrawer::Draw(
 			}
 		}
 
-		computeContext.SetComputeRootConstantBufferView(
+		computeContext.SetRootConstantBufferView(
 			0, _constantBufferAllocation->GetResource()->GetGPUVirtualAddress());
 
 		uint32_t rootParameterIndex = 1;
@@ -1018,6 +1018,7 @@ HRESULT ShaderEffectDrawer::_CreateConstantBuffer() noexcept {
 	HRESULT hr = gpuResourceManager.CreateBuffer(
 		D3D12_HEAP_TYPE_UPLOAD,
 		uploadBufferSize,
+		D3D12_RESOURCE_FLAG_NONE,
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		_constantUploadBufferAllocation.put()
 	);
@@ -1029,6 +1030,7 @@ HRESULT ShaderEffectDrawer::_CreateConstantBuffer() noexcept {
 	hr = gpuResourceManager.CreateBuffer(
 		D3D12_HEAP_TYPE_DEFAULT,
 		DirectXHelper::Align(uploadBufferSize, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT),
+		D3D12_RESOURCE_FLAG_NONE,
 		D3D12_RESOURCE_STATE_COMMON,
 		_constantBufferAllocation.put()
 	);
@@ -1374,6 +1376,7 @@ HRESULT ShaderEffectDrawer::_Export(
 	HRESULT hr = gpuResourceManager.CreateBuffer(
 		D3D12_HEAP_TYPE_READBACK,
 		bufferSize,
+		D3D12_RESOURCE_FLAG_NONE,
 		D3D12_RESOURCE_STATE_COPY_DEST,
 		exportData.readbackBufferAllocation.put()
 	);

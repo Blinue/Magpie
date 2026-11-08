@@ -93,6 +93,7 @@ HRESULT ImGuiBackend::RenderDrawData(
 		HRESULT hr = gpuResourceManager.CreateBuffer(
 			D3D12_HEAP_TYPE_UPLOAD,
 			curFrameResource->vertexCount * sizeof(ImDrawVert),
+			D3D12_RESOURCE_FLAG_NONE,
 			D3D12_RESOURCE_STATE_GENERIC_READ,
 			curFrameResource->vertexBufferAllocation.put()
 		);
@@ -118,6 +119,7 @@ HRESULT ImGuiBackend::RenderDrawData(
 		HRESULT hr = gpuResourceManager.CreateBuffer(
 			D3D12_HEAP_TYPE_UPLOAD,
 			curFrameResource->indexCount * sizeof(ImDrawIdx),
+			D3D12_RESOURCE_FLAG_NONE,
 			D3D12_RESOURCE_STATE_GENERIC_READ,
 			curFrameResource->indexBufferAllocation.put()
 		);
@@ -286,6 +288,7 @@ HRESULT ImGuiBackend::_UpdateTexture(
 		HRESULT hr = gpuResourceManager.CreateBuffer(
 			D3D12_HEAP_TYPE_UPLOAD,
 			bufferSize,
+			D3D12_RESOURCE_FLAG_NONE,
 			D3D12_RESOURCE_STATE_GENERIC_READ,
 			uploadBufferAllocation.put()
 		);

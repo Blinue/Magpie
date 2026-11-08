@@ -306,13 +306,12 @@ void ScreenshotDrawer::OnProducerFrameCompleted(uint64_t fenceValue) noexcept {
 			TakeScreenshotResult result;
 			std::wstring screenshotFileName;
 			if (curData.readbackBufferData) {
-				// 导出时要求 pixelData 的最后一行有填充位
-				std::vector<uint8_t> pixelData(size_t(curData.rowPitch) * curData.textureSize.height);
+				std::vector<uint8_t> pixelData(curData.bufferSize);
 				std::memcpy(pixelData.data(), curData.readbackBufferData, curData.bufferSize);
 
 				HWND hwndSrc = ScalingWindow::Get().SrcHandle();
 				// 中间纹理导出为 dds，否则导出为 png
-				std::wstring_view imgFormat = curData.tempTextureAllocation ? L"png" : L"dds";
+				std::wstring_view imgFormat = curData.tempBufferAllocation ? L"png" : L"dds";
 				SizeU textureSize = curData.textureSize;
 				EffectTextureFormat textureFormat = curData.textureFormat;
 				uint32_t rowPitch = curData.rowPitch;
@@ -372,6 +371,12 @@ HRESULT ScreenshotDrawer::_InitializeScreenshotRootSignature() noexcept {
 
 	D3D12_ROOT_PARAMETER1 rootParams[] = {
 		{
+			.ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS,
+			.Constants = {
+				.Num32BitValues = 3
+			}
+		},
+		{
 			.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE,
 			.DescriptorTable = {
 				.NumDescriptorRanges = 1,
@@ -387,8 +392,17 @@ HRESULT ScreenshotDrawer::_InitializeScreenshotRootSignature() noexcept {
 		}
 	};
 
+	D3D12_STATIC_SAMPLER_DESC samplerDesc = {
+		.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT,
+		.AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+		.AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+		.AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+		.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER,
+		.ShaderRegister = 0
+	};
+
 	CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc(
-		(UINT)std::size(rootParams), rootParams, 0, nullptr);
+		(UINT)std::size(rootParams), rootParams, 1, &samplerDesc);
 
 	HRESULT hr = D3DX12SerializeVersionedRootSignature(
 		&rootSignatureDesc,
@@ -423,6 +437,11 @@ HRESULT ScreenshotDrawer::_DrawImpl(
 	SizeU textureSize,
 	uint64_t frameFenceValue
 ) noexcept {
+	// 把要导出的纹理转换为用于导出截图的格式。
+	// SDR: 需做伽马校正
+	// WCG: 需转换为 BT.2020 SDR
+	// HDR: 需转换为 BT.2020/PQ
+
 	ID3D12Device5* device = _d3d12Context->GetDevice();
 	auto& gpuResourceManager = _d3d12Context->GetGpuResourceManager();
 	auto& descriptorHeap = _d3d12Context->GetDescriptorHeap();
@@ -431,22 +450,30 @@ HRESULT ScreenshotDrawer::_DrawImpl(
 
 	curData.fenceValue = frameFenceValue;
 	curData.textureSize = textureSize;
-	curData.textureFormat = EffectTextureFormat::R16G16B16A16_UNORM;
+	curData.textureFormat = EffectTextureFormat::UNKNOWN;
 	curData.colorInfo = _colorInfo;
 	curData.hasSRV = textureSrvOffset == UINT_MAX;
-
-	const EffectTextureFormatProps& originTextureFormatProps =
-		EFFECT_TEXTURE_FORMAT_PROPS[(uint32_t)textureFormat];
-	const EffectTextureFormatProps& screenshotTextureFormatProps =
-		EFFECT_TEXTURE_FORMAT_PROPS[(uint32_t)curData.textureFormat];
-
-	uint32_t rowSize;
-	DirectXHelper::ComputeBufferLayout(textureSize,
-		screenshotTextureFormatProps.texelSize, rowSize, curData.rowPitch, curData.bufferSize);
+	
+	// 缓冲区结构为 R16G16B16_UNORM，每个像素六个字节
+	curData.rowPitch = textureSize.width * 6;
+	curData.bufferSize = (uint64_t)curData.rowPitch * textureSize.height;
 
 	HRESULT hr = gpuResourceManager.CreateBuffer(
+		D3D12_HEAP_TYPE_DEFAULT,
+		curData.bufferSize,
+		D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+		D3D12_RESOURCE_STATE_COMMON,
+		curData.tempBufferAllocation.put()
+	);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("GpuResourceManager::CreateBuffer 失败", hr);
+		return hr;
+	}
+
+	hr = gpuResourceManager.CreateBuffer(
 		D3D12_HEAP_TYPE_READBACK,
 		curData.bufferSize,
+		D3D12_RESOURCE_FLAG_NONE,
 		D3D12_RESOURCE_STATE_COPY_DEST,
 		curData.readbackBufferAllocation.put()
 	);
@@ -462,24 +489,6 @@ HRESULT ScreenshotDrawer::_DrawImpl(
 		return hr;
 	}
 
-	// 把要导出的纹理转换为用于导出截图的格式。
-	// SDR: 需做伽马校正
-	// WCG: 需转换为 BT.2020 SDR
-	// HDR: 需转换为 BT.2020/PQ
-
-	hr = gpuResourceManager.CreateTexture(
-		D3D12_HEAP_TYPE_DEFAULT,
-		screenshotTextureFormatProps.dxgiFormat,
-		textureSize,
-		D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-		curData.tempTextureAllocation.put()
-	);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("GpuResourceManager::CreateBuffer 失败", hr);
-		return hr;
-	}
-
 	hr = descriptorHeap.Alloc(curData.hasSRV ? 2 : 1, curData.descriptorBaseOffset);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("DescriptorHeap::Alloc 失败", hr);
@@ -490,17 +499,17 @@ HRESULT ScreenshotDrawer::_DrawImpl(
 		CD3DX12_CPU_DESCRIPTOR_HANDLE cpuHandle(descriptorHeap.GetCpuHandle(curData.descriptorBaseOffset));
 
 		if (curData.hasSRV) {
-			CD3DX12_SHADER_RESOURCE_VIEW_DESC srvDesc =
-				CD3DX12_SHADER_RESOURCE_VIEW_DESC::Tex2D(originTextureFormatProps.dxgiFormat, 1);
+			CD3DX12_SHADER_RESOURCE_VIEW_DESC srvDesc = CD3DX12_SHADER_RESOURCE_VIEW_DESC::Tex2D(
+				EFFECT_TEXTURE_FORMAT_PROPS[(uint32_t)textureFormat].dxgiFormat, 1);
 
 			device->CreateShaderResourceView(texture, &srvDesc, cpuHandle);
 			cpuHandle.Offset(descriptorHeap.GetDescriptorSize());
 		}
 
 		CD3DX12_UNORDERED_ACCESS_VIEW_DESC uavDesc =
-			CD3DX12_UNORDERED_ACCESS_VIEW_DESC::Tex2D(screenshotTextureFormatProps.dxgiFormat);
+			CD3DX12_UNORDERED_ACCESS_VIEW_DESC::TypedBuffer(DXGI_FORMAT_R16_UNORM, UINT(curData.bufferSize / 2));
 		device->CreateUnorderedAccessView(
-			curData.tempTextureAllocation->GetResource(), nullptr, &uavDesc, cpuHandle);
+			curData.tempBufferAllocation->GetResource(), nullptr, &uavDesc, cpuHandle);
 	}
 
 	if (!_screenshotRootSignature) {
@@ -540,12 +549,21 @@ HRESULT ScreenshotDrawer::_DrawImpl(
 
 	computeContext.SetPipelineState(_screenshotPSO.get());
 
+	{
+		DirectXHelper::Constant32 constants[] = {
+			{ .uintVal = textureSize.width },
+			{ .floatVal = 1.0f / textureSize.width },
+			{ .floatVal = 1.0f / textureSize.height }
+		};
+		computeContext.SetRoot32BitConstants(0, std::size(constants), constants);
+	}
+
 	if (curData.hasSRV) {
-		computeContext.SetRootDescriptorTable(0, curData.descriptorBaseOffset);
-		computeContext.SetRootDescriptorTable(1, curData.descriptorBaseOffset + 1);
-	} else {
-		computeContext.SetRootDescriptorTable(0, textureSrvOffset);
 		computeContext.SetRootDescriptorTable(1, curData.descriptorBaseOffset);
+		computeContext.SetRootDescriptorTable(2, curData.descriptorBaseOffset + 1);
+	} else {
+		computeContext.SetRootDescriptorTable(1, textureSrvOffset);
+		computeContext.SetRootDescriptorTable(2, curData.descriptorBaseOffset);
 	}
 
 	constexpr uint32_t BLOCK_SIZE = 16;
@@ -555,27 +573,14 @@ HRESULT ScreenshotDrawer::_DrawImpl(
 	);
 
 	computeContext.InsertTransitionBarrier(
-		curData.tempTextureAllocation->GetResource(),
+		curData.tempBufferAllocation->GetResource(),
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
 		D3D12_RESOURCE_STATE_COPY_SOURCE
 	);
 
-	computeContext.CopyTextureRegion(
-		CD3DX12_TEXTURE_COPY_LOCATION(
-			curData.readbackBufferAllocation->GetResource(),
-			D3D12_PLACED_SUBRESOURCE_FOOTPRINT{
-				.Footprint = {
-					.Format = screenshotTextureFormatProps.dxgiFormat,
-					.Width = curData.textureSize.width,
-					.Height = curData.textureSize.height,
-					.Depth = 1,
-					.RowPitch = curData.rowPitch
-				}
-			}
-		),
-		0,
-		0,
-		CD3DX12_TEXTURE_COPY_LOCATION(curData.tempTextureAllocation->GetResource())
+	computeContext.CopyResource(
+		curData.readbackBufferAllocation->GetResource(),
+		curData.tempBufferAllocation->GetResource()
 	);
 
 	return S_OK;

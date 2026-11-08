@@ -16,7 +16,7 @@ void ComputeContext::SetRoot32BitConstants(
 	_commandList->SetComputeRoot32BitConstants(rootParameterIndex, constantCount, pData, 0);
 }
 
-void ComputeContext::SetComputeRootConstantBufferView(
+void ComputeContext::SetRootConstantBufferView(
 	uint32_t rootParameterIndex,
 	D3D12_GPU_VIRTUAL_ADDRESS bufferLocation
 ) noexcept {
@@ -26,6 +26,18 @@ void ComputeContext::SetComputeRootConstantBufferView(
 	}
 	
 	_commandList->SetComputeRootConstantBufferView(rootParameterIndex, bufferLocation);
+}
+
+void ComputeContext::SetRootUnorderedAccessView(
+	uint32_t rootParameterIndex,
+	D3D12_GPU_VIRTUAL_ADDRESS bufferLocation
+) noexcept {
+	// 存在 DATA_STATIC 标志时 SetComputeRootConstantBufferView 会检查资源状态
+	if (_d3d12Context->GetRootSignatureVersion() >= D3D_ROOT_SIGNATURE_VERSION_1_1) {
+		_FlushBarriers();
+	}
+
+	_commandList->SetComputeRootUnorderedAccessView(rootParameterIndex, bufferLocation);
 }
 
 void ComputeContext::SetRootDescriptorTable(

@@ -70,14 +70,14 @@ private:
 		winrt::com_ptr<D3D12MA::Allocation> readbackBufferAllocation;
 		void* readbackBufferData = nullptr;
 		SizeU textureSize{};
-		EffectTextureFormat textureFormat = EffectTextureFormat::R16G16B16A16_UNORM;
+		EffectTextureFormat textureFormat = EffectTextureFormat::UNKNOWN;
 		uint32_t rowPitch = 0;
 		uint64_t bufferSize = 0;
 		// 由于导出是异步的需要备份 colorInfo
 		ColorInfo colorInfo;
 
-		// 用于把要导出的纹理转换为 R16G16B16A16_FLOAT 格式
-		winrt::com_ptr<D3D12MA::Allocation> tempTextureAllocation;
+		// 用于把要导出的纹理转换为 R16G16B16_UNORM 格式
+		winrt::com_ptr<D3D12MA::Allocation> tempBufferAllocation;
 		uint32_t descriptorBaseOffset = UINT_MAX;
 
 		// 通常只需要 tempTexture 的 UAV，但导出最终输出画面时需要额外为环形缓冲创建 SRV

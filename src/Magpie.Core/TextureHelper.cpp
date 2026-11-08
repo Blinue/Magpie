@@ -409,6 +409,7 @@ static HRESULT LoadTextureFromDDS(
 	hr = gpuResourceManager.CreateBuffer(
 		D3D12_HEAP_TYPE_UPLOAD,
 		bufferSize,
+		D3D12_RESOURCE_FLAG_NONE,
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		allocation
 	);
@@ -501,6 +502,7 @@ static HRESULT LoadTextureFromImage(
 	hr = gpuResourceManager.CreateBuffer(
 		D3D12_HEAP_TYPE_UPLOAD,
 		bufferSize,
+		D3D12_RESOURCE_FLAG_NONE,
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		allocation
 	);
@@ -882,13 +884,13 @@ static HRESULT SavePng(
 		return hr;
 	}
 
-	WICPixelFormatGUID destFormat = GUID_WICPixelFormat64bppRGBA;
+	WICPixelFormatGUID destFormat = GUID_WICPixelFormat48bppRGB;
 	hr = frameEncoder->SetPixelFormat(&destFormat);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("IWICBitmapFrameEncode::SetPixelFormat 失败", hr);
 		return hr;
 	}
-	assert(destFormat == GUID_WICPixelFormat64bppRGBA);
+	assert(destFormat == GUID_WICPixelFormat48bppRGB);
 
 	if (colorInfo.kind == winrt::AdvancedColorKind::WideColorGamut) {
 		// 出于兼容性考虑为 WCG 截图嵌入 icc，这样不支持 cICP 的软件也能正确渲染。但 HDR 截图
@@ -994,7 +996,7 @@ HRESULT TextureHelper::Save(
 		return SaveToDDSFile(fileName.c_str(), textureSize, dxgiFormat, pixelData, rowPitch);
 	} else {
 		assert(fileName.ends_with(L".png"));
-		assert(textureFormat == EffectTextureFormat::R16G16B16A16_UNORM);
+		assert(textureFormat == EffectTextureFormat::UNKNOWN);
 		return SavePng(fileName, textureSize, pixelData, rowPitch, colorInfo);
 	}
 }
