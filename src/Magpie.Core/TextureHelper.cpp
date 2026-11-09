@@ -587,63 +587,6 @@ static HRESULT EncodeDDSHeader(
 	return S_OK;
 }
 
-static HRESULT SaveToDDSFile(
-	const wchar_t* fileName,
-	SizeU textureSize,
-	DXGI_FORMAT format,
-	std::span<uint8_t> pixelData,
-	uint32_t rowPitch
-) noexcept {
-	// 创建 DDS 头
-	uint8_t header[DDS_DX10_HEADER_SIZE];
-	uint32_t ddsRowPitch;
-	uint32_t ddsSlicePitch;
-	HRESULT hr = EncodeDDSHeader(textureSize.width, textureSize.height, format, header, ddsRowPitch, ddsSlicePitch);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("EncodeDDSHeader 失败", hr);
-		return hr;
-	}
-
-	wil::unique_hfile hFile(CreateFile2(
-		fileName,
-		GENERIC_WRITE | DELETE, 0, CREATE_ALWAYS, nullptr)
-	);
-	if (!hFile) {
-		hr = HRESULT_FROM_WIN32(GetLastError());
-		Logger::Get().Win32Error("CreateFile2 失败");
-		return hr;
-	}
-
-	if (!Win32Helper::WriteFile(hFile.get(), header)) {
-		Logger::Get().Error("Win32Helper::WriteFile 失败");
-		return E_FAIL;
-	}
-
-	// 写入图像
-	if ((uint32_t)pixelData.size() == ddsSlicePitch) {
-		if (!Win32Helper::WriteFile(hFile.get(), pixelData)) {
-			Logger::Get().Error("Win32Helper::WriteFile 失败");
-			return E_FAIL;
-		}
-	} else {
-		// DDS 使用字节对齐，所以肯定是 rowPitch 错误
-		assert(rowPitch >= ddsRowPitch);
-
-		const uint8_t* __restrict sPtr = pixelData.data();
-
-		for (uint32_t i = 0; i < textureSize.height; ++i) {
-			if (!Win32Helper::WriteFile(hFile.get(), std::span(sPtr, (DWORD)ddsRowPitch))) {
-				Logger::Get().Error("Win32Helper::WriteFile 失败");
-				return E_FAIL;
-			}
-
-			sPtr += rowPitch;
-		}
-	}
-
-	return S_OK;
-}
-
 HRESULT TextureHelper::LoadFromFile(
 	wil::zwstring_view fileName,
 	const GpuResourceManager& gpuResourceManager,
@@ -809,7 +752,7 @@ static std::array<uint8_t, 36> MakeMDCVChunk(const ColorInfo& colorInfo) noexcep
 	return chunk;
 }
 
-static HRESULT SavePng(
+HRESULT TextureHelper::SavePng(
 	wil::zwstring_view fileName,
 	SizeU imgSize,
 	std::span<uint8_t> pixelData,
@@ -981,24 +924,66 @@ static HRESULT SavePng(
 	return S_OK;
 }
 
-HRESULT TextureHelper::Save(
+HRESULT TextureHelper::SaveDDS(
 	wil::zwstring_view fileName,
 	SizeU textureSize,
 	EffectTextureFormat textureFormat,
 	std::span<uint8_t> pixelData,
-	uint32_t rowPitch,
-	const ColorInfo& colorInfo
+	uint32_t rowPitch
 ) noexcept {
-	if (fileName.ends_with(L".dds")) {
-		assert(textureFormat > EffectTextureFormat::COLOR_SPACE_ADAPTIVE &&
-			textureFormat < EffectTextureFormat::COUNT);
-		DXGI_FORMAT dxgiFormat = EFFECT_TEXTURE_FORMAT_PROPS[(uint32_t)textureFormat].dxgiFormat;
-		return SaveToDDSFile(fileName.c_str(), textureSize, dxgiFormat, pixelData, rowPitch);
-	} else {
-		assert(fileName.ends_with(L".png"));
-		assert(textureFormat == EffectTextureFormat::UNKNOWN);
-		return SavePng(fileName, textureSize, pixelData, rowPitch, colorInfo);
+	assert(textureFormat > EffectTextureFormat::COLOR_SPACE_ADAPTIVE &&
+		textureFormat < EffectTextureFormat::COUNT);
+	DXGI_FORMAT dxgiFormat = EFFECT_TEXTURE_FORMAT_PROPS[(uint32_t)textureFormat].dxgiFormat;
+
+	// 创建 DDS 头
+	uint8_t header[DDS_DX10_HEADER_SIZE];
+	uint32_t ddsRowPitch;
+	uint32_t ddsSlicePitch;
+	HRESULT hr = EncodeDDSHeader(
+		textureSize.width, textureSize.height, dxgiFormat, header, ddsRowPitch, ddsSlicePitch);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("EncodeDDSHeader 失败", hr);
+		return hr;
 	}
+
+	wil::unique_hfile hFile(CreateFile2(
+		fileName.c_str(),
+		GENERIC_WRITE | DELETE, 0, CREATE_ALWAYS, nullptr)
+	);
+	if (!hFile) {
+		hr = HRESULT_FROM_WIN32(GetLastError());
+		Logger::Get().Win32Error("CreateFile2 失败");
+		return hr;
+	}
+
+	if (!Win32Helper::WriteFile(hFile.get(), header)) {
+		Logger::Get().Error("Win32Helper::WriteFile 失败");
+		return E_FAIL;
+	}
+
+	// 写入图像
+	if ((uint32_t)pixelData.size() == ddsSlicePitch) {
+		if (!Win32Helper::WriteFile(hFile.get(), pixelData)) {
+			Logger::Get().Error("Win32Helper::WriteFile 失败");
+			return E_FAIL;
+		}
+	} else {
+		// DDS 使用字节对齐，所以肯定是 rowPitch 错误
+		assert(rowPitch >= ddsRowPitch);
+
+		const uint8_t* __restrict sPtr = pixelData.data();
+
+		for (uint32_t i = 0; i < textureSize.height; ++i) {
+			if (!Win32Helper::WriteFile(hFile.get(), std::span(sPtr, (DWORD)ddsRowPitch))) {
+				Logger::Get().Error("Win32Helper::WriteFile 失败");
+				return E_FAIL;
+			}
+
+			sPtr += rowPitch;
+		}
+	}
+
+	return S_OK;
 }
 
 }

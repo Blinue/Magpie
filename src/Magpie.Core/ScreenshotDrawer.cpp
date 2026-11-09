@@ -277,11 +277,18 @@ static TakeScreenshotResult ExportScreenshot(
 		}
 	}
 
-	HRESULT hr = TextureHelper::Save(screenshotPath.c_str(), textureSize,
-		textureFormat, pixelData, rowPitch, colorInfo);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("TextureHelper::SaveTexture 失败", hr);
-		return TakeScreenshotResult::InternalError;
+	if (textureFormat == EffectTextureFormat::UNKNOWN) {
+		HRESULT hr = TextureHelper::SavePng(screenshotPath, textureSize, pixelData, rowPitch, colorInfo);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("TextureHelper::SavePng 失败", hr);
+			return TakeScreenshotResult::InternalError;
+		}
+	} else {
+		HRESULT hr = TextureHelper::SaveDDS(screenshotPath, textureSize, textureFormat, pixelData, rowPitch);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("TextureHelper::SaveDDS 失败", hr);
+			return TakeScreenshotResult::InternalError;
+		}
 	}
 
 	return TakeScreenshotResult::Success;
@@ -450,7 +457,6 @@ HRESULT ScreenshotDrawer::_DrawImpl(
 
 	curData.fenceValue = frameFenceValue;
 	curData.textureSize = textureSize;
-	curData.textureFormat = EffectTextureFormat::UNKNOWN;
 	curData.colorInfo = _colorInfo;
 	curData.hasSRV = textureSrvOffset == UINT_MAX;
 	

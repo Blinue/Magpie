@@ -54,6 +54,7 @@
     <ClInclude Include="EffectTextureFormat.h" />
     <ClInclude Include="GpuResourceManager.h" />
     <ClInclude Include="include\AppXReader.h" />
+    <ClInclude Include="include\ExtensionService.h" />
     <ClInclude Include="include\resource.h" />
     <ClInclude Include="include\ScreenshotFilenameTemplateHelper.h" />
     <ClInclude Include="KeepScreenOnHelper.h" />
@@ -68,6 +69,7 @@
     <ClInclude Include="ImGuiImpl.h" />
     <ClInclude Include="include\AppFolderManager.h" />
     <ClInclude Include="include\WICImageLoader.h" />
+    <ClInclude Include="MagpieExtApi.h" />
     <ClInclude Include="MemStream.h" />
     <ClInclude Include="OverlayDrawer.h" />
     <ClInclude Include="OverlayHelper.h" />
@@ -109,6 +111,7 @@
   <ItemGroup>
     <ClCompile Include="AppXReader.cpp" />
     <ClCompile Include="EffectsMemPoolBuilder.cpp" />
+    <ClCompile Include="ExtensionService.cpp" />
     <ClCompile Include="GpuResourceManager.cpp" />
     <ClCompile Include="KeepScreenOnHelper.cpp" />
     <ClCompile Include="AppFolderManager.cpp" />

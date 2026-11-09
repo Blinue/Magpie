@@ -180,6 +180,10 @@
     <ClInclude Include="EffectsMemPoolBuilder.h">
       <Filter>Render</Filter>
     </ClInclude>
+    <ClInclude Include="include\ExtensionService.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="MagpieExtApi.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -285,6 +289,9 @@
     </ClCompile>
     <ClCompile Include="EffectsMemPoolBuilder.cpp">
       <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="ExtensionService.cpp">
+      <Filter>Services</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

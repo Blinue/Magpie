@@ -74,6 +74,10 @@ const wchar_t* AppFolderManager::GetConfigDir() const noexcept {
 	return L"config";
 }
 
+const wchar_t* AppFolderManager::GetExtDir() const noexcept {
+	return L"ext";
+}
+
 std::filesystem::path AppFolderManager::GetBuiltInShaderEffectsDir() const noexcept {
 	return _exeDir / APP_DIR L"\\effects\\shaders";
 }

@@ -26,131 +26,6 @@ using namespace winrt::Magpie;
 
 namespace Magpie {
 
-// 将热键存储为 uint32_t
-// 不能存储为字符串，因为某些键的字符相同，如句号和小键盘的点
-static uint32_t EncodeShortcut(const Shortcut& shortcut) noexcept {
-	uint32_t value = shortcut.code;
-	if (shortcut.win) {
-		value |= 0x100;
-	}
-	if (shortcut.ctrl) {
-		value |= 0x200;
-	}
-	if (shortcut.alt) {
-		value |= 0x400;
-	}
-	if (shortcut.shift) {
-		value |= 0x800;
-	}
-	return value;
-}
-
-static void DecodeShortcut(uint32_t value, Shortcut& shortcut) noexcept {
-	if (value > 0xfff) {
-		return;
-	}
-
-	shortcut.code = value & 0xff;
-	shortcut.win = value & 0x100;
-	shortcut.ctrl = value & 0x200;
-	shortcut.alt = value & 0x400;
-	shortcut.shift = value & 0x800;
-}
-
-static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer, const Profile& profile) noexcept {
-	writer.StartObject();
-	if (!profile.name.empty()) {
-		writer.Key("name");
-		writer.String(StrHelper::UTF16ToUTF8(profile.name).c_str());
-		writer.Key("packaged");
-		writer.Bool(profile.isPackaged);
-		writer.Key("pathRule");
-		writer.String(StrHelper::UTF16ToUTF8(profile.pathRule).c_str());
-		writer.Key("classNameRule");
-		writer.String(StrHelper::UTF16ToUTF8(profile.classNameRule).c_str());
-		writer.Key("launcherPath");
-		writer.String(StrHelper::UTF16ToUTF8(profile.launcherPath.native()).c_str());
-		writer.Key("autoScale");
-		writer.Uint((uint32_t)profile.autoScale);
-		writer.Key("launchParameters");
-		writer.String(StrHelper::UTF16ToUTF8(profile.launchParameters).c_str());
-	}
-
-	writer.Key("scalingMode");
-	writer.Int(profile.scalingMode);
-	writer.Key("captureMethod");
-	writer.Uint((uint32_t)profile.captureMethod);
-	writer.Key("multiMonitorUsage");
-	writer.Uint((uint32_t)profile.multiMonitorUsage);
-
-	writer.Key("initialWindowedScaleFactor");
-	writer.Uint((uint32_t)profile.initialWindowedScaleFactor);
-	writer.Key("customInitialWindowedScaleFactor");
-	writer.Double(profile.customInitialWindowedScaleFactor);
-
-	writer.Key("fullscreenInitialToolbarState");
-	writer.Uint((uint32_t)profile.fullscreenInitialToolbarState);
-	writer.Key("windowedInitialToolbarState");
-	writer.Uint((uint32_t)profile.windowedInitialToolbarState);
-	writer.Key("screenshotsDir");
-	writer.String(StrHelper::UTF16ToUTF8(profile.screenshotsDir.native()).c_str());
-	writer.Key("screenshotFilenameTemplate");
-	writer.String(profile.screenshotFilenameTemplate.c_str());
-
-	writer.Key("graphicsCardId");
-	writer.StartObject();
-	writer.Key("idx");
-	writer.Int(profile.graphicsCardId.idx);
-	writer.Key("vendorId");
-	writer.Uint(profile.graphicsCardId.vendorId);
-	writer.Key("deviceId");
-	writer.Uint(profile.graphicsCardId.deviceId);
-	writer.EndObject();
-	writer.Key("frameRateLimiterEnabled");
-	writer.Bool(profile.isFrameRateLimiterEnabled);
-	writer.Key("maxFrameRate");
-	writer.Double(profile.maxFrameRate);
-
-	writer.Key("3DGameMode");
-	writer.Bool(profile.Is3DGameMode());
-	writer.Key("captureTitleBar");
-	writer.Bool(profile.IsCaptureTitleBar());
-	writer.Key("adjustCursorSpeed");
-	writer.Bool(profile.IsAdjustCursorSpeed());
-	writer.Key("disableDirectFlip");
-	writer.Bool(profile.IsDirectFlipDisabled());
-
-	writer.Key("cursorScaling");
-	writer.Uint((uint32_t)profile.cursorScaling);
-	writer.Key("customCursorScaling");
-	writer.Double(profile.customCursorScaleFactor);
-	writer.Key("cursorInterpolationMode");
-	writer.Uint((uint32_t)profile.cursorInterpolationMode);
-	writer.Key("autoHideCursorEnabled");
-	writer.Bool(profile.isAutoHideCursorEnabled);
-	writer.Key("autoHideCursorDelay");
-	writer.Double(profile.autoHideCursorDelay);
-
-	writer.Key("croppingEnabled");
-	writer.Bool(profile.isCroppingEnabled);
-	writer.Key("cropping");
-	writer.StartObject();
-	writer.Key("left");
-	writer.Double(profile.cropping.Left);
-	writer.Key("top");
-	writer.Double(profile.cropping.Top);
-	writer.Key("right");
-	writer.Double(profile.cropping.Right);
-	writer.Key("bottom");
-	writer.Double(profile.cropping.Bottom);
-	writer.EndObject();
-
-	writer.Key("outputAlignment");
-	writer.Uint((uint32_t)profile.outputAlignment);
-
-	writer.EndObject();
-}
-
 static void ReplaceIcon(HINSTANCE hInst, HWND hWnd, bool large) noexcept {
 	HICON hIconApp = NULL;
 	LoadIconMetric(hInst, MAKEINTRESOURCE(IDI_APP), large ? LIM_LARGE : LIM_SMALL, &hIconApp);
@@ -528,6 +403,131 @@ void AppSettings::_UpdateWindowPlacement() noexcept {
 	_isMainWindowMaximized = wp.showCmd == SW_MAXIMIZE;
 }
 
+// 将热键存储为 uint32_t。不能存储为字符串，因为某些键的字符相同，如句号和小键盘的点
+static uint32_t EncodeShortcut(const Shortcut& shortcut) noexcept {
+	uint32_t value = shortcut.code;
+	if (shortcut.win) {
+		value |= 0x100;
+	}
+	if (shortcut.ctrl) {
+		value |= 0x200;
+	}
+	if (shortcut.alt) {
+		value |= 0x400;
+	}
+	if (shortcut.shift) {
+		value |= 0x800;
+	}
+	return value;
+}
+
+static void DecodeShortcut(uint32_t value, Shortcut& shortcut) noexcept {
+	if (value > 0xfff) {
+		return;
+	}
+
+	shortcut.code = value & 0xff;
+	shortcut.win = value & 0x100;
+	shortcut.ctrl = value & 0x200;
+	shortcut.alt = value & 0x400;
+	shortcut.shift = value & 0x800;
+}
+
+static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer, const Profile& profile) noexcept {
+	writer.StartObject();
+
+	if (!profile.name.empty()) {
+		writer.Key("name");
+		writer.String(StrHelper::UTF16ToUTF8(profile.name).c_str());
+		writer.Key("packaged");
+		writer.Bool(profile.isPackaged);
+		writer.Key("pathRule");
+		writer.String(StrHelper::UTF16ToUTF8(profile.pathRule).c_str());
+		writer.Key("classNameRule");
+		writer.String(StrHelper::UTF16ToUTF8(profile.classNameRule).c_str());
+		writer.Key("launcherPath");
+		writer.String(StrHelper::UTF16ToUTF8(profile.launcherPath.native()).c_str());
+		writer.Key("autoScale");
+		writer.Uint((uint32_t)profile.autoScale);
+		writer.Key("launchParameters");
+		writer.String(StrHelper::UTF16ToUTF8(profile.launchParameters).c_str());
+	}
+
+	writer.Key("scalingMode");
+	writer.Int(profile.scalingMode);
+	writer.Key("captureMethod");
+	writer.Uint((uint32_t)profile.captureMethod);
+	writer.Key("multiMonitorUsage");
+	writer.Uint((uint32_t)profile.multiMonitorUsage);
+
+	writer.Key("initialWindowedScaleFactor");
+	writer.Uint((uint32_t)profile.initialWindowedScaleFactor);
+	writer.Key("customInitialWindowedScaleFactor");
+	writer.Double(profile.customInitialWindowedScaleFactor);
+
+	writer.Key("fullscreenInitialToolbarState");
+	writer.Uint((uint32_t)profile.fullscreenInitialToolbarState);
+	writer.Key("windowedInitialToolbarState");
+	writer.Uint((uint32_t)profile.windowedInitialToolbarState);
+	writer.Key("screenshotsDir");
+	writer.String(StrHelper::UTF16ToUTF8(profile.screenshotsDir.native()).c_str());
+	writer.Key("screenshotFilenameTemplate");
+	writer.String(profile.screenshotFilenameTemplate.c_str());
+
+	writer.Key("graphicsCardId");
+	writer.StartObject();
+	writer.Key("idx");
+	writer.Int(profile.graphicsCardId.idx);
+	writer.Key("vendorId");
+	writer.Uint(profile.graphicsCardId.vendorId);
+	writer.Key("deviceId");
+	writer.Uint(profile.graphicsCardId.deviceId);
+	writer.EndObject();
+	writer.Key("frameRateLimiterEnabled");
+	writer.Bool(profile.isFrameRateLimiterEnabled);
+	writer.Key("maxFrameRate");
+	writer.Double(profile.maxFrameRate);
+
+	writer.Key("3DGameMode");
+	writer.Bool(profile.Is3DGameMode());
+	writer.Key("captureTitleBar");
+	writer.Bool(profile.IsCaptureTitleBar());
+	writer.Key("adjustCursorSpeed");
+	writer.Bool(profile.IsAdjustCursorSpeed());
+	writer.Key("disableDirectFlip");
+	writer.Bool(profile.IsDirectFlipDisabled());
+
+	writer.Key("cursorScaling");
+	writer.Uint((uint32_t)profile.cursorScaling);
+	writer.Key("customCursorScaling");
+	writer.Double(profile.customCursorScaleFactor);
+	writer.Key("cursorInterpolationMode");
+	writer.Uint((uint32_t)profile.cursorInterpolationMode);
+	writer.Key("autoHideCursorEnabled");
+	writer.Bool(profile.isAutoHideCursorEnabled);
+	writer.Key("autoHideCursorDelay");
+	writer.Double(profile.autoHideCursorDelay);
+
+	writer.Key("croppingEnabled");
+	writer.Bool(profile.isCroppingEnabled);
+	writer.Key("cropping");
+	writer.StartObject();
+	writer.Key("left");
+	writer.Double(profile.cropping.Left);
+	writer.Key("top");
+	writer.Double(profile.cropping.Top);
+	writer.Key("right");
+	writer.Double(profile.cropping.Right);
+	writer.Key("bottom");
+	writer.Double(profile.cropping.Bottom);
+	writer.EndObject();
+
+	writer.Key("outputAlignment");
+	writer.Uint((uint32_t)profile.outputAlignment);
+
+	writer.EndObject();
+}
+
 rapidjson::StringBuffer AppSettings::_WriteConfigJson() const noexcept {
 	rapidjson::StringBuffer json;
 	rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(json);
@@ -624,8 +624,8 @@ rapidjson::StringBuffer AppSettings::_WriteConfigJson() const noexcept {
 	writer.Key("profiles");
 	writer.StartArray();
 	WriteProfile(writer, _defaultProfile);
-	for (const Profile& rule : _profiles) {
-		WriteProfile(writer, rule);
+	for (const Profile& profile : _profiles) {
+		WriteProfile(writer, profile);
 	}
 	writer.EndArray();
 
@@ -648,6 +648,49 @@ rapidjson::StringBuffer AppSettings::_WriteConfigJson() const noexcept {
 	}
 	writer.EndObject();
 	writer.EndObject();
+
+	writer.Key("extensions");
+	writer.StartArray();
+	for (const auto& [extId, extSettings] : _extensionSettings) {
+		writer.StartObject();
+		writer.Key("id");
+		writer.String(extId.c_str());
+		writer.Key("updateUrl");
+		writer.String(extSettings.updateUrl.c_str());
+		writer.Key("enabled");
+		writer.Bool(extSettings.isEnabled);
+		writer.Key("options");
+		writer.StartArray();
+		for (const auto& [optionId, value] : extSettings.options) {
+			writer.StartObject();
+			writer.Key("id");
+			writer.String(optionId.c_str());
+			switch (value.index()) {
+			case 0:
+				writer.Key("stringValue");
+				writer.String(std::get<0>(value).c_str());
+				break;
+			case 1:
+				writer.Key("boolValue");
+				writer.Bool(std::get<1>(value));
+				break;
+			case 2:
+				writer.Key("intValue");
+				writer.Int(std::get<2>(value));
+				break;
+			case 3:
+				writer.Key("floatValue");
+				writer.Double(std::get<3>(value));
+				break;
+			default:
+				break;
+			}
+			writer.EndObject();
+		}
+		writer.EndArray();
+		writer.EndObject();
+	}
+	writer.EndArray();
 
 	writer.EndObject();
 
@@ -684,9 +727,8 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		}
 	}
 
-	auto windowPosNode = root.FindMember("windowPos");
-	if (windowPosNode != root.MemberEnd() && windowPosNode->value.IsObject()) {
-		auto windowPosObj = windowPosNode->value.GetObj();
+	if (auto it = root.FindMember("windowPos"); it != root.MemberEnd() && it->value.IsObject()) {
+		auto windowPosObj = it->value.GetObj();
 
 		winrt::Point center{};
 		winrt::Size size{};
@@ -731,37 +773,39 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		JsonHelper::ReadBool(windowPosObj, "maximized", _isMainWindowMaximized);
 	}
 
-	auto shortcutsNode = root.FindMember("shortcuts");
-	if (shortcutsNode == root.MemberEnd()) {
-		// v0.10.0-preview1 使用 hotkeys
-		shortcutsNode= root.FindMember("hotkeys");
-	}
-	if (shortcutsNode != root.MemberEnd() && shortcutsNode->value.IsObject()) {
-		auto shortcutsObj = shortcutsNode->value.GetObj();
-
-		auto scaleNode = shortcutsObj.FindMember("scale");
-		if (scaleNode != shortcutsObj.MemberEnd() && scaleNode->value.IsUint()) {
-			DecodeShortcut(scaleNode->value.GetUint(), _shortcuts[(size_t)ShortcutAction::Scale]);
+	{
+		auto it = root.FindMember("shortcuts");
+		if (it == root.MemberEnd()) {
+			// v0.10.0-preview1 使用 hotkeys
+			it = root.FindMember("hotkeys");
 		}
+		if (it != root.MemberEnd() && it->value.IsObject()) {
+			auto shortcutsObj = it->value.GetObj();
 
-		auto windowedModeScaleNode = shortcutsObj.FindMember("windowedModeScale");
-		if (windowedModeScaleNode != shortcutsObj.MemberEnd() && windowedModeScaleNode->value.IsUint()) {
-			DecodeShortcut(windowedModeScaleNode->value.GetUint(), _shortcuts[(size_t)ShortcutAction::WindowedModeScale]);
-		}
+			it = shortcutsObj.FindMember("scale");
+			if (it != shortcutsObj.MemberEnd() && it->value.IsUint()) {
+				DecodeShortcut(it->value.GetUint(), _shortcuts[(size_t)ShortcutAction::Scale]);
+			}
 
-		auto toolbarNode = shortcutsObj.FindMember("toolbar");
-		if (toolbarNode == shortcutsObj.MemberEnd()) {
-			// v0.12 前使用 overlay
-			toolbarNode = shortcutsObj.FindMember("overlay");
-		}
-		
-		if (toolbarNode != shortcutsObj.MemberEnd() && toolbarNode->value.IsUint()) {
-			DecodeShortcut(toolbarNode->value.GetUint(), _shortcuts[(size_t)ShortcutAction::Toolbar]);
-		}
+			it = shortcutsObj.FindMember("windowedModeScale");
+			if (it != shortcutsObj.MemberEnd() && it->value.IsUint()) {
+				DecodeShortcut(it->value.GetUint(), _shortcuts[(size_t)ShortcutAction::WindowedModeScale]);
+			}
 
-		auto takeScreenshotNode = shortcutsObj.FindMember("takeScreenshot");
-		if (takeScreenshotNode != shortcutsObj.MemberEnd() && takeScreenshotNode->value.IsUint()) {
-			DecodeShortcut(takeScreenshotNode->value.GetUint(), _shortcuts[(size_t)ShortcutAction::TakeScreenshot]);
+			it = shortcutsObj.FindMember("toolbar");
+			if (it == shortcutsObj.MemberEnd()) {
+				// v0.12 前使用 overlay
+				it = shortcutsObj.FindMember("overlay");
+			}
+
+			if (it != shortcutsObj.MemberEnd() && it->value.IsUint()) {
+				DecodeShortcut(it->value.GetUint(), _shortcuts[(size_t)ShortcutAction::Toolbar]);
+			}
+
+			it = shortcutsObj.FindMember("takeScreenshot");
+			if (it != shortcutsObj.MemberEnd() && it->value.IsUint()) {
+				DecodeShortcut(it->value.GetUint(), _shortcuts[(size_t)ShortcutAction::TakeScreenshot]);
+			}
 		}
 	}
 
@@ -812,41 +856,42 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 	[[maybe_unused]] bool result = ScalingModesService::Get().Import(root, true);
 	assert(result);
 
-	auto scaleProfilesNode = root.FindMember("profiles");
-	if (scaleProfilesNode == root.MemberEnd()) {
-		// v0.10.0-preview1 使用 scalingProfiles
-		scaleProfilesNode = root.FindMember("scalingProfiles");
-	}
-	if (scaleProfilesNode != root.MemberEnd() && scaleProfilesNode->value.IsArray()) {
-		auto scaleProfilesArray = scaleProfilesNode->value.GetArray();
+	{
+		auto it = root.FindMember("profiles");
+		if (it == root.MemberEnd()) {
+			// v0.10.0-preview1 使用 scalingProfiles
+			it = root.FindMember("scalingProfiles");
+		}
+		if (it != root.MemberEnd() && it->value.IsArray()) {
+			auto profilesArray = it->value.GetArray();
 
-		const rapidjson::SizeType size = scaleProfilesArray.Size();
-		if (size > 0) {
-			if (scaleProfilesArray[0].IsObject()) {
-				// 解析默认缩放配置不会失败
-				_LoadProfile(scaleProfilesArray[0].GetObj(), _defaultProfile, true);
-			}
+			const rapidjson::SizeType size = profilesArray.Size();
+			if (size > 0) {
+				if (profilesArray[0].IsObject()) {
+					// 解析默认缩放配置不会失败
+					_LoadProfile(profilesArray[0].GetObj(), _defaultProfile, true);
+				}
 
-			if (size > 1) {
-				_profiles.reserve((size_t)size - 1);
-				for (rapidjson::SizeType i = 1; i < size; ++i) {
-					if (!scaleProfilesArray[i].IsObject()) {
-						continue;
-					}
+				if (size > 1) {
+					_profiles.reserve((size_t)size - 1);
+					for (rapidjson::SizeType i = 1; i < size; ++i) {
+						if (!profilesArray[i].IsObject()) {
+							continue;
+						}
 
-					Profile& rule = _profiles.emplace_back();
-					if (!_LoadProfile(scaleProfilesArray[i].GetObj(), rule)) {
-						_profiles.pop_back();
-						continue;
+						Profile& rule = _profiles.emplace_back();
+						if (!_LoadProfile(profilesArray[i].GetObj(), rule)) {
+							_profiles.pop_back();
+							continue;
+						}
 					}
 				}
 			}
 		}
 	}
-
-	auto overlayNode = root.FindMember("overlay");
-	if (overlayNode != root.MemberEnd() && overlayNode->value.IsObject()) {
-		auto overlayObj = overlayNode->value.GetObj();
+	
+	if (auto it = root.FindMember("overlay"); it != root.MemberEnd() && it->value.IsObject()) {
+		auto overlayObj = it->value.GetObj();
 
 		// v0.13 前这些选项是全局的
 		{
@@ -879,9 +924,9 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 			}
 		}
 
-		auto windowsNode = overlayObj.FindMember("windows");
-		if (windowsNode != overlayObj.MemberEnd() && windowsNode->value.IsObject()) {
-			auto windowsObj = windowsNode->value.GetObj();
+		it = overlayObj.FindMember("windows");
+		if (it != overlayObj.MemberEnd() && it->value.IsObject()) {
+			auto windowsObj = it->value.GetObj();
 
 			const rapidjson::SizeType size = windowsObj.MemberCount();
 			if (size > 0) {
@@ -899,6 +944,74 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 					JsonHelper::ReadUInt16(windowOptionObj, "vArea", windowOption.vArea);
 					JsonHelper::ReadFloat(windowOptionObj, "hPos", windowOption.hPos);
 					JsonHelper::ReadFloat(windowOptionObj, "vPos", windowOption.vPos);
+				}
+			}
+		}
+	}
+
+	if (auto it = root.FindMember("extensions"); it != root.MemberEnd() && it->value.IsArray()) {
+		auto extensionsArray = it->value.GetArray();
+		_extensionSettings.reserve(extensionsArray.Size());
+
+		for (const rapidjson::Value& extNode : extensionsArray) {
+			if (!extNode.IsObject()) {
+				continue;
+			}
+
+			auto extObj = extNode.GetObj();
+
+			std::string extId;
+			if (!JsonHelper::ReadString(extObj, "id", extId, true)) {
+				continue;
+			}
+
+			_ExtensionSettings& extSettings = _extensionSettings[extId];
+
+			JsonHelper::ReadString(extObj, "updateUrl", extSettings.updateUrl);
+			JsonHelper::ReadBool(extObj, "enabled", extSettings.isEnabled);
+
+			it = extObj.FindMember("options");
+			if (it == extObj.MemberEnd() || !it->value.IsArray()) {
+				continue;
+			}
+
+			auto optionsArray = it->value.GetArray();
+			extSettings.options.reserve(optionsArray.Size());
+
+			for (const rapidjson::Value& optionNode : optionsArray) {
+				if (!optionNode.IsObject()) {
+					continue;
+				}
+
+				auto optionObj = optionNode.GetObj();
+				it = optionObj.FindMember("id");
+				if (it == optionObj.MemberEnd() || !it->value.IsString()) {
+					continue;
+				}
+
+				auto& value = extSettings.options[it->value.GetString()];
+
+				it = optionObj.FindMember("stringValue");
+				if (it != optionObj.MemberEnd() && it->value.IsString()) {
+					value = it->value.GetString();
+					continue;
+				}
+
+				it = optionObj.FindMember("boolValue");
+				if (it != optionObj.MemberEnd() && it->value.IsBool()) {
+					value = it->value.GetBool();
+					continue;
+				}
+
+				it = optionObj.FindMember("intValue");
+				if (it != optionObj.MemberEnd() && it->value.IsInt()) {
+					value = it->value.GetInt();
+					continue;
+				}
+
+				it = optionObj.FindMember("floatValue");
+				if (it != optionObj.MemberEnd() && it->value.IsFloat()) {
+					value = it->value.GetFloat();
 				}
 			}
 		}
@@ -949,20 +1062,17 @@ bool AppSettings::_LoadProfile(
 			profile.launcherPath = (exePath.parent_path() / profile.launcherPath).lexically_normal();
 		}
 
-		{
-			auto autoScaleNode = profileObj.FindMember("autoScale");
-			if (autoScaleNode != profileObj.MemberEnd()) {
-				if (autoScaleNode->value.IsUint()) {
-					uint32_t value = autoScaleNode->value.GetUint();
-					if (value >= (uint32_t)AutoScale::COUNT) {
-						value = (uint32_t)AutoScale::Disabled;
-					}
-					profile.autoScale = (AutoScale)value;
-				} else if (autoScaleNode->value.IsBool()) {
-					// v0.12 前为布尔值
-					profile.autoScale = autoScaleNode->value.GetBool() ?
-						AutoScale::Fullscreen : AutoScale::Disabled;
+		if (auto it = profileObj.FindMember("autoScale"); it != profileObj.MemberEnd()) {
+			if (it->value.IsUint()) {
+				uint32_t value = it->value.GetUint();
+				if (value >= (uint32_t)AutoScale::COUNT) {
+					value = (uint32_t)AutoScale::Disabled;
 				}
+				profile.autoScale = (AutoScale)value;
+			} else if (it->value.IsBool()) {
+				// v0.12 前为布尔值
+				profile.autoScale = it->value.GetBool() ?
+					AutoScale::Fullscreen : AutoScale::Disabled;
 			}
 		}
 		
@@ -1007,37 +1117,34 @@ bool AppSettings::_LoadProfile(
 	// 不检查是否合法
 	JsonHelper::ReadString(profileObj, "screenshotFilenameTemplate", profile.screenshotFilenameTemplate);
 
-	{
-		auto graphicsCardIdNode = profileObj.FindMember("graphicsCardId");
-		if (graphicsCardIdNode == profileObj.end()) {
-			// v0.10 和 v0.11 只使用索引
-			int graphicsCardIdx = -1;
-			if (!JsonHelper::ReadInt(profileObj, "graphicsCard", graphicsCardIdx, true)) {
-				// v0.10.0-preview1 使用 graphicsAdapter
-				uint32_t graphicsAdater = 0;
-				JsonHelper::ReadUInt(profileObj, "graphicsAdapter", graphicsAdater);
-				graphicsCardIdx = (int)graphicsAdater - 1;
-			}
+	if (auto it = profileObj.FindMember("graphicsCardId"); it == profileObj.end()) {
+		// v0.10 和 v0.11 只使用索引
+		int graphicsCardIdx = -1;
+		if (!JsonHelper::ReadInt(profileObj, "graphicsCard", graphicsCardIdx, true)) {
+			// v0.10.0-preview1 使用 graphicsAdapter
+			uint32_t graphicsAdater = 0;
+			JsonHelper::ReadUInt(profileObj, "graphicsAdapter", graphicsAdater);
+			graphicsCardIdx = (int)graphicsAdater - 1;
+		}
 
-			// 稍后由 ProfileService 设置 vendorId 和 deviceId
-			profile.graphicsCardId.idx = graphicsCardIdx;
-		} else if (graphicsCardIdNode->value.IsObject()) {
-			auto graphicsCardIdObj = graphicsCardIdNode->value.GetObj();
+		// 稍后由 ProfileService 设置 vendorId 和 deviceId
+		profile.graphicsCardId.idx = graphicsCardIdx;
+	} else if (it->value.IsObject()) {
+		auto graphicsCardIdObj = it->value.GetObj();
 
-			auto idxNode = graphicsCardIdObj.FindMember("idx");
-			if (idxNode != graphicsCardIdObj.end() && idxNode->value.IsInt()) {
-				profile.graphicsCardId.idx = idxNode->value.GetInt();
-			}
+		it = graphicsCardIdObj.FindMember("idx");
+		if (it != graphicsCardIdObj.end() && it->value.IsInt()) {
+			profile.graphicsCardId.idx = it->value.GetInt();
+		}
 
-			auto vendorIdNode = graphicsCardIdObj.FindMember("vendorId");
-			if (vendorIdNode != graphicsCardIdObj.end() && vendorIdNode->value.IsUint()) {
-				profile.graphicsCardId.vendorId = vendorIdNode->value.GetUint();
-			}
+		it = graphicsCardIdObj.FindMember("vendorId");
+		if (it != graphicsCardIdObj.end() && it->value.IsUint()) {
+			profile.graphicsCardId.vendorId = it->value.GetUint();
+		}
 
-			auto deviceIdNode = graphicsCardIdObj.FindMember("deviceId");
-			if (deviceIdNode != graphicsCardIdObj.end() && deviceIdNode->value.IsUint()) {
-				profile.graphicsCardId.deviceId = deviceIdNode->value.GetUint();
-			}
+		it = graphicsCardIdObj.FindMember("deviceId");
+		if (it != graphicsCardIdObj.end() && it->value.IsUint()) {
+			profile.graphicsCardId.deviceId = it->value.GetUint();
 		}
 	}
 
@@ -1075,9 +1182,8 @@ bool AppSettings::_LoadProfile(
 
 	JsonHelper::ReadBool(profileObj, "croppingEnabled", profile.isCroppingEnabled);
 
-	auto croppingNode = profileObj.FindMember("cropping");
-	if (croppingNode != profileObj.MemberEnd() && croppingNode->value.IsObject()) {
-		auto croppingObj = croppingNode->value.GetObj();
+	if (auto it = profileObj.FindMember("cropping"); it != profileObj.MemberEnd() && it->value.IsObject()) {
+		auto croppingObj = it->value.GetObj();
 
 		if (!JsonHelper::ReadFloat(croppingObj, "left", profile.cropping.Left, true)
 			|| profile.cropping.Left < 0

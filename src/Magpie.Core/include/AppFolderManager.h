@@ -32,6 +32,8 @@ public:
 
 	const wchar_t* GetConfigDir() const noexcept;
 
+	const wchar_t* GetExtDir() const noexcept;
+
 	std::filesystem::path GetBuiltInShaderEffectsDir() const noexcept;
 
 	std::filesystem::path GetD3D12Dir() const noexcept;

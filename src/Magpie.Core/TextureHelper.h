@@ -16,16 +16,22 @@ struct TextureHelper {
 		D3D12MA::Allocation** allocation
 	) noexcept;
 
-	// 导出 png 时 pixelData 必须是 R16G16B16A16_UNROM 格式。WCG 下使用 BT.2020 SDR，
-	// HDR 下使用 BT.2020/PQ。
-	// pixelData 的最后一行应有填充位，这是 WIC 要求的。
-	static HRESULT Save(
+	// pixelData 必须是 R16G16B16_UNROM 格式。WCG 下使用 BT.2020 SDR，HDR 下
+	// 使用 BT.2020/PQ。
+	static HRESULT SavePng(
+		wil::zwstring_view fileName,
+		SizeU imgSize,
+		std::span<uint8_t> pixelData,
+		uint32_t rowPitch,
+		const ColorInfo& colorInfo
+	) noexcept;
+
+	static HRESULT SaveDDS(
 		wil::zwstring_view fileName,
 		SizeU textureSize,
 		EffectTextureFormat textureFormat,
 		std::span<uint8_t> pixelData,
-		uint32_t rowPitch,
-		const ColorInfo& colorInfo
+		uint32_t rowPitch
 	) noexcept;
 };
 

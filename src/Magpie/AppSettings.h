@@ -6,6 +6,7 @@
 #include <rapidjson/document.h>
 #include <rapidjson/stringbuffer.h>
 #include <winrt/Magpie.h>
+#include <variant>
 
 namespace Magpie {
 
@@ -288,6 +289,12 @@ private:
 
 	void _UpdateWindowPlacement() noexcept;
 
+	struct _ExtensionSettings {
+		std::string updateUrl;
+		phmap::flat_hash_map<std::string, std::variant<std::string, bool, int, float>> options;
+		bool isEnabled = false;
+	};
+
 	rapidjson::StringBuffer _WriteConfigJson() const noexcept;
 
 	void _LoadSettings(const rapidjson::GenericObject<true, rapidjson::Value>& root) noexcept;
@@ -330,6 +337,8 @@ private:
 	float _minFrameRate = 10.0f;
 
 	phmap::flat_hash_map<std::string, OverlayWindowOption> _overlayWindowOptions;
+	
+	phmap::flat_hash_map<std::string, _ExtensionSettings> _extensionSettings;
 
 	std::atomic<bool> _isSaving;
 	bool _isAlwaysRunAsAdmin = false;
