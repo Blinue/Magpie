@@ -202,23 +202,39 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 	_downloadCancelled = false;
 	DownloadProgressChanged.Invoke(_downloadProgress);
 
+	std::wstring exePath;
+	HRESULT hr = wil::GetModuleFileNameW(nullptr, exePath);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("GetModuleFileNameW 失败", hr);
+		_Status(UpdateStatus::ErrorWhileDownloading);
+		co_return;
+	}
+
+	std::filesystem::path installDir = std::filesystem::path(std::move(exePath)).parent_path();
+	if (installDir.empty() || !installDir.is_absolute()) {
+		Logger::Get().Error("获取安装目录失败");
+		_Status(UpdateStatus::ErrorWhileDownloading);
+		co_return;
+	}
+	std::filesystem::path updateDir = installDir / CommonSharedConstants::UPDATE_DIR;
+
 	// 清空 update 文件夹
-	if (Win32Helper::DirExists(CommonSharedConstants::UPDATE_DIR)) {
+	if (Win32Helper::DirExists(updateDir.c_str())) {
 		// 清空失败也继续
-		HRESULT hr = wil::RemoveDirectoryRecursiveNoThrow(
-			CommonSharedConstants::UPDATE_DIR, wil::RemoveDirectoryOptions::KeepRootDirectory);
+		hr = wil::RemoveDirectoryRecursiveNoThrow(
+			updateDir.c_str(), wil::RemoveDirectoryOptions::KeepRootDirectory);
 		if (FAILED(hr)) {
 			Logger::Get().ComError("RemoveDirectoryRecursiveNoThrow 失败", hr);
 		}
 	} else {
-		if (!Win32Helper::CreateDir(CommonSharedConstants::UPDATE_DIR)) {
+		if (!Win32Helper::CreateDir(updateDir.c_str())) {
 			Logger::Get().Error("创建 update 文件夹失败");
 			_Status(UpdateStatus::ErrorWhileDownloading);
 			co_return;
 		}
 	}
 	
-	std::wstring updatePkgPath = StrHelper::Concat(CommonSharedConstants::UPDATE_DIR, L"\\update.zip");
+	std::filesystem::path updatePkgPath = updateDir / L"update.zip";
 	wil::unique_hfile updatePkg(
 		CreateFile2(updatePkgPath.c_str(), GENERIC_WRITE, 0, CREATE_ALWAYS, nullptr));
 	if (!updatePkg) {
@@ -349,9 +365,11 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 	co_await resume_background();
 
 	// kuba-zip 内部使用 UTF-8 编码
+	std::string updatePkgPathUtf8 = StrHelper::UTF16ToUTF8(updatePkgPath.wstring());
+	std::string updateDirUtf8 = StrHelper::UTF16ToUTF8(updateDir.wstring());
 	int ec = zip_extract(
-		StrHelper::UTF16ToUTF8(updatePkgPath).c_str(),
-		StrHelper::UTF16ToUTF8(CommonSharedConstants::UPDATE_DIR).c_str(),
+		updatePkgPathUtf8.c_str(),
+		updateDirUtf8.c_str(),
 		nullptr,
 		nullptr
 	);
@@ -364,8 +382,8 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 
 	DeleteFile(updatePkgPath.c_str());
 
-	std::wstring magpieExePath = StrHelper::Concat(CommonSharedConstants::UPDATE_DIR, L"\\Magpie.exe");
-	std::wstring updaterExePath = StrHelper::Concat(CommonSharedConstants::UPDATE_DIR, L"\\Updater.exe");
+	std::filesystem::path magpieExePath = updateDir / L"Magpie.exe";
+	std::filesystem::path updaterExePath = updateDir / L"Updater.exe";
 	if (!Win32Helper::FileExists(magpieExePath.c_str()) || !Win32Helper::FileExists(updaterExePath.c_str())) {
 		Logger::Get().Error("未找到 Magpie.exe 或 Updater.exe");
 		co_await App::Get().Dispatcher();
@@ -394,7 +412,11 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 	// 2. 删除旧版本文件，复制新版本文件，删除 update 文件夹
 	// 3. 启动 Magpie.exe 然后退出
 
-	MoveFileEx(updaterExePath.c_str(), L"Updater.exe", MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH);
+	std::filesystem::path updaterPath = installDir / L"Updater.exe";
+	if (!MoveFileEx(updaterExePath.c_str(), updaterPath.c_str(),
+		MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+		Logger::Get().Win32Error("移动 Updater.exe 失败");
+	}
 
 	std::wstring curVersion = MAGPIE_VERSION.ToString<wchar_t>();
 	// 调用 ShellExecuteEx 后立即退出，因此应该指定 SEE_MASK_NOASYNC
@@ -402,7 +424,7 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 		.cbSize = sizeof(execInfo),
 		.fMask = SEE_MASK_NOASYNC,
 		.lpVerb = L"open",
-		.lpFile = L"Updater.exe",
+		.lpFile = updaterPath.c_str(),
 		.lpParameters = curVersion.c_str()
 	};
 	if (!ShellExecuteEx(&execInfo)) {
