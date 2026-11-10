@@ -46,8 +46,8 @@ static void InitializeLogger() noexcept {
 	);
 }
 
-// 将当前目录设为程序所在目录
-static bool SetWorkingDir(std::filesystem::path& installDir) noexcept {
+// 获取程序所在目录
+static bool GetInstallDir(std::filesystem::path& installDir) noexcept {
 	std::wstring exePath;
 	HRESULT hr = wil::GetModuleFileNameW(NULL, exePath);
 	if (FAILED(hr)) {
@@ -58,11 +58,6 @@ static bool SetWorkingDir(std::filesystem::path& installDir) noexcept {
 	installDir = std::filesystem::path(std::move(exePath)).parent_path();
 	if (installDir.empty() || !installDir.is_absolute()) {
 		Logger::Get().Error("获取安装目录失败");
-		return false;
-	}
-
-	if (!SetCurrentDirectory(installDir.c_str())) {
-		Logger::Get().Win32Error("SetCurrentDirectory 失败");
 		return false;
 	}
 
@@ -152,8 +147,8 @@ int APIENTRY wWinMain(
 	Logger::Get().Info("程序启动");
 
 	std::filesystem::path installDir;
-	if (!SetWorkingDir(installDir)) {
-		Logger::Get().Critical("SetWorkingDir 失败");
+	if (!GetInstallDir(installDir)) {
+		Logger::Get().Critical("GetInstallDir 失败");
 		return 1;
 	}
 
