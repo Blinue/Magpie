@@ -7,14 +7,10 @@ extern "C" {
 #endif
 
 enum MagpieOptionType {
-	MagpieOptionTypeString,
 	MagpieOptionTypeBool,
 	MagpieOptionTypeInt,
-	MagpieOptionTypeFloat
-};
-
-struct MagpieStringOptionDesc {
-	const char* defaultValue;
+	MagpieOptionTypeFloat,
+	MagpieOptionTypeString
 };
 
 struct MagpieBoolOptionDesc {
@@ -35,40 +31,44 @@ struct MagpieFloatOptionDesc {
 	float step;
 };
 
+struct MagpieStringOptionDesc {
+	const char* defaultValue;
+};
+
 struct MagpieOptionValue {
 	const char* id;
 	union {
-		const char* stringValue;
 		uint8_t boolValue;
 		int32_t intValue;
 		float floatValue;
+		const char* stringValue;
 	};
 };
 
-struct MagpieImageFormatOptionDesc {
+struct MagpieImageEncoderOptionDesc {
 	const char* id;
 	const char* displayName;
 	const char* description;
 
 	MagpieOptionType type;
 	union {
-		MagpieStringOptionDesc stringOption;
 		MagpieBoolOptionDesc boolOption;
 		MagpieIntOptionDesc intOption;
 		MagpieFloatOptionDesc floatOption;
+		MagpieStringOptionDesc stringOption;
 	};
 };
 
-struct MagpieImageFormatDesc {
+struct MagpieImageEncoderDesc {
 	const char* id;
 	const char* displayName;
 	const char* description;
 	const char* fileExtension;
 
-	const MagpieImageFormatOptionDesc* optionDescs;
+	const MagpieImageEncoderOptionDesc* optionDescs;
 	uint32_t optionCount;
 
-	HRESULT (*encodeImage)(
+	HRESULT (*encode)(
 		const MagpieOptionValue* optionValues,
 		uint32_t optionValueCount,
 		const char* fileName,
@@ -98,8 +98,8 @@ struct MagpieExtensionDesc {
 	const char* homePageUrl;
 	const char* description;
 
-	const MagpieImageFormatDesc* imageFormatDescs;
-	uint32_t imageFormatCount;
+	const MagpieImageEncoderDesc* imageEncoderDescs;
+	uint32_t imageEncoderCount;
 	const MagpieEffectDesc* effectDescs;
 	uint32_t effectCount;
 };
@@ -109,6 +109,8 @@ struct MagpieHostApi {
 	HRESULT (*log)(const char* message);
 	HRESULT (*registerExtension)(const MagpieExtensionDesc* desc);
 };
+
+#define MAGPIE_EXT_ENTRY MagpieExtEntry
 
 #ifdef __cplusplus
 }

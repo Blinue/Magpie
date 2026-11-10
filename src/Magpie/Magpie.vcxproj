@@ -154,6 +154,7 @@
       <DependentUpon>EffectParametersViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="ExtensionService.h" />
     <ClInclude Include="FileDialogHelper.h" />
     <ClInclude Include="HomeViewModel.h">
       <DependentUpon>HomeViewModel.idl</DependentUpon>
@@ -171,6 +172,7 @@
       <DependentUpon>KeyVisualState.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="MagpieExtApi.h" />
     <ClInclude Include="MainWindow.h" />
     <ClInclude Include="NotifyIconService.h" />
     <ClInclude Include="SettingsCard.h">
@@ -345,6 +347,7 @@
       <DependentUpon>EffectParametersViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="ExtensionService.cpp" />
     <ClCompile Include="FileDialogHelper.cpp" />
     <ClCompile Include="HomeViewModel.cpp">
       <DependentUpon>HomeViewModel.idl</DependentUpon>

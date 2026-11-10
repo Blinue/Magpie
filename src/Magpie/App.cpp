@@ -22,6 +22,8 @@
 #include "AdaptersService.h"
 #include "CommonSharedConstants.h"
 #include "EffectsService.h"
+#include "ExtensionService.h"
+#include "ImageEncoderFactory.h"
 #include "LocalizationService.h"
 #include "Logger.h"
 #include "MainWindow.h"
@@ -153,6 +155,8 @@ bool App::Initialize(const wchar_t* arguments) {
 	ShortcutService::Get().Initialize();
 	ScalingService::Get().Initialize();
 	UpdateService::Get().Initialize();
+	ImageEncoderFactory::Get().Initialize();
+	ExtensionService::Get().Initialize();
 	ThemeHelper::Initialize();
 
 	_themeChangedRevoker = AppSettings::Get().ThemeChanged(

@@ -1,4 +1,5 @@
 #pragma once
+#include "OptionDesc.h"
 #include <parallel_hashmap/phmap.h>
 
 namespace Magpie {
@@ -240,6 +241,8 @@ struct ScalingOptions {
 	HighestShaderModel highestShaderModel = HighestShaderModel::NotLimited;
 	std::filesystem::path screenshotsDir;
 	std::string screenshotFilenameTemplate;
+	std::string screenshotEncoderId;
+	phmap::flat_hash_map<std::string, OptionValue> screenshotEncoderOptions;
 
 	// 下面的成员支持在缩放时修改
 	OverlayOptions overlayOptions;

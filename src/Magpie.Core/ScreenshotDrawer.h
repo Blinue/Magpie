@@ -1,6 +1,7 @@
 #pragma once
 #include "EffectTextureFormat.h"
 #include "SmallVector.h"
+#include "ColorInfo.h"
 #include <D3D12MemAlloc.h>
 
 namespace Magpie {

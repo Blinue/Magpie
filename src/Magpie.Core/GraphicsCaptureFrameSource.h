@@ -1,4 +1,5 @@
 #pragma once
+#include "ColorInfo.h"
 #include "DuplicateFrameChecker.h"
 #include "SmallVector.h"
 #include <d3d11_4.h>

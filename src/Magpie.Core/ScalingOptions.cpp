@@ -36,6 +36,30 @@ static std::string LogEffects(const std::vector<EffectOption>& effects) noexcept
 	return result;
 }
 
+static std::string LogOptionValues(const phmap::flat_hash_map<std::string, OptionValue>& options) noexcept {
+	std::string result;
+	for (const auto& pair : options) {
+		result.append("\n\t\t");
+		result.append(pair.first);
+		result.append(": ");
+		switch (pair.second.index()) {
+		case 0:
+			result.append(std::get<0>(pair.second) ? "true" : "false");
+			break;
+		case 1:
+			result.append(StrHelper::ToString(std::get<1>(pair.second)));
+			break;
+		case 2:
+			result.append(StrHelper::ToString(std::get<2>(pair.second)));
+			break;
+		default:
+			result.append(std::get<3>(pair.second));
+			break;
+		}
+	}
+	return result;
+}
+
 void ScalingOptions::Prepare() noexcept {
 	assert(!effects.empty());
 	assert(cropping.Left >= 0 && cropping.Top >= 0 &&
@@ -68,6 +92,11 @@ void ScalingOptions::Prepare() noexcept {
 	// 将显示错误消息。
 	if (screenshotFilenameTemplate.empty()) {
 		screenshotFilenameTemplate = "%PN:20%";
+	}
+
+	// 默认导出截图为 PNG
+	if (screenshotEncoderId.empty()) {
+		screenshotEncoderId = "*/png";
 	}
 
 	Logger::Get().Info(fmt::format(R"(缩放选项
@@ -106,9 +135,11 @@ void ScalingOptions::Prepare() noexcept {
 	fullscreenInitialToolbarState: {}
 	windowedInitialToolbarState: {}
 	initialWindowedScaleFactor: {}
-	highestShaderModel: {},
+	highestShaderModel: {}
 	screenshotsDir: {}
-	screenshotFilenameTemplate: {})",
+	screenshotFilenameTemplate: {}
+	screenshotEncoderId: {}
+	screenshotEncoderOptions: {})",
 		LogEffects(effects),
 		IsWindowedMode(),
 		IsDebugMode(),
@@ -145,7 +176,9 @@ void ScalingOptions::Prepare() noexcept {
 		initialWindowedScaleFactor,
 		(uint32_t)highestShaderModel,
 		StrHelper::UTF16ToUTF8(screenshotsDir.native()),
-		screenshotFilenameTemplate
+		screenshotFilenameTemplate,
+		screenshotEncoderId,
+		LogOptionValues(screenshotEncoderOptions)
 	));
 }
 

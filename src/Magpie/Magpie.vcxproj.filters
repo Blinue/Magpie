@@ -79,6 +79,9 @@
     <ClCompile Include="Profile.cpp">
       <Filter>Models</Filter>
     </ClCompile>
+    <ClCompile Include="ExtensionService.cpp">
+      <Filter>Services</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -154,6 +157,10 @@
       <Filter>Helpers</Filter>
     </ClInclude>
     <ClInclude Include="BorderlessWindow.h" />
+    <ClInclude Include="ExtensionService.h">
+      <Filter>Services</Filter>
+    </ClInclude>
+    <ClInclude Include="MagpieExtApi.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Pages">

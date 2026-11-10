@@ -16,6 +16,7 @@
 #include "shaders/ScreenshotCS_WCG_SM5.h"
 #include "TextureHelper.h"
 #include "Win32Helper.h"
+#include "ImageEncoderFactory.h"
 
 namespace Magpie {
 
@@ -278,9 +279,18 @@ static TakeScreenshotResult ExportScreenshot(
 	}
 
 	if (textureFormat == EffectTextureFormat::UNKNOWN) {
-		HRESULT hr = TextureHelper::SavePng(screenshotPath, textureSize, pixelData, rowPitch, colorInfo);
+		const phmap::flat_hash_map<std::string, OptionValue> optionValues;
+		HRESULT hr = ImageEncoderFactory::Get().EncodeImage(
+			"*/png",
+			optionValues,
+			StrHelper::UTF16ToUTF8(screenshotPath.native()),
+			textureSize,
+			pixelData,
+			rowPitch,
+			colorInfo
+		);
 		if (FAILED(hr)) {
-			Logger::Get().ComError("TextureHelper::SavePng 失败", hr);
+			Logger::Get().ComError("ImageEncoderFactory::EncodeImage(id=\"*/png\") 失败", hr);
 			return TakeScreenshotResult::InternalError;
 		}
 	} else {

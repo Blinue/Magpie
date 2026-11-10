@@ -56,6 +56,7 @@
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Foundation.Metadata.h>
+#include <winrt/Windows.Graphics.Display.h>
 #include <winrt/Windows.System.h>
 #include <winrt/Windows.UI.Core.h>
 #include <winrt/Windows.UI.ViewManagement.h>
@@ -78,14 +79,13 @@
 #include <winrt/Microsoft.UI.Xaml.Media.h>
 #include <winrt/Microsoft.UI.Xaml.XamlTypeInfo.h>
 
-#include <wil/cppwinrt_authoring.h>
-
 namespace winrt {
 using namespace Windows::ApplicationModel::Resources;
 using namespace Windows::ApplicationModel::Resources::Core;
 using namespace Windows::Foundation;
 using namespace Windows::Foundation::Collections;
 using namespace Windows::Foundation::Metadata;
+using namespace Windows::Graphics::Display;
 using namespace Windows::System;
 using namespace Windows::UI::Core;
 using namespace Windows::UI::Xaml;
@@ -95,6 +95,8 @@ using namespace Windows::UI::Xaml::Media;
 
 namespace MUXC = Microsoft::UI::Xaml::Controls;
 }
+
+#include <wil/cppwinrt_authoring.h>
 
 // fmt
 #include <fmt/format.h>

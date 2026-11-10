@@ -3,6 +3,7 @@
 #include "Profile.h"
 #include "Shortcut.h"
 #include "Singleton.h"
+#include "OptionDesc.h"
 #include <rapidjson/document.h>
 #include <rapidjson/stringbuffer.h>
 #include <winrt/Magpie.h>
@@ -16,6 +17,12 @@ enum class AppTheme {
 	Light,
 	Dark,
 	System
+};
+
+struct ExtensionOption {
+	std::string updateUrl;
+	phmap::flat_hash_map<std::string, OptionValue> optionValues;
+	bool isEnabled = false;
 };
 
 class AppSettings : public Singleton<AppSettings> {
@@ -278,6 +285,10 @@ public:
 		return _overlayWindowOptions;
 	}
 
+	phmap::flat_hash_map<std::string, ExtensionOption>& ExtensionOptions() noexcept {
+		return _extensionOptions;
+	}
+
 	Event<AppTheme> ThemeChanged;
 	Event<winrt::Magpie::ShortcutAction> ShortcutChanged;
 	Event<uint32_t> CountdownSecondsChanged;
@@ -288,12 +299,6 @@ private:
 	AppSettings();
 
 	void _UpdateWindowPlacement() noexcept;
-
-	struct _ExtensionSettings {
-		std::string updateUrl;
-		phmap::flat_hash_map<std::string, std::variant<std::string, bool, int, float>> options;
-		bool isEnabled = false;
-	};
 
 	rapidjson::StringBuffer _WriteConfigJson() const noexcept;
 
@@ -338,7 +343,7 @@ private:
 
 	phmap::flat_hash_map<std::string, OverlayWindowOption> _overlayWindowOptions;
 	
-	phmap::flat_hash_map<std::string, _ExtensionSettings> _extensionSettings;
+	phmap::flat_hash_map<std::string, ExtensionOption> _extensionOptions;
 
 	std::atomic<bool> _isSaving;
 	bool _isAlwaysRunAsAdmin = false;

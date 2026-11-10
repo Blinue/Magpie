@@ -1,4 +1,5 @@
 #pragma once
+#include "ColorInfo.h"
 
 namespace Magpie {
 

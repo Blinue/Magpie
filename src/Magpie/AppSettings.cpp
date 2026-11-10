@@ -651,38 +651,36 @@ rapidjson::StringBuffer AppSettings::_WriteConfigJson() const noexcept {
 
 	writer.Key("extensions");
 	writer.StartArray();
-	for (const auto& [extId, extSettings] : _extensionSettings) {
+	for (const auto& [extId, extOption] : _extensionOptions) {
 		writer.StartObject();
 		writer.Key("id");
 		writer.String(extId.c_str());
 		writer.Key("updateUrl");
-		writer.String(extSettings.updateUrl.c_str());
+		writer.String(extOption.updateUrl.c_str());
 		writer.Key("enabled");
-		writer.Bool(extSettings.isEnabled);
-		writer.Key("options");
+		writer.Bool(extOption.isEnabled);
+		writer.Key("optionValues");
 		writer.StartArray();
-		for (const auto& [optionId, value] : extSettings.options) {
+		for (const auto& [optionId, value] : extOption.optionValues) {
 			writer.StartObject();
 			writer.Key("id");
 			writer.String(optionId.c_str());
 			switch (value.index()) {
 			case 0:
-				writer.Key("stringValue");
-				writer.String(std::get<0>(value).c_str());
+				writer.Key("boolValue");
+				writer.Bool(std::get<0>(value));
 				break;
 			case 1:
-				writer.Key("boolValue");
-				writer.Bool(std::get<1>(value));
+				writer.Key("intValue");
+				writer.Int(std::get<1>(value));
 				break;
 			case 2:
-				writer.Key("intValue");
-				writer.Int(std::get<2>(value));
-				break;
-			case 3:
 				writer.Key("floatValue");
-				writer.Double(std::get<3>(value));
+				writer.Double(std::get<2>(value));
 				break;
 			default:
+				writer.Key("stringValue");
+				writer.String(std::get<3>(value).c_str());
 				break;
 			}
 			writer.EndObject();
@@ -951,7 +949,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 
 	if (auto it = root.FindMember("extensions"); it != root.MemberEnd() && it->value.IsArray()) {
 		auto extensionsArray = it->value.GetArray();
-		_extensionSettings.reserve(extensionsArray.Size());
+		_extensionOptions.reserve(extensionsArray.Size());
 
 		for (const rapidjson::Value& extNode : extensionsArray) {
 			if (!extNode.IsObject()) {
@@ -965,18 +963,18 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 				continue;
 			}
 
-			_ExtensionSettings& extSettings = _extensionSettings[extId];
+			ExtensionOption& extOption = _extensionOptions[extId];
 
-			JsonHelper::ReadString(extObj, "updateUrl", extSettings.updateUrl);
-			JsonHelper::ReadBool(extObj, "enabled", extSettings.isEnabled);
+			JsonHelper::ReadString(extObj, "updateUrl", extOption.updateUrl);
+			JsonHelper::ReadBool(extObj, "enabled", extOption.isEnabled);
 
-			it = extObj.FindMember("options");
+			it = extObj.FindMember("optionValues");
 			if (it == extObj.MemberEnd() || !it->value.IsArray()) {
 				continue;
 			}
 
 			auto optionsArray = it->value.GetArray();
-			extSettings.options.reserve(optionsArray.Size());
+			extOption.optionValues.reserve(optionsArray.Size());
 
 			for (const rapidjson::Value& optionNode : optionsArray) {
 				if (!optionNode.IsObject()) {
@@ -989,13 +987,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 					continue;
 				}
 
-				auto& value = extSettings.options[it->value.GetString()];
-
-				it = optionObj.FindMember("stringValue");
-				if (it != optionObj.MemberEnd() && it->value.IsString()) {
-					value = it->value.GetString();
-					continue;
-				}
+				auto& value = extOption.optionValues[it->value.GetString()];
 
 				it = optionObj.FindMember("boolValue");
 				if (it != optionObj.MemberEnd() && it->value.IsBool()) {
@@ -1012,6 +1004,12 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 				it = optionObj.FindMember("floatValue");
 				if (it != optionObj.MemberEnd() && it->value.IsFloat()) {
 					value = it->value.GetFloat();
+				}
+
+				it = optionObj.FindMember("stringValue");
+				if (it != optionObj.MemberEnd() && it->value.IsString()) {
+					value = it->value.GetString();
+					continue;
 				}
 			}
 		}

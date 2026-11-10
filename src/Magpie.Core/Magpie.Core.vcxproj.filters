@@ -25,6 +25,9 @@
     <Filter Include="Drawers">
       <UniqueIdentifier>{ae93c055-e8c1-41c3-ba76-3422dac27328}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ImageEncoder">
+      <UniqueIdentifier>{dc53543e-bab7-4c11-a955-e2d2d671d446}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -180,10 +183,21 @@
     <ClInclude Include="EffectsMemPoolBuilder.h">
       <Filter>Render</Filter>
     </ClInclude>
-    <ClInclude Include="include\ExtensionService.h">
+    <ClInclude Include="PngImageEncoder.h">
+      <Filter>ImageEncoder</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ImageEncoderFactory.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="MagpieExtApi.h" />
+    <ClInclude Include="include\ImageEncoderMetadata.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\OptionDesc.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ColorInfo.h">
+      <Filter>Include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
@@ -290,8 +304,11 @@
     <ClCompile Include="EffectsMemPoolBuilder.cpp">
       <Filter>Render</Filter>
     </ClCompile>
-    <ClCompile Include="ExtensionService.cpp">
-      <Filter>Services</Filter>
+    <ClCompile Include="ImageEncoderFactory.cpp">
+      <Filter>ImageEncoder</Filter>
+    </ClCompile>
+    <ClCompile Include="PngImageEncoder.cpp">
+      <Filter>ImageEncoder</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

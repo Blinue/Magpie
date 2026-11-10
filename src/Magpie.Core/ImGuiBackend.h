@@ -2,6 +2,7 @@
 #include <D3D12MemAlloc.h>
 #include <imgui.h>
 #include <parallel_hashmap/phmap.h>
+#include "ColorInfo.h"
 #include "SmallVector.h"
 
 namespace Magpie {

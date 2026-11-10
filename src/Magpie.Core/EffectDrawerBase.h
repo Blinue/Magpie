@@ -1,4 +1,5 @@
 #pragma once
+#include "ColorInfo.h"
 #include "EffectTextureFormat.h"
 #include "SmallVector.h"
 #include <D3D12MemAlloc.h>

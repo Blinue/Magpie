@@ -3,6 +3,7 @@
 #include <parallel_hashmap/phmap.h>
 #include <wil/registry.h>
 #include "ByteBuffer.h"
+#include "ColorInfo.h"
 #include "SmallVector.h"
 
 namespace Magpie {
