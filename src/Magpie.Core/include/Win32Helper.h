@@ -190,10 +190,21 @@ struct Win32Helper {
 		}
 	};
 
-	static bool ShellOpen(const wchar_t* path, const wchar_t* parameters = nullptr, bool nonElevated = true) noexcept;
+	// path 必须是绝对路径以避免歧义
+	static bool LaunchExe(
+		const std::filesystem::path& path,
+		wil::zwstring_view parameters = {},
+		bool inheritAuthority = false,
+		bool noAsync = false
+	) noexcept;
 
-	// 不应在主线程调用。fileName 必须是绝对路径。
-	static bool OpenFolderAndSelectFile(const wchar_t* fileName) noexcept;
+	static bool OpenUrl(wil::zwstring_view url, bool noAsync = false) noexcept;
+
+	// path 必须是绝对路径以避免歧义
+	static bool OpenFolder(const std::filesystem::path& path, bool noAsync = false) noexcept;
+
+	// 不应在主线程调用，此外 fileName 必须是绝对路径
+	static bool OpenFolderAndSelectFile(const std::filesystem::path& fileName) noexcept;
 
 	static const std::filesystem::path& GetExePath() noexcept;
 
