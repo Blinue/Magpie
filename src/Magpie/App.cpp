@@ -239,7 +239,6 @@ void App::Restart(bool asElevated, const wchar_t* arguments) noexcept {
 		.lpParameters = arguments,
 		.nShow = SW_SHOWNORMAL
 	};
-
 	if (!ShellExecuteEx(&execInfo)) {
 		Logger::Get().Win32Error("ShellExecuteEx 失败");
 		Logger::Get().Flush();

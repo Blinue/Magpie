@@ -377,6 +377,7 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 	co_await App::Get().Dispatcher();
 
 	if (_downloadCancelled) {
+		Logger::Get().Info("下载已取消");
 		_Status(UpdateStatus::Available);
 		co_return;
 	}
@@ -397,17 +398,14 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 
 	MoveFileEx(updaterExePath.c_str(), L"Updater.exe", MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH);
 
-	std::wstring curVersion = MAGPIE_VERSION.ToString<wchar_t>();
-	// 调用 ShellExecuteEx 后立即退出，因此应该指定 SEE_MASK_NOASYNC
-	SHELLEXECUTEINFO execInfo{
-		.cbSize = sizeof(execInfo),
-		.fMask = SEE_MASK_NOASYNC,
-		.lpVerb = L"open",
-		.lpFile = L"Updater.exe",
-		.lpParameters = curVersion.c_str()
-	};
-	if (!ShellExecuteEx(&execInfo)) {
-		Logger::Get().Win32Error("ShellExecuteEx 失败");
+	if (!Win32Helper::LaunchExe(
+		AppFolderManager::Get().GetWorkingDir() / L"Updater.exe",
+		MAGPIE_VERSION.ToString<wchar_t>(),
+		true, true
+	)) {
+		Logger::Get().Error("启动 Updater.exe 失败");
+		_Status(UpdateStatus::ErrorWhileDownloading);
+		co_return;
 	}
 
 	App::Get().Quit();
