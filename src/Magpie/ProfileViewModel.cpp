@@ -477,7 +477,7 @@ hstring ProfileViewModel::ScreenshotSaveDirectory() const noexcept {
 void ProfileViewModel::OpenScreenshotSaveDirectory() const noexcept {
 	const std::filesystem::path saveDir = _data->GetScreenshotsDir();
 	if (Win32Helper::CreateDir(saveDir.native(), true)) {
-		Win32Helper::ShellOpen(saveDir.c_str());
+		Win32Helper::OpenFolder(saveDir);
 	}
 }
 

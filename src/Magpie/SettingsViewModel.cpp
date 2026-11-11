@@ -120,7 +120,7 @@ fire_and_forget SettingsViewModel::OpenConfigLocation() const noexcept {
 	std::filesystem::path configPath =
 		AppSettings::Get().ConfigDir() / CommonSharedConstants::CONFIG_FILENAME;
 	co_await resume_background();
-	Win32Helper::OpenFolderAndSelectFile(configPath.c_str());
+	Win32Helper::OpenFolderAndSelectFile(configPath);
 }
 
 bool SettingsViewModel::IsShowNotifyIcon() const noexcept {
