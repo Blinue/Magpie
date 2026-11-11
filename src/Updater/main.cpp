@@ -46,8 +46,8 @@ static void InitializeLogger() noexcept {
 	);
 }
 
-// 获取程序所在目录
-static bool GetInstallDir(std::filesystem::path& installDir) noexcept {
+// 将当前目录设为程序所在目录
+static bool SetWorkingDir() noexcept {
 	std::wstring exePath;
 	HRESULT hr = wil::GetModuleFileNameW(NULL, exePath);
 	if (FAILED(hr)) {
@@ -55,9 +55,11 @@ static bool GetInstallDir(std::filesystem::path& installDir) noexcept {
 		return false;
 	}
 
-	installDir = std::filesystem::path(std::move(exePath)).parent_path();
-	if (installDir.empty() || !installDir.is_absolute()) {
-		Logger::Get().Error("获取安装目录失败");
+	std::filesystem::path parentPath =
+		std::filesystem::path(std::move(exePath)).parent_path();
+
+	if (!SetCurrentDirectory(parentPath.c_str())) {
+		Logger::Get().Win32Error("SetCurrentDirectory 失败");
 		return false;
 	}
 
@@ -70,7 +72,7 @@ static bool FileExists(const wchar_t* fileName) noexcept {
 	return (attrs != INVALID_FILE_ATTRIBUTES) && !(attrs & FILE_ATTRIBUTE_DIRECTORY);
 }
 
-static bool WaitForMagpieToExit(const std::filesystem::path& magpieExePath) noexcept {
+static bool WaitForMagpieToExit() noexcept {
 	{
 		wil::unique_mutex_nothrow hSingleInstanceMutex;
 		if (hSingleInstanceMutex.try_create(CommonSharedConstants::SINGLE_INSTANCE_MUTEX_NAME)) {
@@ -83,7 +85,7 @@ static bool WaitForMagpieToExit(const std::filesystem::path& magpieExePath) noex
 	// 即使 mutex 已被释放，Magpie.exe 仍有可能正在后台执行清理工作
 	// 尝试删除 Magpie.exe，直到成功为止
 	for (int i = 0; i < 1000; ++i) {
-		if (DeleteFile(magpieExePath.c_str()) || GetLastError() == ERROR_FILE_NOT_FOUND) {
+		if (DeleteFile(L"Magpie.exe") || GetLastError() == ERROR_FILE_NOT_FOUND) {
 			return true;
 		}
 
@@ -146,9 +148,8 @@ int APIENTRY wWinMain(
 
 	Logger::Get().Info("程序启动");
 
-	std::filesystem::path installDir;
-	if (!GetInstallDir(installDir)) {
-		Logger::Get().Critical("GetInstallDir 失败");
+	if (!SetWorkingDir()) {
+		Logger::Get().Critical("SetWorkingDir 失败");
 		return 1;
 	}
 
@@ -167,26 +168,21 @@ int APIENTRY wWinMain(
 		return 1;
 	}
 
-	std::filesystem::path magpieExePath = installDir / L"Magpie.exe";
-	std::filesystem::path updateDir = installDir / CommonSharedConstants::UPDATE_DIR;
-	std::filesystem::path updateMagpieExePath = updateDir / L"Magpie.exe";
-
 	// 检查 Updater.exe 所处环境
-	if (!FileExists(magpieExePath.c_str()) || !FileExists(updateMagpieExePath.c_str())) {
+	if (!FileExists(L"Magpie.exe") || !FileExists(L"update\\Magpie.exe")) {
 		Logger::Get().Critical("未找到 Magpie.exe 或 update\\Magpie.exe");
 		return 1;
 	}
 	
 	// 等待 Magpie.exe 退出
-	if (!WaitForMagpieToExit(magpieExePath)) {
+	if (!WaitForMagpieToExit()) {
 		Logger::Get().Critical("等待 Magpie.exe 退出超时");
 		return 1;
 	}
 
 	// 删除旧版本文件
 	for (const wchar_t* fileName : oldFiles->files) {
-		std::filesystem::path path = installDir / fileName;
-		if (DeleteFile(path.c_str()) || GetLastError() == ERROR_FILE_NOT_FOUND) {
+		if (DeleteFile(fileName) || GetLastError() == ERROR_FILE_NOT_FOUND) {
 			Logger::Get().Info(StrHelper::Concat(
 				"已删除文件 ", StrHelper::UTF16ToUTF8(fileName)));
 		} else {
@@ -195,8 +191,7 @@ int APIENTRY wWinMain(
 		}
 	}
 	for (const wchar_t* folder : oldFiles->folders) {
-		std::filesystem::path path = installDir / folder;
-		if (RemoveDirectory(path.c_str()) || GetLastError() == ERROR_FILE_NOT_FOUND) {
+		if (RemoveDirectory(folder) || GetLastError() == ERROR_FILE_NOT_FOUND) {
 			Logger::Get().Info(StrHelper::Concat(
 				"已删除文件夹 ", StrHelper::UTF16ToUTF8(folder)));
 		} else {
@@ -206,10 +201,10 @@ int APIENTRY wWinMain(
 	}
 
 	// 移动新版本
-	MoveFolder(updateDir.wstring(), installDir.wstring());
+	MoveFolder(CommonSharedConstants::UPDATE_DIR, L".");
 	
 	// 删除 update 文件夹
-	HRESULT hr = wil::RemoveDirectoryRecursiveNoThrow(updateDir.c_str());
+	HRESULT hr = wil::RemoveDirectoryRecursiveNoThrow(CommonSharedConstants::UPDATE_DIR);
 	if (SUCCEEDED(hr)) {
 		Logger::Get().Info("已删除 update 文件夹");
 	} else {
@@ -221,7 +216,7 @@ int APIENTRY wWinMain(
 		.cbSize = sizeof(execInfo),
 		.fMask = SEE_MASK_NOASYNC,
 		.lpVerb = L"open",
-		.lpFile = magpieExePath.c_str(),
+		.lpFile = L"Magpie.exe",
 		.nShow = SW_SHOWNORMAL
 	};
 	if (ShellExecuteEx(&execInfo)) {
