@@ -878,7 +878,7 @@ static bool ShellOpenNonElevated(
 	// 不缓存这个接口，因为它会在资源管理器重启后失效
 	winrt::com_ptr<IShellDispatch2> shellDispatch = GetShellDispatch();
 	if (!shellDispatch) {
-		Logger::Get().Error("GeShellDispatch 失败");
+		Logger::Get().Error("GetShellDispatch 失败");
 		return false;
 	}
 
