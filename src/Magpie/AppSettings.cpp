@@ -1175,13 +1175,14 @@ static std::wstring FindOldConfig(const wchar_t* localAppDataDir) noexcept {
 
 bool AppSettings::_UpdateConfigPath(std::filesystem::path* existingConfigPath) noexcept {
 	if (_isPortableMode) {
-		std::wstring value;
-		HRESULT hr = wil::GetFullPathNameW(CommonSharedConstants::CONFIG_DIR, value);
+		std::wstring workingDir;
+		HRESULT hr = wil::GetCurrentDirectoryW(workingDir);
 		if (FAILED(hr)) {
-			Logger::Get().ComError("GetFullPathNameW 失败", hr);
+			Logger::Get().ComError("wil::GetCurrentDirectoryW 失败", hr);
 			return false;
 		}
-		_configDir = std::move(value);
+
+		_configDir = StrHelper::Concat(workingDir, L"\\", CommonSharedConstants::CONFIG_DIR);
 
 		_configPath = _configDir / CommonSharedConstants::CONFIG_FILENAME;
 

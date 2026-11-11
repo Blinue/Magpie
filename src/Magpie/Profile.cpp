@@ -141,9 +141,10 @@ void Profile::Launch() const noexcept {
 			return;
 		}
 	} else {
-		const std::wstring& path = !launcherPath.empty() &&
-			Win32Helper::FileExists(launcherPath.c_str()) ? launcherPath.native() : pathRule;
-		Win32Helper::ShellOpen(path.c_str(), launchParameters.c_str());
+		std::filesystem::path path =
+			!launcherPath.empty() && Win32Helper::FileExists(launcherPath.c_str()) ?
+			launcherPath : std::filesystem::path(pathRule);
+		Win32Helper::LaunchExe(path, launchParameters);
 	}
 }
 
@@ -159,7 +160,7 @@ winrt::fire_and_forget Profile::OpenProgramLocation() const noexcept {
 		programLocation = appxReader.GetExecutablePath();
 		if (programLocation.empty()) {
 			// 找不到可执行文件则打开应用文件夹
-			Win32Helper::ShellOpen(appxReader.GetPackagePath().c_str());
+			Win32Helper::OpenFolder(appxReader.GetPackagePath().c_str());
 			co_return;
 		}
 	} else {
@@ -167,7 +168,7 @@ winrt::fire_and_forget Profile::OpenProgramLocation() const noexcept {
 	}
 
 	co_await winrt::resume_background();
-	Win32Helper::OpenFolderAndSelectFile(programLocation.c_str());
+	Win32Helper::OpenFolderAndSelectFile(std::move(programLocation));
 }
 
 }
