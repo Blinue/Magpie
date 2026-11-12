@@ -1898,7 +1898,7 @@ winrt::fire_and_forget ScalingWindow::_UpdateFocusStateAsync() const noexcept {
 				// 全屏模式缩放时确保缩放窗口在所有置顶窗口之上，这使不支持 MPO 的显卡更容易激
 				// 活 DirectFlip。
 				if (!_options.IsWindowedMode()) {
-					SetWindowPos(Handle(), HWND_TOP, 0, 0, 0, 0, SWP_NO_ACTIVATE_MOVE_SIZE);
+					SetWindowPos(Handle(), HWND_TOP, 0, 0, 0, 0, SWP_NO_ACTIVATE_MOVE_SIZE | SWP_NOOWNERZORDER);
 				}
 			} else {
 				const uint32_t runId = ScalingWindow::RunId();
@@ -1930,7 +1930,7 @@ winrt::fire_and_forget ScalingWindow::_UpdateFocusStateAsync() const noexcept {
 				}
 
 				if (isInBackground) {
-					co_await ScalingWindow::Get().Dispatcher();
+					co_await _dispatcher;
 
 					// 等待时源窗口重新回到前台了应放弃后续操作
 					if (runId != ScalingWindow::RunId() || _srcTracker.IsFocused()) {

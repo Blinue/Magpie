@@ -882,7 +882,6 @@ static bool ShellOpenNonElevated(
 		return false;
 	}
 
-	// IShellDispatch2::ShellExecute 优先检索系统路径，因此 path 必须是绝对路径以避免歧义
 #pragma push_macro("ShellExecute")
 #undef ShellExecute
 	HRESULT hr = shellDispatch->ShellExecute(
@@ -915,6 +914,8 @@ static bool ShellOpen(
 		// ShellOpenNonElevated 失败则回落到 ShellExecuteEx
 	}
 
+	// ShellExecuteEx 在检查工作目录前会先检查注册表 App Paths 和一些系统目录，因此 path
+	// 应是绝对路径以避免歧义。
 	SHELLEXECUTEINFO execInfo = {
 		.cbSize = sizeof(execInfo),
 		.fMask = ULONG(noAsync ? SEE_MASK_NOASYNC : SEE_MASK_ASYNCOK),
