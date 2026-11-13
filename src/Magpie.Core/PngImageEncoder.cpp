@@ -58,11 +58,6 @@ static uint32_t MakeUI4(uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4) noexcept
 	return v1 | (v2 << 8) | (v3 << 16) | (v4 << 24);
 }
 
-// PNG 的整数使用 network byte order，高位在前
-static uint16_t MakePngUI2(uint16_t value) noexcept {
-	return ((value >> 8) & 0xFFu) | ((value & 0xFFu) << 8);
-}
-
 static uint32_t MakePngUI4(uint32_t value) noexcept {
 	return MakeUI4(uint8_t(value >> 24), uint8_t(value >> 16), uint8_t(value >> 8), uint8_t(value));
 }
@@ -113,16 +108,6 @@ static std::array<uint8_t, 16> MakeCICPChunk(winrt::AdvancedColorKind acKind) no
 	*(uint32_t*)&chunk[12] = CalculateCRC32(&chunk[4], (uint32_t)chunk.size() - 8u);
 
 	return chunk;
-}
-
-static uint16_t EncodeChroma(float value) noexcept {
-	constexpr float CHROMA_DIVISOR = 0.00002f;
-	return MakePngUI2((uint16_t)std::lround(value / CHROMA_DIVISOR));
-}
-
-static uint32_t EncodeLuminace(float value) noexcept {
-	constexpr float LUM_DIVISOR = 0.0001f;
-	return MakePngUI4((uint32_t)std::lround(value * SCENE_REFERRED_SDR_WHITE_LEVEL / LUM_DIVISOR));
 }
 
 HRESULT PngImageEncoder::Encode(

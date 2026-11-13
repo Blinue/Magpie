@@ -369,7 +369,7 @@ HRESULT ShaderEffectDrawer::Draw(
 	assert(_error == _Error::NoError && _drawInfo);
 	// 不会要求导出最后一个通道的输出
 	assert(exportData.passIdx == -1 ||
-		(exportData.passIdx >= 0 && exportData.passIdx + 1 < _passDatas.size() &&
+		(exportData.passIdx >= 0 && exportData.passIdx + 1 < (int)_passDatas.size() &&
 			exportData.outputIdx < _drawInfo->passes[exportData.passIdx].outputs.size()));
 
 	if (_shouldUpdateConstantBuffer) {
