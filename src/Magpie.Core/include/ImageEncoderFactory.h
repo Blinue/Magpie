@@ -16,8 +16,8 @@ public:
 		SizeU imageSize,
 		std::span<const uint8_t> pixelData,
 		uint32_t rowPitch,
-		const ColorInfo& colorInfo
-	) noexcept;
+		winrt::AdvancedColorKind colorKind
+	);
 
 	void Initialize() noexcept;
 
@@ -26,7 +26,7 @@ public:
 	void RegisterImageEncoder(
 		std::string_view id,
 		ImageEncoderMetadata&& metadata,
-		EncodeFn* encodeFn
+		std::function<EncodeFn> encodeFn
 	) noexcept;
 
 	const ImageEncoderMetadata* GetEncoderMetadata(std::string_view id) const noexcept;;
@@ -38,13 +38,13 @@ public:
 		SizeU imageSize,
 		std::span<const uint8_t> pixelData,
 		uint32_t rowPitch,
-		const ColorInfo& colorInfo
+		winrt::AdvancedColorKind colorKind
 	) noexcept;
 
 private:
 	ImageEncoderFactory() = default;
 
-	phmap::flat_hash_map<std::string, std::pair<ImageEncoderMetadata, EncodeFn*>> _encoders;
+	phmap::flat_hash_map<std::string, std::pair<ImageEncoderMetadata, std::function<EncodeFn>>> _encoders;
 };
 
 }

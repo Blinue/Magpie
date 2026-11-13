@@ -477,7 +477,7 @@ fire_and_forget RootPage::_LoadIcon(MUXC::NavigationViewItem const& item, const 
 
 void RootPage::_UpdateIcons(bool skipDesktop) {
 	IVector<IInspectable> navMenuItems = RootNavigationView().MenuItems();
-	const std::vector<Profile>& profiles = AppSettings::Get().Profiles();
+	const SmallVectorImpl<Profile>& profiles = AppSettings::Get().Profiles();
 
 	for (uint32_t i = 0; i < profiles.size(); ++i) {
 		if (skipDesktop && !profiles[i].isPackaged) {

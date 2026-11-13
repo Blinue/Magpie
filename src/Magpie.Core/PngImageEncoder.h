@@ -15,7 +15,7 @@ public:
 		SizeU imageSize,
 		std::span<const uint8_t> pixelData,
 		uint32_t rowPitch,
-		const ColorInfo& colorInfo
+		winrt::AdvancedColorKind colorKind
 	) noexcept;
 };
 

@@ -15,10 +15,10 @@ void ImageEncoderFactory::Initialize() noexcept {
 void ImageEncoderFactory::RegisterImageEncoder(
 	std::string_view id,
 	ImageEncoderMetadata&& metadata,
-	EncodeFn* encodeFn
+	std::function<EncodeFn> encodeFn
 ) noexcept {
 	assert(!_encoders.contains(id));
-	_encoders.emplace(id, std::make_pair(std::move(metadata), encodeFn));
+	_encoders.emplace(id, std::make_pair(std::move(metadata), std::move(encodeFn)));
 }
 
 const ImageEncoderMetadata* ImageEncoderFactory::GetEncoderMetadata(std::string_view id) const noexcept {
@@ -36,11 +36,11 @@ HRESULT ImageEncoderFactory::EncodeImage(
 	SizeU imageSize,
 	std::span<const uint8_t> pixelData,
 	uint32_t rowPitch,
-	const ColorInfo& colorInfo
+	winrt::AdvancedColorKind colorKind
 ) noexcept {
 	if (auto it = _encoders.find(id); it != _encoders.end()) {
 		return it->second.second(
-			optionValues, fileName, imageSize, pixelData, rowPitch, colorInfo);
+			optionValues, fileName, imageSize, pixelData, rowPitch, colorKind);
 	} else {
 		return E_NOTIMPL;
 	}

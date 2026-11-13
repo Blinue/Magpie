@@ -556,27 +556,17 @@ static float GetSDRWhiteLevel(std::wstring_view monitorName) noexcept {
 }
 
 bool Renderer::_UpdateColorInfo() noexcept {
+	// 默认视为 SDR
+	_colorInfo = {};
+
 	if (_displayInfo) {
 		winrt::AdvancedColorInfo acInfo = _displayInfo.GetAdvancedColorInfo();
-
 		_colorInfo.kind = acInfo.CurrentAdvancedColorKind();
-		if (_colorInfo.kind == winrt::AdvancedColorKind::StandardDynamicRange) {
-			_colorInfo = {};
-		} else {
-			_colorInfo.redPrimary = acInfo.RedPrimary();
-			_colorInfo.greenPrimary = acInfo.GreenPrimary();
-			_colorInfo.bluePrimary = acInfo.BluePrimary();
-			_colorInfo.whitePoint = acInfo.WhitePoint();
 
-			if (_colorInfo.kind == winrt::AdvancedColorKind::HighDynamicRange) {
-				_colorInfo.minLuminance = acInfo.MinLuminanceInNits() / SCENE_REFERRED_SDR_WHITE_LEVEL;
-				_colorInfo.maxLuminance = acInfo.MaxLuminanceInNits() / SCENE_REFERRED_SDR_WHITE_LEVEL;
-				_colorInfo.sdrWhiteLevel = acInfo.SdrWhiteLevelInNits() / SCENE_REFERRED_SDR_WHITE_LEVEL;
-			} else {
-				_colorInfo.minLuminance = 0.0f;
-				_colorInfo.maxLuminance = 1.0f;
-				_colorInfo.sdrWhiteLevel = 1.0f;
-			}
+		if (_colorInfo.kind == winrt::AdvancedColorKind::HighDynamicRange) {
+			_colorInfo.minLuminance = acInfo.MinLuminanceInNits() / SCENE_REFERRED_SDR_WHITE_LEVEL;
+			_colorInfo.maxLuminance = acInfo.MaxLuminanceInNits() / SCENE_REFERRED_SDR_WHITE_LEVEL;
+			_colorInfo.sdrWhiteLevel = acInfo.SdrWhiteLevelInNits() / SCENE_REFERRED_SDR_WHITE_LEVEL;
 		}
 		
 		return true;
@@ -584,6 +574,7 @@ bool Renderer::_UpdateColorInfo() noexcept {
 
 	IDXGIFactory7* dxgiFactory = _d3d12Context.GetDXGIFactoryForEnumingAdapters();
 	if (!dxgiFactory) {
+		Logger::Get().Error("D3D12Context::GetDXGIFactoryForEnumingAdapters 失败");
 		return false;
 	}
 
@@ -606,12 +597,6 @@ bool Renderer::_UpdateColorInfo() noexcept {
 						_colorInfo.minLuminance = desc.MinLuminance / SCENE_REFERRED_SDR_WHITE_LEVEL;
 						_colorInfo.maxLuminance = desc.MaxLuminance / SCENE_REFERRED_SDR_WHITE_LEVEL;
 						_colorInfo.sdrWhiteLevel = GetSDRWhiteLevel(desc.DeviceName);
-						_colorInfo.redPrimary = { desc.RedPrimary[0], desc.RedPrimary[1] };
-						_colorInfo.greenPrimary = { desc.GreenPrimary[0], desc.GreenPrimary[1] };
-						_colorInfo.bluePrimary = { desc.BluePrimary[0], desc.BluePrimary[1] };
-						_colorInfo.whitePoint = { desc.WhitePoint[0], desc.WhitePoint[1] };
-					} else {
-						_colorInfo = {};
 					}
 
 					return true;
@@ -620,8 +605,6 @@ bool Renderer::_UpdateColorInfo() noexcept {
 		}
 	}
 
-	// 未找到视为 SDR
-	_colorInfo = {};
 	return true;
 }
 

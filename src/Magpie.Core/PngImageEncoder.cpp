@@ -125,42 +125,13 @@ static uint32_t EncodeLuminace(float value) noexcept {
 	return MakePngUI4((uint32_t)std::lround(value * SCENE_REFERRED_SDR_WHITE_LEVEL / LUM_DIVISOR));
 }
 
-static std::array<uint8_t, 36> MakeMDCVChunk(const ColorInfo& colorInfo) noexcept {
-	std::array<uint8_t, 36> chunk;
-
-	// 数据长度
-	*(uint32_t*)&chunk[0] = MakeUI4(0, 0, 0, uint8_t(chunk.size() - 12u));
-
-	// Chunk 类型
-	*(uint32_t*)&chunk[4] = MakeUI4('m', 'D', 'C', 'V');
-
-	// 原色
-	*(uint16_t*)&chunk[8] = EncodeChroma(colorInfo.redPrimary.X);
-	*(uint16_t*)&chunk[10] = EncodeChroma(colorInfo.redPrimary.Y);
-	*(uint16_t*)&chunk[12] = EncodeChroma(colorInfo.greenPrimary.X);
-	*(uint16_t*)&chunk[14] = EncodeChroma(colorInfo.greenPrimary.Y);
-	*(uint16_t*)&chunk[16] = EncodeChroma(colorInfo.bluePrimary.X);
-	*(uint16_t*)&chunk[18] = EncodeChroma(colorInfo.bluePrimary.Y);
-	// 白点
-	*(uint16_t*)&chunk[20] = EncodeChroma(colorInfo.whitePoint.X);
-	*(uint16_t*)&chunk[22] = EncodeChroma(colorInfo.whitePoint.Y);
-	// 最高和最低亮度
-	*(uint32_t*)&chunk[24] = EncodeLuminace(colorInfo.maxLuminance);
-	*(uint32_t*)&chunk[28] = EncodeLuminace(colorInfo.minLuminance);
-
-	// CRC32 校验
-	*(uint32_t*)&chunk[32] = CalculateCRC32(&chunk[4], (uint32_t)chunk.size() - 8u);
-
-	return chunk;
-}
-
 HRESULT PngImageEncoder::Encode(
 	const phmap::flat_hash_map<std::string, OptionValue>& /*optionValues*/,
 	wil::zstring_view fileName,
 	SizeU imageSize,
 	std::span<const uint8_t> pixelData,
 	uint32_t rowPitch,
-	const ColorInfo& colorInfo
+	winrt::AdvancedColorKind colorKind
 ) noexcept {
 	std::wstring fileNameUtf16 = StrHelper::UTF8ToUTF16(fileName);
 
@@ -189,7 +160,7 @@ HRESULT PngImageEncoder::Encode(
 			return hr;
 		}
 
-		if (colorInfo.kind == winrt::AdvancedColorKind::StandardDynamicRange) {
+		if (colorKind == winrt::AdvancedColorKind::StandardDynamicRange) {
 			hr = wicStream->InitializeFromFilename(fileNameUtf16.c_str(), GENERIC_WRITE);
 			if (FAILED(hr)) {
 				Logger::Get().ComError("IWICStream::InitializeFromFilename 失败", hr);
@@ -240,7 +211,7 @@ HRESULT PngImageEncoder::Encode(
 	}
 	assert(destFormat == GUID_WICPixelFormat48bppRGB);
 
-	if (colorInfo.kind == winrt::AdvancedColorKind::WideColorGamut) {
+	if (colorKind == winrt::AdvancedColorKind::WideColorGamut) {
 		// 出于兼容性考虑为 WCG 截图嵌入 icc，这样不支持 cICP 的软件也能正确渲染。但 HDR 截图
 		// 不嵌入，因为这不是推荐的做法，而且支持的软件很少，见 https://www.w3.org/TR/png-hdr-pq
 		hr = EmbedBT2020ICC(wicFactory.get(), frameEncoder.get());
@@ -274,7 +245,7 @@ HRESULT PngImageEncoder::Encode(
 
 	// 在 WCG 和 HDR 截图中嵌入 cICP
 	if (memStream) {
-		assert(colorInfo.kind != winrt::AdvancedColorKind::StandardDynamicRange);
+		assert(colorKind != winrt::AdvancedColorKind::StandardDynamicRange);
 
 		const uint8_t* pMem = memStream->GetData();
 		const uint32_t memSize = memStream->GetSize();
@@ -304,18 +275,9 @@ HRESULT PngImageEncoder::Encode(
 		}
 
 		// 嵌入 cICP 数据块。WIC 可能添加了 sRGB 和 gAMA 块，cICP 的优先级高于它们
-		if (!Win32Helper::WriteFile(hFile.get(), MakeCICPChunk(colorInfo.kind))) {
+		if (!Win32Helper::WriteFile(hFile.get(), MakeCICPChunk(colorKind))) {
 			Logger::Get().Error("Win32Helper::WriteFile 失败");
 			return E_FAIL;
-		}
-
-		// HDR 截图嵌入 mDCV 数据块存储当前显示器的色彩显示能力。目前不嵌入 cLLI，
-		// 统计亮度需要额外的工作，如果特别有用再考虑添加。
-		if (colorInfo.kind == winrt::AdvancedColorKind::HighDynamicRange) {
-			if (!Win32Helper::WriteFile(hFile.get(), MakeMDCVChunk(colorInfo))) {
-				Logger::Get().Error("Win32Helper::WriteFile 失败");
-				return E_FAIL;
-			}
 		}
 
 		if (!Win32Helper::WriteFile(hFile.get(),

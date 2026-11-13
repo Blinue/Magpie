@@ -51,7 +51,7 @@ void Logger::_Log(spdlog::level::level_enum logLevel, std::string_view msg, cons
 
 	if (_logger) {
 		_logger->log(
-			spdlog::source_loc{ location.FileName(), (int)location.Line(), location.FunctionName() },
+			spdlog::source_loc{ location.FileName(), location.Line(), location.FunctionName() },
 			logLevel,
 			msg
 		);

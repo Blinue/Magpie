@@ -651,10 +651,10 @@ rapidjson::StringBuffer AppSettings::_WriteConfigJson() const noexcept {
 
 	writer.Key("extensions");
 	writer.StartArray();
-	for (const auto& [extId, extOption] : _extensionOptions) {
+	for (const ExtensionOption& extOption : _extensionOptions) {
 		writer.StartObject();
 		writer.Key("id");
-		writer.String(extId.c_str());
+		writer.String(extOption.extId.c_str());
 		writer.Key("updateUrl");
 		writer.String(extOption.updateUrl.c_str());
 		writer.Key("enabled");
@@ -963,7 +963,8 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 				continue;
 			}
 
-			ExtensionOption& extOption = _extensionOptions[extId];
+			ExtensionOption& extOption = _extensionOptions.emplace_back();
+			extOption.extId = std::move(extId);
 
 			JsonHelper::ReadString(extObj, "updateUrl", extOption.updateUrl);
 			JsonHelper::ReadBool(extObj, "enabled", extOption.isEnabled);

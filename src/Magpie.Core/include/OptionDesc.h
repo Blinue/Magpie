@@ -1,4 +1,5 @@
 #pragma once
+#include "SmallVector.h"
 #include <variant>
 
 namespace Magpie {
@@ -25,6 +26,11 @@ struct StringOptionDesc {
 	std::string defaultValue;
 };
 
-using OptionValue = std::variant<bool, int, float, std::string>;
+struct SelectionOptionDesc {
+	SmallVector<std::string, 0> items;
+	uint32_t defaultValue;
+};
+
+using OptionValue = std::variant<bool, int, float, std::string, uint32_t>;
 
 }

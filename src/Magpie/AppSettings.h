@@ -20,6 +20,7 @@ enum class AppTheme {
 };
 
 struct ExtensionOption {
+	std::string extId;
 	std::string updateUrl;
 	phmap::flat_hash_map<std::string, OptionValue> optionValues;
 	bool isEnabled = false;
@@ -198,7 +199,7 @@ public:
 		return _defaultProfile;
 	}
 
-	std::vector<Profile>& Profiles() noexcept {
+	SmallVectorImpl<Profile>& Profiles() noexcept {
 		return _profiles;
 	}
 
@@ -285,7 +286,7 @@ public:
 		return _overlayWindowOptions;
 	}
 
-	phmap::flat_hash_map<std::string, ExtensionOption>& ExtensionOptions() noexcept {
+	const SmallVectorImpl<ExtensionOption>& ExtensionOptions() noexcept {
 		return _extensionOptions;
 	}
 
@@ -317,7 +318,7 @@ private:
 	std::vector<ScalingMode> _scalingModes;
 
 	Profile _defaultProfile;
-	std::vector<Profile> _profiles;
+	SmallVector<Profile, 0> _profiles;
 
 	// LocalizationService::SupportedLanguages 索引
 	// -1 表示使用系统设置
@@ -343,7 +344,7 @@ private:
 
 	phmap::flat_hash_map<std::string, OverlayWindowOption> _overlayWindowOptions;
 	
-	phmap::flat_hash_map<std::string, ExtensionOption> _extensionOptions;
+	SmallVector<ExtensionOption, 0> _extensionOptions;
 
 	std::atomic<bool> _isSaving;
 	bool _isAlwaysRunAsAdmin = false;

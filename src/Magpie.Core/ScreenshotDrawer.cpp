@@ -219,7 +219,7 @@ enum class TakeScreenshotResult {
 
 static TakeScreenshotResult ExportScreenshot(
 	HWND hwndSrc,
-	std::wstring_view imgFormat,
+	std::wstring imgFormat,
 	SizeU textureSize,
 	EffectTextureFormat textureFormat,
 	const std::span<uint8_t>& pixelData,
@@ -279,18 +279,18 @@ static TakeScreenshotResult ExportScreenshot(
 	}
 
 	if (textureFormat == EffectTextureFormat::UNKNOWN) {
-		const phmap::flat_hash_map<std::string, OptionValue> optionValues;
 		HRESULT hr = ImageEncoderFactory::Get().EncodeImage(
-			"*/png",
-			optionValues,
+			options.screenshotEncoderId,
+			options.screenshotEncoderOptions,
 			StrHelper::UTF16ToUTF8(screenshotPath.native()),
 			textureSize,
 			pixelData,
 			rowPitch,
-			colorInfo
+			colorInfo.kind
 		);
 		if (FAILED(hr)) {
-			Logger::Get().ComError("ImageEncoderFactory::EncodeImage(id=\"*/png\") 失败", hr);
+			Logger::Get().ComError(StrHelper::Concat("ImageEncoderFactory::EncodeImage(id=\"",
+				options.screenshotEncoderId, "\") 失败"), hr);
 			return TakeScreenshotResult::InternalError;
 		}
 	} else {
@@ -320,30 +320,46 @@ void ScreenshotDrawer::OnProducerFrameCompleted(uint64_t fenceValue) noexcept {
 				--_pendingScreenshotCount;
 			});
 
-			TakeScreenshotResult result;
+			TakeScreenshotResult result = TakeScreenshotResult::Success;
 			std::wstring screenshotFileName;
+
 			if (curData.readbackBufferData) {
-				std::vector<uint8_t> pixelData(curData.bufferSize);
-				std::memcpy(pixelData.data(), curData.readbackBufferData, curData.bufferSize);
-
-				HWND hwndSrc = ScalingWindow::Get().SrcHandle();
-				// 中间纹理导出为 dds，否则导出为 png
-				std::wstring_view imgFormat = curData.tempBufferAllocation ? L"png" : L"dds";
-				SizeU textureSize = curData.textureSize;
-				EffectTextureFormat textureFormat = curData.textureFormat;
-				uint32_t rowPitch = curData.rowPitch;
-				ColorInfo colorInfo = curData.colorInfo;
-
-				// 转到后台导出。从现在开始不要访问 curData
-				co_await winrt::resume_background();
-
-				result = ExportScreenshot(hwndSrc, imgFormat, textureSize,
-					textureFormat, pixelData, rowPitch, colorInfo, screenshotFileName);
-				if (result != TakeScreenshotResult::Success) {
-					Logger::Get().Error("ExportScreenshot 失败");
+				std::wstring imgFormat;
+				if (curData.textureFormat == EffectTextureFormat::UNKNOWN) {
+					const std::string& encoderId = ScalingWindow::Get().Options().screenshotEncoderId;
+					const ImageEncoderMetadata* metadata =
+						ImageEncoderFactory::Get().GetEncoderMetadata(encoderId);
+					if (metadata) {
+						imgFormat = StrHelper::UTF8ToUTF16(metadata->fileExtension);
+					} else {
+						result = TakeScreenshotResult::InternalError;
+					}
+				} else {
+					// 中间纹理导出为 dds
+					imgFormat = L"dds";
 				}
 
-				co_await dispatcher;
+				if (result == TakeScreenshotResult::Success) {
+					std::vector<uint8_t> pixelData(curData.bufferSize);
+					std::memcpy(pixelData.data(), curData.readbackBufferData, curData.bufferSize);
+
+					HWND hwndSrc = ScalingWindow::Get().SrcHandle();
+					SizeU textureSize = curData.textureSize;
+					EffectTextureFormat textureFormat = curData.textureFormat;
+					uint32_t rowPitch = curData.rowPitch;
+					ColorInfo colorInfo = curData.colorInfo;
+
+					// 转到后台导出。从现在开始不要访问 curData
+					co_await winrt::resume_background();
+
+					result = ExportScreenshot(hwndSrc, imgFormat, textureSize,
+						textureFormat, pixelData, rowPitch, colorInfo, screenshotFileName);
+					if (result != TakeScreenshotResult::Success) {
+						Logger::Get().Error("ExportScreenshot 失败");
+					}
+
+					co_await dispatcher;
+				}
 			} else {
 				// readbackBufferData 为空表示截图失败
 				result = TakeScreenshotResult::InternalError;

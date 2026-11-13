@@ -45,7 +45,7 @@ bool AppFolderManager::Initialize() noexcept {
 		_workingDir = StrHelper::Concat(localAppDataDir.get(), L"\\Magpie\\" DATA_DIR);
 	}
 
-	Win32Helper::CreateDir(_workingDir.c_str());
+	Win32Helper::CreateDir(_workingDir.c_str(), true);
 
 	if (!SetCurrentDirectory(_workingDir.c_str())) {
 		return false;

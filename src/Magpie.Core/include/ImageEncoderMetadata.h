@@ -10,7 +10,13 @@ struct ImageEncoderOptionDesc {
 	std::string displayName;
 	std::string description;
 
-	std::variant<StringOptionDesc, BoolOptionDesc, IntOptionDesc, FloatOptionDesc> valueOption;
+	std::variant<
+		BoolOptionDesc,
+		IntOptionDesc,
+		FloatOptionDesc,
+		StringOptionDesc,
+		SelectionOptionDesc
+	> valueDesc;
 };
 
 struct ImageEncoderMetadata {

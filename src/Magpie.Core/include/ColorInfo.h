@@ -12,12 +12,6 @@ struct ColorInfo {
 	// HDR 模式下 SDR 内容亮度，1.0 表示 80nit
 	float sdrWhiteLevel = 1.0f;
 
-	// 默认为 sRGB 原色和白点
-	winrt::Point redPrimary = { 0.64f, 0.33f };
-	winrt::Point greenPrimary = { 0.3f, 0.6f };
-	winrt::Point bluePrimary = { 0.15f, 0.06f };
-	winrt::Point whitePoint = { 0.3127f, 0.329f };
-
 	bool operator==(const ColorInfo& other) const = default;
 };
 
