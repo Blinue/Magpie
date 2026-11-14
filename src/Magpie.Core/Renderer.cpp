@@ -42,8 +42,6 @@ static EffectDesc bicubicDesc;
 Renderer::Renderer() noexcept {}
 
 Renderer::~Renderer() noexcept {
-	_hKeyboardHook.reset();
-
 	if (_backendThread.joinable()) {
 		const HANDLE hThread = _backendThread.native_handle();
 
@@ -145,11 +143,6 @@ ScalingError Renderer::Initialize(HWND hwndAttach, OverlayOptions& overlayOption
 	if (!options.Is3DGameMode()) {
 		_overlayDrawer.ToolbarState(options.IsWindowedMode() ?
 			options.windowedInitialToolbarState : options.fullscreenInitialToolbarState);
-	}
-
-	_hKeyboardHook.reset(SetWindowsHookEx(WH_KEYBOARD_LL, _LowLevelKeyboardHook, NULL, 0));
-	if (!_hKeyboardHook) {
-		Logger::Get().Win32Warn("SetWindowsHookEx 失败");
 	}
 
 	return ScalingError::NoError;
@@ -1320,39 +1313,6 @@ winrt::IAsyncOperation<int> Renderer::_TakeScreenshotImpl(
 	}
 
 	co_return (int)TakeScreenshotResult::Success;
-}
-
-// 监听 PrintScreen 实现截屏时隐藏光标
-LRESULT CALLBACK Renderer::_LowLevelKeyboardHook(int nCode, WPARAM wParam, LPARAM lParam) {
-	if (nCode != HC_ACTION || wParam != WM_KEYDOWN) {
-		return CallNextHookEx(NULL, nCode, wParam, lParam);
-	}
-
-	KBDLLHOOKSTRUCT* info = (KBDLLHOOKSTRUCT*)lParam;
-	if (info->vkCode == VK_SNAPSHOT) {
-		// 为了缩短钩子处理时间，异步执行所有逻辑
-		ScalingWindow::Dispatcher().TryEnqueue([]() -> winrt::fire_and_forget {
-			// 暂时隐藏光标
-			Renderer& renderer = ScalingWindow::Get().Renderer();
-			renderer._cursorDrawer.IsCursorVisible(false);
-			renderer._FrontendRender();
-
-			const uint32_t runId = ScalingWindow::RunId();
-
-			winrt::DispatcherQueue dispatcher = ScalingWindow::Dispatcher();
-			co_await 200ms;
-			co_await dispatcher;
-
-			if (ScalingWindow::RunId() == runId &&
-				!renderer._cursorDrawer.IsCursorVisible()
-			) {
-				renderer._cursorDrawer.IsCursorVisible(true);
-				renderer._FrontendRender();
-			}
-		});
-	}
-
-	return CallNextHookEx(NULL, nCode, wParam, lParam);
 }
 
 }

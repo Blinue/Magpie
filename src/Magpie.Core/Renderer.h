@@ -100,8 +100,6 @@ private:
 		std::wstring& screenshotFileName
 	) noexcept;
 
-	static LRESULT CALLBACK _LowLevelKeyboardHook(int nCode, WPARAM wParam, LPARAM lParam);
-
 	// 只能由前台线程访问
 	DeviceResources _frontendResources;
 	std::unique_ptr<PresenterBase> _presenter;
@@ -115,8 +113,6 @@ private:
 	RECT _destRect{};
 	
 	std::thread _backendThread;
-
-	wil::unique_hhook _hKeyboardHook;
 	
 	// 只能由后台线程访问
 	DeviceResources _backendResources;
