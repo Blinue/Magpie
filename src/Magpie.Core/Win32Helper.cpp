@@ -833,7 +833,7 @@ static winrt::com_ptr<IShellView> FindDesktopFolderView() noexcept {
 	return shellView;
 }
 
-static winrt::com_ptr<IShellFolderViewDual> GetDesktopAutomationObject() noexcept {
+static winrt::com_ptr<IShellDispatch2> GetShellDispatch() noexcept {
 	winrt::com_ptr<IShellView> shellView = FindDesktopFolderView();
 	if (!shellView) {
 		Logger::Get().Error("FindDesktopFolderView 失败");
@@ -847,45 +847,49 @@ static winrt::com_ptr<IShellFolderViewDual> GetDesktopAutomationObject() noexcep
 		return nullptr;
 	}
 
-	return dispatch.try_as<IShellFolderViewDual>();
-}
+	winrt::com_ptr<IShellFolderViewDual> folderView = dispatch.try_as<IShellFolderViewDual>();
+	if (!folderView) {
+		Logger::Get().Error("获取 IShellFolderViewDual 失败");
+		return nullptr;
+	}
 
-static std::wstring_view ExtractDirectory(std::wstring_view path) noexcept {
-	size_t delimPos = path.find_last_of(L'\\');
-	return delimPos == std::wstring_view::npos ? path : path.substr(0, delimPos + 1);
-}
+	hr = folderView->get_Application(dispatch.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("IShellFolderViewDual::get_Application 失败", hr);
+		return nullptr;
+	}
 
-// 在提升的进程中启动未提升的进程
-// 原理见 https://devblogs.microsoft.com/oldnewthing/20131118-00/?p=2643
-static bool OpenNonElevated(const wchar_t* path, const wchar_t* parameters) noexcept {
-	static winrt::com_ptr<IShellDispatch2> shellDispatch = ([]() -> winrt::com_ptr<IShellDispatch2> {
-		winrt::com_ptr<IShellFolderViewDual> folderView = GetDesktopAutomationObject();
-		if (!folderView) {
-			Logger::Get().Error("GetDesktopAutomationObject 失败");
-			return nullptr;
-		}
-
-		winrt::com_ptr<IDispatch> dispatch;
-		HRESULT hr = folderView->get_Application(dispatch.put());
-		if (FAILED(hr)) {
-			Logger::Get().ComError("IShellFolderViewDual::get_Application 失败", hr);
-			return nullptr;
-		}
-
-		return dispatch.try_as<IShellDispatch2>();
-	})();
-
+	winrt::com_ptr<IShellDispatch2> shellDispatch = dispatch.try_as<IShellDispatch2>();
 	if (!shellDispatch) {
+		Logger::Get().ComError("获取 IShellDispatch2 失败", hr);
+		return nullptr;
+	}
+
+	return shellDispatch;
+}
+
+// 在提升的进程中启动未提升的进程。原理见
+// https://devblogs.microsoft.com/oldnewthing/20131118-00/?p=2643
+static bool ShellOpenNonElevated(
+	const wchar_t* path,
+	std::wstring_view parameters = {},
+	std::wstring_view workingDir = {}
+) noexcept {
+	// 不缓存这个接口，因为它会在资源管理器重启后失效
+	winrt::com_ptr<IShellDispatch2> shellDispatch = GetShellDispatch();
+	if (!shellDispatch) {
+		Logger::Get().Error("GetShellDispatch 失败");
 		return false;
 	}
 
+	// IShellDispatch2::ShellExecute 优先检索系统路径，因此 path 必须是绝对路径以避免歧义
 #pragma push_macro("ShellExecute")
 #undef ShellExecute
 	HRESULT hr = shellDispatch->ShellExecute(
 #pragma pop_macro("ShellExecute")
 		wil::make_bstr_nothrow(path).get(),
-		Win32Helper::Variant(parameters ? parameters : L""),
-		Win32Helper::Variant(ExtractDirectory(path)),
+		Win32Helper::Variant(parameters),
+		Win32Helper::Variant(workingDir),
 		Win32Helper::Variant(L"open"),
 		Win32Helper::Variant(SW_SHOWNORMAL)
 	);
@@ -897,27 +901,29 @@ static bool OpenNonElevated(const wchar_t* path, const wchar_t* parameters) noex
 	return true;
 }
 
-bool Win32Helper::ShellOpen(const wchar_t* path, const wchar_t* parameters, bool nonElevated) noexcept {
-	if (nonElevated && IsProcessElevated()) {
-		if (OpenNonElevated(path, parameters)) {
+static bool ShellOpen(
+	const wchar_t* path,
+	wil::zwstring_view parameters = {},
+	wil::zwstring_view workingDir = {},
+	bool inheritAuthority = false,
+	bool noAsync = false
+) noexcept {
+	if (!inheritAuthority && Win32Helper::IsProcessElevated()) {
+		if (ShellOpenNonElevated(path, parameters, workingDir)) {
 			return true;
 		}
-		// OpenNonElevated 失败则回落到 ShellExecuteEx
+		// ShellOpenNonElevated 失败则回落到 ShellExecuteEx
 	}
 
-	// 指定工作目录为程序所在目录，否则某些程序不能正常运行
-	std::wstring workingDir(ExtractDirectory(path));
-
-	SHELLEXECUTEINFO execInfo{
+	SHELLEXECUTEINFO execInfo = {
 		.cbSize = sizeof(execInfo),
-		.fMask = SEE_MASK_ASYNCOK,
+		.fMask = ULONG(noAsync ? SEE_MASK_NOASYNC : SEE_MASK_ASYNCOK),
 		.lpVerb = L"open",
 		.lpFile = path,
-		.lpParameters = parameters,
-		.lpDirectory = workingDir.c_str(),
+		.lpParameters = parameters.c_str(),
+		.lpDirectory = workingDir.empty() ? nullptr : workingDir.c_str(),
 		.nShow = SW_SHOWNORMAL
 	};
-
 	if (!ShellExecuteEx(&execInfo)) {
 		Logger::Get().Win32Error("ShellExecuteEx 失败");
 		return false;
@@ -926,11 +932,33 @@ bool Win32Helper::ShellOpen(const wchar_t* path, const wchar_t* parameters, bool
 	return true;
 }
 
-bool Win32Helper::OpenFolderAndSelectFile(const wchar_t* fileName) noexcept {
+bool Win32Helper::LaunchExe(
+	const std::filesystem::path& path,
+	wil::zwstring_view parameters,
+	bool inheritAuthority,
+	bool noAsync
+) noexcept {
+	assert(path.is_absolute());
+	// 指定工作目录为程序所在目录，否则某些程序不能正常运行
+	return ShellOpen(path.c_str(), parameters, path.parent_path(), inheritAuthority, noAsync);
+}
+
+bool Win32Helper::OpenUrl(wil::zwstring_view url, bool noAsync) noexcept {
+	return ShellOpen(url.c_str(), {}, {}, false, noAsync);
+}
+
+bool Win32Helper::OpenFolder(const std::filesystem::path& path, bool noAsync) noexcept {
+	assert(path.is_absolute());
+	return ShellOpen(path.c_str(), {}, {}, false, noAsync);
+}
+
+bool Win32Helper::OpenFolderAndSelectFile(const std::filesystem::path& fileName) noexcept {
+	assert(fileName.is_absolute());
+
 	// 根据 https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shparsedisplayname，
 	// SHParseDisplayName 不能在主线程调用
 	wil::unique_any<PIDLIST_ABSOLUTE, decltype(&CoTaskMemFree), CoTaskMemFree> pidl;
-	HRESULT hr = SHParseDisplayName(fileName, nullptr, pidl.put(), 0, nullptr);
+	HRESULT hr = SHParseDisplayName(fileName.c_str(), nullptr, pidl.put(), 0, nullptr);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("SHParseDisplayName 失败", hr);
 		return false;

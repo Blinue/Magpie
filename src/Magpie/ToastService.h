@@ -29,7 +29,7 @@ private:
 	std::thread _toastThread;
 
 	winrt::DispatcherQueue _dispatcher{ nullptr };
-	std::atomic<bool> _dispatcherInitialized = false;
+	std::atomic<bool> _dispatcherInitialized;
 
 	// 只能在 toast 线程访问
 	winrt::com_ptr<winrt::Magpie::implementation::ToastPage> _toastPage{ nullptr };

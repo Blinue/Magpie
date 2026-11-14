@@ -322,7 +322,7 @@ bool TouchHelper::Unregister() noexcept {
 	return true;
 }
 
-static std::wstring GetTouchHelperPath() noexcept {
+static std::filesystem::path GetTouchHelperPath() noexcept {
 	wil::unique_cotaskmem_string system32Dir;
 	HRESULT hr = SHGetKnownFolderPath(
 		FOLDERID_System, KF_FLAG_DEFAULT, NULL, system32Dir.put());
@@ -340,14 +340,13 @@ bool TouchHelper::IsTouchSupportEnabled() noexcept {
 }
 
 void TouchHelper::IsTouchSupportEnabled(bool value) noexcept {
-	SHELLEXECUTEINFO execInfo{
+	SHELLEXECUTEINFO execInfo = {
 		.cbSize = sizeof(execInfo),
 		.fMask = SEE_MASK_NOASYNC | SEE_MASK_NOCLOSEPROCESS,
 		.lpVerb = L"runas",
 		.lpFile = Win32Helper::GetExePath().c_str(),
 		.lpParameters = value ? L" -r" : L" -ur"
 	};
-
 	if (ShellExecuteEx(&execInfo)) {
 		wil::unique_process_handle hProcess(execInfo.hProcess);
 		if (hProcess) {
@@ -358,7 +357,7 @@ void TouchHelper::IsTouchSupportEnabled(bool value) noexcept {
 	}
 }
 
-static bool CheckAndFixTouchHelper(std::wstring& path) noexcept {
+static bool CheckAndFixTouchHelper(std::filesystem::path& path) noexcept {
 	// 检查版本号
 	path += L".ver";
 
@@ -383,12 +382,13 @@ static bool CheckAndFixTouchHelper(std::wstring& path) noexcept {
 		}
 	}
 
-	path.erase(path.size() - 4);
+	// 删除 .ver 后缀
+	path.replace_extension();
 	return true;
 }
 
 bool TouchHelper::TryLaunchTouchHelper(bool& isTouchSupportEnabled) noexcept {
-	std::wstring path = GetTouchHelperPath();
+	std::filesystem::path path = GetTouchHelperPath();
 	isTouchSupportEnabled = Win32Helper::FileExists(path.c_str());
 	if (!isTouchSupportEnabled) {
 		// 未启用触控支持
@@ -422,7 +422,7 @@ bool TouchHelper::TryLaunchTouchHelper(bool& isTouchSupportEnabled) noexcept {
 
 	// GH#992: 必须委托 explorer 启动 TouchHelper，否则如果启用了“以管理者身份运行该程序”
 	// 兼容性选项，TouchHelper 将无法获得 UIAccess 权限
-	if (!Win32Helper::ShellOpen(path.c_str(), nullptr, true)) {
+	if (!Win32Helper::LaunchExe(path)) {
 		Logger::Get().Error("启动 TouchHelper.exe 失败");
 		return false;
 	}

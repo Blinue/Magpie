@@ -391,20 +391,20 @@ static Color Win32ColorToWinRTColor(COLORREF color) {
 }
 
 void RootPage::_UpdateTheme(bool updateIcons) {
-	const bool isLightTheme = App::Get().IsLightTheme();
+	const bool isDarkTheme = App::Get().IsDarkTheme();
 
-	if (IsLoaded() && (ActualTheme() == ElementTheme::Light) == isLightTheme) {
+	if (IsLoaded() && (ActualTheme() == ElementTheme::Dark) == isDarkTheme) {
 		// 无需切换
 		return;
 	}
 
 	if (!Win32Helper::GetOSVersion().Is22H2OrNewer()) {
 		const Windows::UI::Color bkgColor = Win32ColorToWinRTColor(
-			isLightTheme ? ThemeHelper::LIGHT_TINT_COLOR : ThemeHelper::DARK_TINT_COLOR);
+			isDarkTheme ? ThemeHelper::DARK_TINT_COLOR : ThemeHelper::LIGHT_TINT_COLOR);
 		Background(SolidColorBrush(bkgColor));
 	}
 
-	ElementTheme newTheme = isLightTheme ? ElementTheme::Light : ElementTheme::Dark;
+	ElementTheme newTheme = isDarkTheme ? ElementTheme::Dark : ElementTheme::Light;
 	RequestedTheme(newTheme);
 
 	XamlHelper::UpdateThemeOfXamlPopups(XamlRoot(), newTheme);
@@ -418,7 +418,7 @@ void RootPage::_UpdateTheme(bool updateIcons) {
 fire_and_forget RootPage::_LoadIcon(MUXC::NavigationViewItem const& item, const Profile& profile) {
 	weak_ref<MUXC::NavigationViewItem> weakRef(item);
 
-	bool preferLightTheme = App::Get().IsLightTheme();
+	bool isDarkTheme = App::Get().IsDarkTheme();
 	bool isPackaged = profile.isPackaged;
 	std::wstring path = profile.pathRule;
 	const uint32_t iconSize = (uint32_t)std::lround(
@@ -432,8 +432,7 @@ fire_and_forget RootPage::_LoadIcon(MUXC::NavigationViewItem const& item, const 
 	if (isPackaged) {
 		AppXReader reader;
 		if (reader.Initialize(path)) {
-			std::variant<std::wstring, SoftwareBitmap> uwpIcon =
-				reader.GetIcon(iconSize, preferLightTheme);
+			std::variant<std::wstring, SoftwareBitmap> uwpIcon = reader.GetIcon(iconSize, isDarkTheme);
 			if (uwpIcon.index() == 0) {
 				iconPath = std::get<0>(uwpIcon);
 			} else {

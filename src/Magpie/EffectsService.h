@@ -43,7 +43,7 @@ private:
 
 	std::vector<EffectInfo> _effects;
 	phmap::flat_hash_map<std::wstring, uint32_t> _effectsMap;
-	std::atomic<bool> _initialized = false;
+	std::atomic<bool> _initialized;
 	bool _initializedCache = false;
 };
 

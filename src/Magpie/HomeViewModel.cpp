@@ -139,7 +139,7 @@ void HomeViewModel::ReleaseNotes() {
 		L"https://github.com/Blinue/Magpie/releases/tag/",
 		UpdateService::Get().Tag()
 	);
-	Win32Helper::ShellOpen(url.c_str());
+	Win32Helper::OpenUrl(url.c_str());
 }
 
 void HomeViewModel::RemindMeLater() {
@@ -302,7 +302,15 @@ void HomeViewModel::IsDeveloperMode(bool value) {
 }
 
 void HomeViewModel::LocateMagpieLogs() noexcept {
-	Win32Helper::ShellOpen(StrHelper::Concat(L".\\", CommonSharedConstants::LOGS_DIR).c_str());
+	std::wstring workingDir;
+	HRESULT hr = wil::GetCurrentDirectoryW(workingDir);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("wil::GetCurrentDirectoryW 失败", hr);
+		return;
+	}
+
+	Win32Helper::OpenFolder(
+		StrHelper::Concat(workingDir, L"\\", CommonSharedConstants::LOGS_DIR));
 }
 
 static fire_and_forget LocateTempLogs(const wchar_t* logName) noexcept {
@@ -324,7 +332,7 @@ static fire_and_forget LocateTempLogs(const wchar_t* logName) noexcept {
 	}
 
 	co_await resume_background();
-	Win32Helper::OpenFolderAndSelectFile(path.c_str());
+	Win32Helper::OpenFolderAndSelectFile(std::move(path));
 }
 
 void HomeViewModel::LocateTouchHelperLogs() noexcept {

@@ -235,7 +235,6 @@ void App::Restart(bool asElevated, const wchar_t* arguments) noexcept {
 		.lpParameters = arguments,
 		.nShow = SW_SHOWNORMAL
 	};
-
 	if (!ShellExecuteEx(&execInfo)) {
 		Logger::Get().Win32Error("ShellExecuteEx 失败");
 		Logger::Get().Flush();
@@ -355,17 +354,16 @@ static bool IsColorLight(const winrt::Windows::UI::Color& clr) noexcept {
 void App::_UpdateTheme() {
 	AppTheme theme = AppSettings::Get().Theme();
 
-	bool isLightTheme = false;
+	bool isDarkTheme = false;
 	if (theme == AppTheme::System) {
 		// 前景色是亮色表示当前是深色主题
-		isLightTheme = !IsColorLight(_uiSettings.GetColorValue(UIColorType::Foreground));
+		isDarkTheme = IsColorLight(_uiSettings.GetColorValue(UIColorType::Foreground));
 	} else {
-		isLightTheme = theme == AppTheme::Light;
+		isDarkTheme = theme == AppTheme::Dark;
 	}
 
-	bool expected = !isLightTheme;
-	if (_isLightTheme.compare_exchange_strong(expected, isLightTheme, std::memory_order_relaxed)) {
-		ThemeChanged.Invoke(isLightTheme);
+	if (std::exchange(_isDarkTheme, isDarkTheme) != isDarkTheme) {
+		ThemeChanged.Invoke(isDarkTheme);
 	}
 }
 

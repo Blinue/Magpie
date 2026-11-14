@@ -47,7 +47,7 @@ private:
 	std::chrono::steady_clock::time_point _lastSecondTime;
 
 	uint32_t _frameCount = 0;
-	std::atomic<uint32_t> _framesPerSecond = 0;
+	std::atomic<uint32_t> _framesPerSecond;
 	uint32_t _framesThisSecond = 0;
 };
 

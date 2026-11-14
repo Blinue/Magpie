@@ -59,6 +59,9 @@ fire_and_forget CandidateWindowItem::_ResolveWindow(bool resolveIcon, bool resol
 
 	auto weakThis = get_weak();
 
+	uint32_t dpi = App::Get().MainWindow().GetDpi();
+	bool isDarkTheme = App::Get().IsDarkTheme();
+
 	// 解析名称和图标非常耗时，转到后台进行
 	co_await resume_background();
 
@@ -93,12 +96,10 @@ fire_and_forget CandidateWindowItem::_ResolveWindow(bool resolveIcon, bool resol
 	}
 
 	SoftwareBitmap iconBitmap{ nullptr };
-	const uint32_t iconSize = (uint32_t)std::lround(
-		16 * App::Get().MainWindow().GetDpi() / double(USER_DEFAULT_SCREEN_DPI));
+	const uint32_t iconSize = (uint32_t)std::lround(16 * dpi / double(USER_DEFAULT_SCREEN_DPI));
 
 	if (isPackaged) {
-		std::variant<std::wstring, SoftwareBitmap> uwpIcon =
-			reader.GetIcon(iconSize, App::Get().IsLightTheme(), true);
+		std::variant<std::wstring, SoftwareBitmap> uwpIcon = reader.GetIcon(iconSize, isDarkTheme, true);
 		if (uwpIcon.index() == 1) {
 			iconBitmap = std::get<1>(uwpIcon);
 		}

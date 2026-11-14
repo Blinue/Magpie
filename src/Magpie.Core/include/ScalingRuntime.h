@@ -42,11 +42,11 @@ private:
 	std::thread _scalingThread;
 
 	winrt::DispatcherQueue _dispatcher{ nullptr };
-	std::atomic<bool> _dispatcherInitialized = false;
+	std::atomic<bool> _dispatcherInitialized;
 	// 只能在主线程访问，省下检查 _dispatcherInitialized 的开销
 	bool _dispatcherInitializedCache = false;
 
-	std::atomic<ScalingState> _state = ScalingState::Idle;
+	std::atomic<ScalingState> _state{ ScalingState::Idle };
 };
 
 }

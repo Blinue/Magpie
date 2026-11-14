@@ -30,7 +30,7 @@ void PageFrame::InitializeComponent() {
 
 void PageFrame::Loaded(IInspectable const&, RoutedEventArgs const&) {
 	// Win10 中更新 ToolTip 的主题
-	XamlHelper::UpdateThemeOfTooltips(*this, App::Get().IsLightTheme() ? ElementTheme::Light : ElementTheme::Dark);
+	XamlHelper::UpdateThemeOfTooltips(*this, App::Get().IsDarkTheme() ? ElementTheme::Dark : ElementTheme::Light);
 }
 
 void PageFrame::SizeChanged(IInspectable const&, SizeChangedEventArgs const& e) {

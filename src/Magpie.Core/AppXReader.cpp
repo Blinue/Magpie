@@ -321,14 +321,14 @@ public:
 				}
 			} else if (name == L"altform") {
 				if (value == L"lightunplated") {
-					_isLightTheme = true;
+					_isDarkTheme = false;
 					_isUnplated = true;
 				} else if (value == L"unplated") {
 					_isUnplated = true;
 				}
 			} else if (name == L"theme") {
 				if (value == L"light") {
-					_isLightTheme = true;
+					_isDarkTheme = false;
 				}
 			} else if (name == L"contrast") {
 				_isValid = false;
@@ -352,9 +352,9 @@ public:
 	// 4. 如果一个过大，另一个过小，取大的
 	// 5. 如果都过大或过小，取更接近 preferredSize 的
 	// 6. 优先选择 targetsize 前缀，然后是 scale 前缀
-	static bool Compare(const CandidateIcon& l, const CandidateIcon& r, uint32_t preferredSize, bool isLightTheme) {
-		if (l._isLightTheme != r._isLightTheme) {
-			return l._isLightTheme == isLightTheme;
+	static bool Compare(const CandidateIcon& l, const CandidateIcon& r, uint32_t preferredSize, bool isDarkTheme) {
+		if (l._isDarkTheme != r._isDarkTheme) {
+			return l._isDarkTheme == isDarkTheme;
 		}
 
 		// 优先选择没有边框的图标
@@ -402,12 +402,13 @@ private:
 	bool _isValid = true;
 	std::wstring _fileName;
 	uint32_t _size = 0;
-	bool _isLightTheme = false;
+	// AppX 默认使用黑色主题图标
+	bool _isDarkTheme = true;
 	bool _isUnplated = false;
 };
 
 // 如果图标和背景的对比度太低，使用主题色填充背景
-static winrt::SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLightTheme, bool noPath) {
+static winrt::SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isDarkTheme, bool noPath) {
 	winrt::com_ptr<IWICImagingFactory2> wicImgFactory =
 		winrt::try_create_instance<IWICImagingFactory2>(CLSID_WICImagingFactory);
 	if (!wicImgFactory) {
@@ -477,7 +478,7 @@ static winrt::SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bo
 		float luma = 0.299f * pixel[0] + 0.587f * pixel[1] + 0.114f * pixel[2];
 		if (alpha != 255) {
 			float alphaNorm = alpha / 255.0f;
-			luma = luma * alphaNorm + (isLightTheme ? 255 : 0) * (1 - alphaNorm);
+			luma = luma * alphaNorm + (isDarkTheme ? 0 : 255) * (1 - alphaNorm);
 		}
 
 		lumaTotal += luma;
@@ -485,7 +486,7 @@ static winrt::SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bo
 	}
 
 	const float lumaAvg = lumaTotal / lumaCount;
-	if (isLightTheme ? lumaAvg <= 220 : lumaAvg >= 30) {
+	if (isDarkTheme ? lumaAvg >= 30 : lumaAvg <= 220) {
 		if (!noPath) {
 			return nullptr;
 		}
@@ -559,7 +560,7 @@ static winrt::SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bo
 
 std::variant<std::wstring, winrt::SoftwareBitmap> AppXReader::GetIcon(
 	uint32_t preferredSize,
-	bool isLightTheme,
+	bool isDarkTheme,
 	bool noPath
 ) noexcept {
 	assert(!_packagePath.empty());
@@ -620,7 +621,7 @@ std::variant<std::wstring, winrt::SoftwareBitmap> AppXReader::GetIcon(
 		candidateIcons.begin(),
 		candidateIcons.end(),
 		[=](const CandidateIcon& l, const CandidateIcon& r) {
-			return CandidateIcon::Compare(l, r, preferredSize, isLightTheme);
+			return CandidateIcon::Compare(l, r, preferredSize, isDarkTheme);
 		}
 	);
 
@@ -628,7 +629,7 @@ std::variant<std::wstring, winrt::SoftwareBitmap> AppXReader::GetIcon(
 		std::wstring_view(iconFileName.begin(), iconFileName.begin() + delimPos + 1),
 		it->FileName()
 	);
-	winrt::SoftwareBitmap bkgIcon = AutoFillBackground(iconPath, isLightTheme, noPath);
+	winrt::SoftwareBitmap bkgIcon = AutoFillBackground(iconPath, isDarkTheme, noPath);
 	if (bkgIcon || noPath) {
 		return std::move(bkgIcon);
 	} else {

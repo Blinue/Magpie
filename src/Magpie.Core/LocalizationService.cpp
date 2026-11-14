@@ -8,6 +8,7 @@ namespace Magpie {
 
 // 标签必须为小写
 static std::array SUPPORTED_LANGUAGES = {
+	L"ar",
 	L"de",
 	L"en-us",
 	L"es",
