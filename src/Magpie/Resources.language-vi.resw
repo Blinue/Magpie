@@ -337,9 +337,6 @@
   <data name="Profile_Cursor_DrawCursor_Interpolation.Header" xml:space="preserve">
     <value>Thuật toán</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
-    <value>Song tuyến tính</value>
-  </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
     <value>Thuật toán nội suy ảnh đơn giản nhất</value>
   </data>
@@ -742,9 +739,6 @@
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
     <value>Không</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
-    <value>Bật thống kê để phát hiện động</value>
-  </data>
   <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
     <value>Phát hiện động</value>
   </data>
@@ -846,12 +840,6 @@
   </data>
   <data name="Message_ScreenshotSaved" xml:space="preserve">
     <value>Ảnh chụp màn hình được lưu dưới dạng {}</value>
-  </data>
-  <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
-    <value>Nhấp chuột phải để xuất kết quả trung gian</value>
-  </data>
-  <data name="Overlay_Toolbar_TakeScreenshot_PopupTitle" xml:space="preserve">
-    <value>Xuất kết quả trung gian</value>
   </data>
   <data name="Profile_WindowedScaling.Header" xml:space="preserve">
     <value>Tỷ lệ cửa sổ</value>

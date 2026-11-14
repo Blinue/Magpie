@@ -1,8 +1,9 @@
 #include "pch.h"
-#include "TouchHelper.h"
+#include "AppFolderManager.h"
 #include "CommonSharedConstants.h"
 #include "Logger.h"
 #include "StrHelper.h"
+#include "TouchHelper.h"
 #include "Win32Helper.h"
 #include <ImageHlp.h>
 #include <shellapi.h>
@@ -153,12 +154,14 @@ bool TouchHelper::Register() noexcept {
 		return false;
 	}
 
-	if (!Win32Helper::FileExists(TOUCH_HELPER_EXE_NAME)) {
+	std::filesystem::path touchHelperExePath = AppFolderManager::Get().GetAppDir() / TOUCH_HELPER_EXE_NAME;
+
+	if (!Win32Helper::FileExists(touchHelperExePath.c_str())) {
 		Logger::Get().Error("找不到可执行文件");
 		return false;
 	}
 
-	if (!InstallCertificateFromPE(TOUCH_HELPER_EXE_NAME)) {
+	if (!InstallCertificateFromPE(touchHelperExePath.c_str())) {
 		Logger::Get().Error("InstallCert 失败");
 		return false;
 	}
@@ -184,7 +187,7 @@ bool TouchHelper::Register() noexcept {
 	}
 
 	std::wstring targetPath = StrHelper::Concat(magpieDir, L"\\" TOUCH_HELPER_EXE_NAME);
-	if (!CopyFile(TOUCH_HELPER_EXE_NAME, targetPath.c_str(), FALSE)) {
+	if (!CopyFile(touchHelperExePath.c_str(), targetPath.c_str(), FALSE)) {
 		Logger::Get().Win32Error("CopyFile 失败");
 		return false;
 	}

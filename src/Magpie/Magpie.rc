@@ -6,11 +6,9 @@
 // en-US
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 
-/////////////////////////////////////////////////////////////////////////////
-//
-// Icon
-//
-
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_APP                 ICON                    "Magpie.ico"
+IDI_APP                 ICON                    "res\Magpie.ico"
+
+// 来自 https://github.com/saucecontrol/Compact-ICC-Profiles
+IDR_BT2020_ICC          RCDATA                  "res\BT2020_G24.icc"

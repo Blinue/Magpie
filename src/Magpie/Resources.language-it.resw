@@ -396,9 +396,6 @@
   <data name="Profile_Cursor_DrawCursor_Interpolation.Header" xml:space="preserve">
     <value>Algoritmo di interpolazione</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
-    <value>Bilineare</value>
-  </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
     <value>Vicino più ravvicinato</value>
   </data>
@@ -736,9 +733,6 @@
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
     <value>Mai</value>
   </data>
-  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
-    <value>Abilita le statistiche per il rilevamento dinamico</value>
-  </data>
   <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
     <value>Rilevamento dinamico</value>
   </data>
@@ -924,12 +918,6 @@
   </data>
   <data name="Message_ScreenshotSaved" xml:space="preserve">
     <value>Screenshot salvato come {}</value>
-  </data>
-  <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
-    <value>Click destro per esportare il risultato intermedio</value>
-  </data>
-  <data name="Overlay_Toolbar_TakeScreenshot_PopupTitle" xml:space="preserve">
-    <value>Esporta il risultato intermedio</value>
   </data>
   <data name="Profile_WindowedScaling.Header" xml:space="preserve">
     <value>Ridimensionamento in finestra</value>

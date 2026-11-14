@@ -5,6 +5,7 @@
 #endif
 #include "ControlHelper.h"
 #include "EffectsService.h"
+#include "StrHelper.h"
 #include <parallel_hashmap/phmap.h>
 
 using namespace ::Magpie;
@@ -72,47 +73,47 @@ void ScalingModesPage::RemoveScalingModeMenuItem_Click(IInspectable const& sende
 void ScalingModesPage::_BuildEffectMenu() noexcept {
 	std::vector<MenuFlyoutItemBase> rootItems;
 
-	phmap::flat_hash_map<std::wstring_view, MenuFlyoutSubItem> folders;
-	folders.reserve(13);
-	for (const auto& effect : EffectsService::Get().Effects()) {
-		std::wstring_view name(effect.name);
+	phmap::flat_hash_map<std::wstring, MenuFlyoutSubItem> folders;
+	folders.reserve(8);
+	for (const EffectInfo& effectInfo : EffectsService::Get().GetEffects()) {
+		std::wstring effectName(StrHelper::UTF8ToUTF16(effectInfo.name));
 
 		MenuFlyoutItem item;
-		item.Tag(box_value(effect.name));
+		item.Tag(box_value(effectName));
 		item.Click({ this, &ScalingModesPage::_AddEffectMenuFlyoutItem_Click });
 
-		size_t delimPos = name.find_last_of(L'\\');
+		size_t delimPos = effectName.find_last_of(L'\\');
 		if (delimPos == std::wstring::npos) {
-			item.Text(name);
+			item.Text(effectName);
 			rootItems.emplace_back(std::move(item));
 			continue;
 		}
 
-		item.Text(name.substr(delimPos + 1));
+		item.Text(std::wstring_view(effectName.begin() + delimPos + 1, effectName.end()));
 
-		std::wstring_view dir = name.substr(0, delimPos);
+		std::wstring dir = effectName.substr(0, delimPos);
 		auto it = folders.find(dir);
 		if (it != folders.end()) {
 			it->second.Items().Append(item);
 		} else {
 			MenuFlyoutSubItem folder;
-			folder.Text(hstring(dir));
+			folder.Text(dir);
 			folder.Items().Append(item);
 
 			rootItems.push_back(folder);
-			folders.emplace(dir, folder);
+			folders.emplace(std::move(dir), folder);
 		}
 	}
 
 	std::sort(rootItems.begin(), rootItems.end(), [](MenuFlyoutItemBase const& l, MenuFlyoutItemBase const& r) {
-		bool isLSubMenu = get_class_name(l) == name_of<MenuFlyoutSubItem>();
-		bool isRSubMenu = get_class_name(r) == name_of<MenuFlyoutSubItem>();
+		bool isSubMenu1 = get_class_name(l) == name_of<MenuFlyoutSubItem>();
+		bool isSubMenu2 = get_class_name(r) == name_of<MenuFlyoutSubItem>();
 
-		if (isLSubMenu != isRSubMenu) {
-			return isLSubMenu;
+		if (isSubMenu1 != isSubMenu2) {
+			return isSubMenu1;
 		}
 
-		if (isLSubMenu) {
+		if (isSubMenu1) {
 			return l.try_as<MenuFlyoutSubItem>().Text() < r.try_as<MenuFlyoutSubItem>().Text();
 		} else {
 			return l.try_as<MenuFlyoutItem>().Text() < r.try_as<MenuFlyoutItem>().Text();
@@ -131,13 +132,20 @@ void ScalingModesPage::_BuildEffectMenu() noexcept {
 		std::vector<MenuFlyoutItemBase> itemsVec(items.Size(), nullptr);
 		items.GetMany(0, itemsVec);
 		std::sort(itemsVec.begin(), itemsVec.end(), [](const MenuFlyoutItemBase& l, const MenuFlyoutItemBase& r) {
-			hstring lEffectName = unbox_value<hstring>(l.try_as<MenuFlyoutItem>().Tag());
-			hstring rEffectName = unbox_value<hstring>(r.try_as<MenuFlyoutItem>().Tag());
+			hstring name1 = unbox_value<hstring>(l.try_as<MenuFlyoutItem>().Tag());
+			hstring name2 = unbox_value<hstring>(r.try_as<MenuFlyoutItem>().Tag());
 
-			const EffectInfo* lEffectInfo = EffectsService::Get().GetEffect(lEffectName);
-			const EffectInfo* rEffectInfo = EffectsService::Get().GetEffect(rEffectName);
+			const EffectInfo* effectInfo1 =
+				EffectsService::Get().GetEffect(StrHelper::UTF16ToUTF8(name1));
+			const EffectInfo* effectInfo2 =
+				EffectsService::Get().GetEffect(StrHelper::UTF16ToUTF8(name2));
 
-			return lEffectInfo->sortName < rEffectInfo->sortName;
+			const std::string& sortName1 =
+				effectInfo1->sortName.empty() ? effectInfo1->name : effectInfo1->sortName;
+			const std::string& sortName2 =
+				effectInfo2->sortName.empty() ? effectInfo2->name : effectInfo2->sortName;
+
+			return sortName1 < sortName2;
 		});
 		items.ReplaceAll(itemsVec);
 	}

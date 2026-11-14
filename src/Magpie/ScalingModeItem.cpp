@@ -3,7 +3,6 @@
 #if __has_include("ScalingModeItem.g.cpp")
 #include "ScalingModeItem.g.cpp"
 #endif
-#include "ScalingModeEffectItem.h"
 #include "App.h"
 #include "AppSettings.h"
 #include "EffectHelper.h"
@@ -11,6 +10,7 @@
 #include "LocalizationService.h"
 #include "RootPage.h"
 #include "ScalingMode.h"
+#include "ScalingModeEffectItem.h"
 #include "StrHelper.h"
 #include "Win32Helper.h"
 #include "XamlHelper.h"
@@ -214,9 +214,10 @@ void ScalingModeItem::AddEffect(const hstring& fullName) {
 	EffectItem& effect = _Data().effects.emplace_back();
 	effect.name = fullName;
 
-	const EffectInfo* effectInfo = EffectsService::Get().GetEffect(fullName);
+	const EffectInfo* effectInfo =
+		EffectsService::Get().GetEffect(StrHelper::UTF16ToUTF8(fullName));
 	assert(effectInfo);
-	if (effectInfo->CanScale()) {
+	if (effectInfo->scaleFactor == 0) {
 		// 支持缩放的效果默认等比缩放到充满屏幕
 		effect.scalingType = ::Magpie::ScalingType::Fit;
 	}
@@ -263,7 +264,7 @@ hstring ScalingModeItem::Description() const noexcept {
 			result.append(L" > ");
 		}
 
-		if (EffectsService::Get().GetEffect(effect.name) != nullptr) {
+		if (EffectsService::Get().GetEffect(StrHelper::UTF16ToUTF8(effect.name))) {
 			result += EffectHelper::GetDisplayName(effect.name);
 		} else {
 			result += L'(';
@@ -281,7 +282,7 @@ bool ScalingModeItem::HasUnkownEffects() const noexcept {
 	}
 
 	for (const EffectItem& effect : _Data().effects) {
-		if (!EffectsService::Get().GetEffect(effect.name)) {
+		if (!EffectsService::Get().GetEffect(StrHelper::UTF16ToUTF8(effect.name))) {
 			return true;
 		}
 	}

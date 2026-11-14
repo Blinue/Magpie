@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "HideCursorWindow.h"
-#include "Utils.h"
 
 bool HideCursorWindow::Create() noexcept {
 	static const wchar_t* WINDOW_NAME = L"HideCursorWindow";
@@ -9,7 +8,7 @@ bool HideCursorWindow::Create() noexcept {
 		.cbSize = sizeof(WNDCLASSEX),
 		.style = CS_HREDRAW | CS_VREDRAW,
 		.lpfnWndProc = _WndProc,
-		.hInstance = Utils::GetModuleInstanceHandle(),
+		.hInstance = wil::GetModuleInstanceHandle(),
 		.hCursor = LoadCursor(nullptr, IDC_ARROW),
 		.hbrBackground = HBRUSH(COLOR_WINDOW + 1),
 		.lpszClassName = WINDOW_NAME
@@ -28,7 +27,7 @@ bool HideCursorWindow::Create() noexcept {
 		CW_USEDEFAULT,
 		NULL,
 		NULL,
-		Utils::GetModuleInstanceHandle(),
+		wil::GetModuleInstanceHandle(),
 		this
 	);
 	if (!Handle()) {
@@ -49,7 +48,7 @@ LRESULT HideCursorWindow::_MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam
 		const LRESULT ret = base_type::_MessageHandler(msg, wParam, lParam);
 
 		_hwndBtn = CreateWindow(L"BUTTON", L"未隐藏光标", WS_CHILD | WS_VISIBLE,
-			0, 0, 0, 0, Handle(), (HMENU)1, Utils::GetModuleInstanceHandle(), 0);
+			0, 0, 0, 0, Handle(), (HMENU)1, wil::GetModuleInstanceHandle(), 0);
 		_UpdateButtonPos();
 
 		SendMessage(_hwndBtn, WM_SETFONT, (WPARAM)_UIFont(), TRUE);

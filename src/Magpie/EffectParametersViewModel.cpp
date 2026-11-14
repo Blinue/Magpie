@@ -14,7 +14,6 @@
 #include "ScalingModesService.h"
 #include "ScalingMode.h"
 #include "EffectsService.h"
-#include "EffectDesc.h"
 #include "App.h"
 
 using namespace Magpie;
@@ -60,7 +59,8 @@ EffectParametersViewModel::EffectParametersViewModel(uint32_t scalingModeIdx, ui
 	: _scalingModeIdx(scalingModeIdx), _effectIdx(effectIdx)
 {
 	ScalingMode& scalingMode = ScalingModesService::Get().GetScalingMode(_scalingModeIdx);
-	_effectInfo = EffectsService::Get().GetEffect(scalingMode.effects[_effectIdx].name);
+	_effectInfo = EffectsService::Get().GetEffect(
+		StrHelper::UTF16ToUTF8(scalingMode.effects[_effectIdx].name));
 
 	phmap::flat_hash_map<std::wstring, float>& params = _Data();
 
@@ -76,41 +76,31 @@ EffectParametersViewModel::EffectParametersViewModel(uint32_t scalingModeIdx, ui
 				paramValue = it->second;
 			}
 		}
-		
-		if (param.constant.index() == 0) {
-			const EffectConstant<float>& constant = std::get<0>(param.constant);
+
+		// 只有 0 和 1 两个值的参数使用复选框
+		if (IsApprox(param.minValue, 0.0f) && IsApprox(param.maxValue, 1.0f) && IsApprox(param.step, 1.0f)) {
+			auto boolParamItem = make_self<ScalingModeBoolParameter>(
+				i,
+				hstring(StrHelper::UTF8ToUTF16(param.label.empty() ? param.name : param.label)),
+				paramValue.has_value() ?
+					std::abs(*paramValue) > FLOAT_EPSILON<float> :
+					(std::lround(param.defaultValue) == 1)
+			);
+			boolParamItem->PropertyChanged(
+				{ this, &EffectParametersViewModel::_ScalingModeBoolParameter_PropertyChanged });
+			boolParams.push_back(*boolParamItem);
+		} else {
 			auto floatParamItem = make_self<ScalingModeFloatParameter>(
 				i,
 				hstring(StrHelper::UTF8ToUTF16(param.label.empty() ? param.name : param.label)),
-				paramValue.has_value() ? *paramValue : constant.defaultValue,
-				constant.minValue,
-				constant.maxValue,
-				constant.step
+				paramValue.has_value() ? *paramValue : param.defaultValue,
+				param.minValue,
+				param.maxValue,
+				param.step
 			);
-			floatParamItem->PropertyChanged({ this, &EffectParametersViewModel::_ScalingModeFloatParameter_PropertyChanged });
+			floatParamItem->PropertyChanged(
+				{ this, &EffectParametersViewModel::_ScalingModeFloatParameter_PropertyChanged });
 			floatParams.push_back(*floatParamItem);
-		} else {
-			const EffectConstant<int>& constant = std::get<1>(param.constant);
-			if (constant.minValue == 0 && constant.maxValue == 1 && constant.step == 1) {
-				auto boolParamItem = make_self<ScalingModeBoolParameter>(
-					i,
-					hstring(StrHelper::UTF8ToUTF16(param.label.empty() ? param.name : param.label)),
-					paramValue.has_value() ? std::abs(*paramValue) > FLOAT_EPSILON<float> : (bool)constant.defaultValue
-				);
-				boolParamItem->PropertyChanged({ this, &EffectParametersViewModel::_ScalingModeBoolParameter_PropertyChanged });
-				boolParams.push_back(*boolParamItem);
-			} else {
-				auto floatParamItem = make_self<ScalingModeFloatParameter>(
-					i,
-					hstring(StrHelper::UTF8ToUTF16(param.label.empty() ? param.name : param.label)),
-					paramValue.has_value() ? *paramValue : (float)constant.defaultValue,
-					(float)constant.minValue,
-					(float)constant.maxValue,
-					(float)constant.step
-				);
-				floatParamItem->PropertyChanged({ this, &EffectParametersViewModel::_ScalingModeFloatParameter_PropertyChanged });
-				floatParams.push_back(*floatParamItem);
-			}
 		}
 	}
 	if (!boolParams.empty()) {

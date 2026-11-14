@@ -163,17 +163,10 @@
 #define NVU2 uint2
 #define NVB bool
 #if NIS_USE_HALF_PRECISION
-#if NIS_HLSL_6_2
-#define NVH float16_t
-#define NVH2 float16_t2
-#define NVH3 float16_t3
-#define NVH4 float16_t4
-#else
-#define NVH min16float
-#define NVH2 min16float2
-#define NVH3 min16float3
-#define NVH4 min16float4
-#endif // NIS_HLSL_6_2
+#define NVH MF
+#define NVH2 MF2
+#define NVH3 MF3
+#define NVH4 MF4
 #else // FP32 types
 #define NVH NVF
 #define NVH2 NVF2

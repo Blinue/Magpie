@@ -481,9 +481,6 @@
   <data name="Profile_Cursor_DrawCursor_Interpolation.Header" xml:space="preserve">
     <value>خوارزمية الاستيفاء</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
-    <value>ثنائي الخطية (Bilinear)</value>
-  </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
     <value>الجار الأقرب (Nearest-neighbor)</value>
   </data>
@@ -679,9 +676,6 @@
   </data>
   <data name="Home_Advanced_DeveloperOptions_DuplicateFrameDetection_Never.Content" xml:space="preserve">
     <value>أبدًا</value>
-  </data>
-  <data name="Home_Advanced_DeveloperOptions_EnableStatisticsForDynamicDetection.Content" xml:space="preserve">
-    <value>تمكين الإحصائيات للاكتشاف الديناميكي</value>
   </data>
   <data name="Overlay_Profiler_DynamicDetection" xml:space="preserve">
     <value>اكتشاف ديناميكي</value>
@@ -883,12 +877,6 @@
   </data>
   <data name="Message_ScreenshotFailed_InternalError" xml:space="preserve">
     <value>حدث خطأ داخلي. يرجى مراجعة سجلات التشغيل لمزيد من التفاصيل.</value>
-  </data>
-  <data name="Overlay_Toolbar_TakeScreenshot_Description" xml:space="preserve">
-    <value>انقر بزر الماوس الأيمن لتصدير النتيجة الوسيطة</value>
-  </data>
-  <data name="Overlay_Toolbar_TakeScreenshot_PopupTitle" xml:space="preserve">
-    <value>تصدير النتيجة الوسيطة</value>
   </data>
   <data name="Profile_WindowedScaling.Header" xml:space="preserve">
     <value>تحجيم في نافذة</value>
