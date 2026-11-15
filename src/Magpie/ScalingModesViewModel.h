@@ -44,6 +44,8 @@ struct ScalingModesViewModel : ScalingModesViewModelT<ScalingModesViewModel>,
 
 	void AddScalingMode();
 
+	bool HasScalingMode() const noexcept;
+
 private:
 	fire_and_forget _AddScalingModes(bool isInitialExpanded = false);
 

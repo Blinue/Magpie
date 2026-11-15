@@ -15,6 +15,7 @@ struct ScalingModeBoolParameter : ScalingModeBoolParameterT<ScalingModeBoolParam
 	ScalingModeBoolParameter(uint32_t index, const hstring& label, bool initValue)
 		: _index(index), _label(box_value(label)), _value(initValue) {
 	}
+
 	uint32_t Index() const noexcept {
 		return _index;
 	}
@@ -103,6 +104,8 @@ struct EffectParametersViewModel : EffectParametersViewModelT<EffectParametersVi
 	void EffectIdx(uint32_t value) noexcept {
 		_effectIdx = value;
 	}
+
+	void Reset() noexcept;
 
 	IVector<IInspectable> BoolParams() const noexcept {
 		return _boolParams;

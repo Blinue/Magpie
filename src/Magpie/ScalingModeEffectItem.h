@@ -11,11 +11,14 @@ struct EffectItem;
 namespace winrt::Magpie::implementation {
 
 struct ScalingTypeItem : ScalingTypeItemT<ScalingTypeItem> {
+	ScalingTypeItem() {}
 	ScalingTypeItem(hstring name, hstring desc) : _name(std::move(name)), _desc(std::move(desc)) {}
 
 	hstring Name() const noexcept { return _name; }
+	void Name(const hstring& value) noexcept { _name = value; }
 
 	hstring Desc() const noexcept { return _desc; }
+	void Desc(const hstring& value) noexcept { _desc = value; }
 
 private:
 	hstring _name;
@@ -45,8 +48,6 @@ struct ScalingModeEffectItem : ScalingModeEffectItemT<ScalingModeEffectItem>,
 	bool CanScale() const noexcept;
 
 	bool HasParameters() const noexcept;
-
-	IVector<IInspectable> ScalingTypes() noexcept;
 
 	int ScalingType() const noexcept;
 	void ScalingType(int value);
@@ -101,3 +102,5 @@ private:
 };
 
 }
+
+BASIC_FACTORY(ScalingTypeItem)

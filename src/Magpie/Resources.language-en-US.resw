@@ -240,14 +240,11 @@
   <data name="Settings_Launch.Header" xml:space="preserve">
     <value>Launch</value>
   </data>
-  <data name="ScalingModes_General_Export.Text" xml:space="preserve">
+  <data name="ScalingModes_Export.Text" xml:space="preserve">
     <value>Export</value>
   </data>
-  <data name="ScalingModes_General_Import.Text" xml:space="preserve">
+  <data name="ScalingModes_Import.Text" xml:space="preserve">
     <value>Import</value>
-  </data>
-  <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>More options</value>
   </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
     <value>You need to run as administrator to use this setting</value>
@@ -337,7 +334,7 @@
     <value>Move up</value>
   </data>
   <data name="ScalingModes_NewScalingMode.Text" xml:space="preserve">
-    <value>New scaling mode</value>
+    <value>New</value>
   </data>
   <data name="ScalingModes_NewScalingModeFlyout_Title.Text" xml:space="preserve">
     <value>New scaling mode</value>
@@ -372,28 +369,28 @@
   <data name="ScalingModes_ScaleFlyout_Type.Text" xml:space="preserve">
     <value>Type</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute.Name" xml:space="preserve">
     <value>Absolute</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Absolute_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute.Desc" xml:space="preserve">
     <value>Set the size after scaling</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Factor.Name" xml:space="preserve">
     <value>Factor</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Factor.Desc" xml:space="preserve">
     <value>Set the scale factor relative to the input image</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fill.Name" xml:space="preserve">
     <value>Fill</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fill.Desc" xml:space="preserve">
     <value>Fills screen, image may be stretched</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fit.Name" xml:space="preserve">
     <value>Fit</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fit.Desc" xml:space="preserve">
     <value>Set the scale factor after filling the screen with proportional scaling</value>
   </data>
   <data name="Profile_General.Header" xml:space="preserve">
@@ -1149,5 +1146,11 @@
   </data>
   <data name="Home_Advanced_DeveloperOptions_DisableResourceAliasing.Content" xml:space="preserve">
     <value>Disable resource aliasing</value>
+  </data>
+  <data name="ScalingModes_NoScalingMode.Text" xml:space="preserve">
+    <value>No scaling mode yet</value>
+  </data>
+  <data name="ScalingModes_EffectParametersFlyout_Reset.Text" xml:space="preserve">
+    <value>Reset to defaults</value>
   </data>
 </root>
