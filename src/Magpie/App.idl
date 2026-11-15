@@ -29,6 +29,7 @@ namespace Magpie {
 #include "ScalingModeEffectItem.idl"
 #include "ScalingModeItem.idl"
 #include "ScalingModesViewModel.idl"
+#include "ExtensionsViewModel.idl"
 #include "ProfileViewModel.idl"
 #include "SettingsViewModel.idl"
 #include "CandidateWindowItem.idl"
@@ -39,6 +40,7 @@ namespace Magpie {
 #include "AboutPage.idl"
 #include "HomePage.idl"
 #include "ScalingModesPage.idl"
+#include "ExtensionsPage.idl"
 #include "ProfilePage.idl"
 #include "SettingsPage.idl"
 

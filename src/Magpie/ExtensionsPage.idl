@@ -1,0 +1,7 @@
+namespace Magpie {
+	runtimeclass ExtensionsPage : Windows.UI.Xaml.Controls.Page {
+		ExtensionsPage();
+		
+		ExtensionsViewModel ViewModel { get; };
+	}
+}

@@ -154,7 +154,15 @@
       <DependentUpon>EffectParametersViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="ExtensionsPage.h">
+      <DependentUpon>ExtensionsPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="ExtensionService.h" />
+    <ClInclude Include="ExtensionsViewModel.h">
+      <DependentUpon>ExtensionsViewModel.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="FileDialogHelper.h" />
     <ClInclude Include="HomeViewModel.h">
       <DependentUpon>HomeViewModel.idl</DependentUpon>
@@ -347,7 +355,15 @@
       <DependentUpon>EffectParametersViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="ExtensionsPage.cpp">
+      <DependentUpon>ExtensionsPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="ExtensionService.cpp" />
+    <ClCompile Include="ExtensionsViewModel.cpp">
+      <DependentUpon>ExtensionsViewModel.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="FileDialogHelper.cpp" />
     <ClCompile Include="HomeViewModel.cpp">
       <DependentUpon>HomeViewModel.idl</DependentUpon>
@@ -493,6 +509,13 @@
     <ClCompile Include="XamlHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ExtensionsViewModel.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="ExtensionsPage.idl">
+      <DependentUpon>ExtensionsPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </None>
     <None Include="DeleteConfirmationFlyoutContent.idl">
       <DependentUpon>DeleteConfirmationFlyoutContent.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -643,6 +666,9 @@
     </Page>
     <Page Include="CriticalButtonStyle.xaml" />
     <Page Include="DeleteConfirmationFlyoutContent.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="ExtensionsPage.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="ProfilePage.xaml">

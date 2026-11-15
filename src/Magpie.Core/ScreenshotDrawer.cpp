@@ -231,6 +231,7 @@ static TakeScreenshotResult ExportScreenshot(
 	const ScalingOptions& options = ScalingWindow::Get().Options();
 
 	if (options.screenshotsDir.empty()) {
+		Logger::Get().Error("screenshotsDir 为空");
 		return TakeScreenshotResult::InvalidDirectory;
 	}
 
@@ -332,6 +333,7 @@ void ScreenshotDrawer::OnProducerFrameCompleted(uint64_t fenceValue) noexcept {
 					if (metadata) {
 						imgFormat = StrHelper::UTF8ToUTF16(metadata->fileExtension);
 					} else {
+						Logger::Get().Error(StrHelper::Concat("未找到图像编码器 ", encoderId));
 						result = TakeScreenshotResult::InternalError;
 					}
 				} else {

@@ -1153,4 +1153,10 @@
   <data name="ScalingModes_EffectParametersFlyout_Reset.Text" xml:space="preserve">
     <value>Reset to defaults</value>
   </data>
+  <data name="Root_Extensions.Content" xml:space="preserve">
+    <value>Extensions</value>
+  </data>
+  <data name="Home_ExtensionsFrame.Title" xml:space="preserve">
+    <value>Extensions</value>
+  </data>
 </root>

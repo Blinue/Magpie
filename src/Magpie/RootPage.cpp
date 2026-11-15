@@ -30,7 +30,7 @@ using namespace Windows::UI::Xaml::Media::Imaging;
 
 namespace winrt::Magpie::implementation {
 
-static constexpr uint32_t FIRST_PROFILE_ITEM_IDX = 4;
+static constexpr uint32_t FIRST_PROFILE_ITEM_IDX = 5;
 
 RootPage::~RootPage() {
 	ContentDialogHelper::CloseActiveDialog();
@@ -187,10 +187,10 @@ void RootPage::NavigationView_SelectionChanged(
 		if (tag) {
 			hstring tagStr = unbox_value<hstring>(tag);
 			Interop::TypeName typeName;
-			if (tagStr == L"Home") {
-				typeName = xaml_typename<HomePage>();
-			} else if (tagStr == L"ScalingModes") {
+			if (tagStr == L"ScalingModes") {
 				typeName = xaml_typename<ScalingModesPage>();
+			} else if (tagStr == L"Extensions") {
+				typeName = xaml_typename<ExtensionsPage>();
 			} else if (tagStr == L"About") {
 				typeName = xaml_typename<AboutPage>();
 			} else {

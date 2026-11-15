@@ -72,7 +72,9 @@ static std::wstring GetExtDllPath(std::string_view extId) noexcept {
 bool ExtensionService::_LoadExtension(std::string_view extId) noexcept {
 	std::wstring extDllPath = GetExtDllPath(extId);
 
-	wil::unique_hmodule hDll(LoadLibraryEx(extDllPath.c_str(), NULL, 0));
+	// LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR 可以加载同一个文件夹中的依赖 dll
+	wil::unique_hmodule hDll(LoadLibraryEx(extDllPath.c_str(), NULL,
+		LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_SEARCH_DEFAULT_DIRS));
 	if (!hDll) {
 		Logger::Get().Win32Error(StrHelper::Concat("加载 ", extId, ".dll 失败"));
 		return false;

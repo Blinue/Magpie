@@ -77,6 +77,12 @@
 						</PathIcon>
 					</muxc:NavigationViewItem.Icon>
 				</muxc:NavigationViewItem>
+				<muxc:NavigationViewItem x:Uid="Root_Extensions"
+				                         Tag="Extensions">
+					<muxc:NavigationViewItem.Icon>
+						<FontIcon Glyph="&#xEA86;" />
+					</muxc:NavigationViewItem.Icon>
+				</muxc:NavigationViewItem>
 				<muxc:NavigationViewItemHeader x:Uid="Root_Profiles" />
 				<muxc:NavigationViewItem x:Uid="Root_Defaults">
 					<muxc:NavigationViewItem.Icon>

@@ -7,7 +7,6 @@
 #include <rapidjson/document.h>
 #include <rapidjson/stringbuffer.h>
 #include <winrt/Magpie.h>
-#include <variant>
 
 namespace Magpie {
 

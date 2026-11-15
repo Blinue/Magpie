@@ -1,0 +1,5 @@
+namespace Magpie {
+    runtimeclass ExtensionsViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged {
+        IVector<IInspectable> Extensions { get; };
+    }
+}
