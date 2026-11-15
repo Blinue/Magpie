@@ -8,32 +8,8 @@
       mc:Ignorable="d">
 	<Button Margin="0,-6,0,-6"
 	        Padding="0"
-	        Background="Transparent"
-	        BorderBrush="Transparent"
-	        BorderThickness="0"
-	        Click="EditButton_Click">
-		<Button.Resources>
-			<ResourceDictionary>
-				<ResourceDictionary.ThemeDictionaries>
-					<ResourceDictionary x:Key="Default" />
-					<ResourceDictionary x:Key="HighContrast" />
-					<ResourceDictionary x:Key="Light">
-						<StaticResource x:Key="ButtonBackground"
-						                ResourceKey="SubtleFillColorTransparentBrush" />
-						<SolidColorBrush x:Key="ButtonBackgroundPointerOver"
-						                 Color="#0B000000" />
-						<StaticResource x:Key="ButtonBackgroundPressed"
-						                ResourceKey="SubtleFillColorTertiaryBrush" />
-						<StaticResource x:Key="ButtonBorderBrush"
-						                ResourceKey="ControlFillColorTransparentBrush" />
-						<StaticResource x:Key="ButtonBorderBrushPointerOver"
-						                ResourceKey="ControlFillColorTransparentBrush" />
-						<StaticResource x:Key="ButtonBorderBrushPressed"
-						                ResourceKey="ControlFillColorTransparentBrush" />
-					</ResourceDictionary>
-				</ResourceDictionary.ThemeDictionaries>
-			</ResourceDictionary>
-		</Button.Resources>
+	        Click="EditButton_Click"
+	        Style="{StaticResource SubtleButtonStyle}">
 		<local:SimpleStackPanel Margin="6,0,6,0"
 		                        Orientation="Horizontal"
 		                        Spacing="16">
