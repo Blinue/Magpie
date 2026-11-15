@@ -125,8 +125,7 @@ void NewProfileViewModel::PrepareForOpen() {
 
 	_candidateWindows = single_threaded_vector(std::move(items));
 	RaisePropertyChanged(L"CandidateWindows");
-	RaisePropertyChanged(L"IsNoCandidateWindow");
-	RaisePropertyChanged(L"IsAnyCandidateWindow");
+	RaisePropertyChanged(L"HasCandidateWindow");
 
 	CandidateWindowIndex(-1);
 	if (candidateWindows.size() == 1) {

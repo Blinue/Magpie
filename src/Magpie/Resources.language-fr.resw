@@ -270,13 +270,10 @@
   <data name="Settings_Launch.Header" xml:space="preserve">
     <value>Lancez</value>
   </data>
-  <data name="ScalingModes_General_Import.Text" xml:space="preserve">
+  <data name="ScalingModes_Import.Text" xml:space="preserve">
     <value>Importer</value>
   </data>
-  <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Plus d'options</value>
-  </data>
-  <data name="ScalingModes_General_Export.Text" xml:space="preserve">
+  <data name="ScalingModes_Export.Text" xml:space="preserve">
     <value>Exporter</value>
   </data>
   <data name="AppSettings_ErrorDialog_ReadFailed" xml:space="preserve">
@@ -331,7 +328,7 @@
   <data name="About_DeveloperModeEnabled" xml:space="preserve">
     <value>Mode développeur est activer.</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fit.Name" xml:space="preserve">
     <value>Ajuster</value>
   </data>
   <data name="Home_Advanced_DeveloperOptions.Description" xml:space="preserve">
@@ -364,7 +361,7 @@
   <data name="Home_UpdateCard_RemindMeLater.Content" xml:space="preserve">
     <value>Me le rappeler plus tard</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Factor.Desc" xml:space="preserve">
     <value>Définir le facteur d'échelle par rapport à l'image d'entrée</value>
   </data>
   <data name="ScalingModes_RenameFlyout_OK.Content" xml:space="preserve">
@@ -391,7 +388,7 @@
   <data name="Profile_General_Multimonitor_Intersected.Content" xml:space="preserve">
     <value>Écran coupés par la fenêtre source</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute.Name" xml:space="preserve">
     <value>Absolu</value>
   </data>
   <data name="Profile_MoreOptions_OpenProgramLocation.Text" xml:space="preserve">
@@ -412,7 +409,7 @@
   <data name="Home_Advanced_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
     <value>Sauvegarde du code source lors de l'analyse des effets</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Factor.Name" xml:space="preserve">
     <value>Facteur</value>
   </data>
   <data name="ScalingModes_NewScalingModeFlyout_Create.Content" xml:space="preserve">
@@ -472,7 +469,7 @@
   <data name="Profile_SourceWindow_CustomCropping_Right.Header" xml:space="preserve">
     <value>La droite</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fit.Desc" xml:space="preserve">
     <value>Définir le facteur d'échelle après avoir rempli l'écran avec une échelle proportionnelle</value>
   </data>
   <data name="ScalingModes_MoreOptionsFlyout_MoveDown.Text" xml:space="preserve">
@@ -511,7 +508,7 @@
   <data name="Home_UpdateCard_DownloadAndInstall.Content" xml:space="preserve">
     <value>Télécharger et installer</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Absolute_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute.Desc" xml:space="preserve">
     <value>Définir la taille après la mise à l'échelle</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_Type.Text" xml:space="preserve">
@@ -532,7 +529,7 @@
   <data name="Profile_SourceWindow_CustomCropping.Header" xml:space="preserve">
     <value>Recadrage personnalisé</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fill.Desc" xml:space="preserve">
     <value>Remplit l'écran, l'image peut être étirée</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_HeightFactor.Text" xml:space="preserve">
@@ -592,7 +589,7 @@
   <data name="About_Feedback_Discussion.Header" xml:space="preserve">
     <value>Discussions</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fill.Name" xml:space="preserve">
     <value>Remplir</value>
   </data>
   <data name="Profile_SourceWindow.Header" xml:space="preserve">

@@ -24,8 +24,9 @@ public:
 private:
 	static void _RegisterDependencyProperties();
 
-	void _UpdateIconContainer();
-	void _UpdateHeaderActionPresenter();
+	void _OnIconContainerChanged();
+	void _OnHeaderActionChanged();
+	void _OnMainContentChanged();
 };
 
 }

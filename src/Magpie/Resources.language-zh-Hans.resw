@@ -240,14 +240,11 @@
   <data name="Settings_Launch.Header" xml:space="preserve">
     <value>启动</value>
   </data>
-  <data name="ScalingModes_General_Export.Text" xml:space="preserve">
+  <data name="ScalingModes_Export.Text" xml:space="preserve">
     <value>导出</value>
   </data>
-  <data name="ScalingModes_General_Import.Text" xml:space="preserve">
+  <data name="ScalingModes_Import.Text" xml:space="preserve">
     <value>导入</value>
-  </data>
-  <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>更多选项</value>
   </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
     <value>以管理员身份运行时才能使用此选项</value>
@@ -337,7 +334,7 @@
     <value>上移</value>
   </data>
   <data name="ScalingModes_NewScalingMode.Text" xml:space="preserve">
-    <value>新建缩放模式</value>
+    <value>新建</value>
   </data>
   <data name="ScalingModes_NewScalingModeFlyout_Title.Text" xml:space="preserve">
     <value>新建缩放模式</value>
@@ -372,28 +369,28 @@
   <data name="ScalingModes_ScaleFlyout_Type.Text" xml:space="preserve">
     <value>类型</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute.Name" xml:space="preserve">
     <value>绝对</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Absolute_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute.Desc" xml:space="preserve">
     <value>指定缩放后的尺寸</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Factor.Name" xml:space="preserve">
     <value>倍数</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Factor.Desc" xml:space="preserve">
     <value>指定相对于输入图像的缩放倍数</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fill.Name" xml:space="preserve">
     <value>填充</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fill.Desc" xml:space="preserve">
     <value>充满屏幕，画面可能被拉伸</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fit.Name" xml:space="preserve">
     <value>适应</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fit.Desc" xml:space="preserve">
     <value>指定等比缩放到充满屏幕后的缩放倍数</value>
   </data>
   <data name="Profile_General.Header" xml:space="preserve">
@@ -1149,5 +1146,11 @@
   </data>
   <data name="Home_Advanced_DeveloperOptions_DisableResourceAliasing.Content" xml:space="preserve">
     <value>禁用资源别名</value>
+  </data>
+  <data name="ScalingModes_NoScalingMode.Text" xml:space="preserve">
+    <value>尚无缩放模式</value>
+  </data>
+  <data name="ScalingModes_EffectParametersFlyout_Reset.Text" xml:space="preserve">
+    <value>重置为默认值</value>
   </data>
 </root>

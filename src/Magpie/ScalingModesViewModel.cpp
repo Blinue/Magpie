@@ -164,6 +164,10 @@ void ScalingModesViewModel::AddScalingMode() {
 	ScalingModesService::Get().AddScalingMode(_newScalingModeName, _newScalingModeCopyFrom - 1);
 }
 
+bool ScalingModesViewModel::HasScalingMode() const noexcept {
+	return ScalingModesService::Get().GetScalingModeCount() > 0;
+}
+
 fire_and_forget ScalingModesViewModel::_AddScalingModes(bool isInitialExpanded) {
 	if (_addingScalingModes) {
 		co_return;
@@ -217,6 +221,8 @@ void ScalingModesViewModel::_ScalingModesService_Added(EffectAddedWay way) {
 	App::Get().Dispatcher().TryEnqueue([this, way]() {
 		_AddScalingModes(way == EffectAddedWay::Add);
 	});
+
+	RaisePropertyChanged(L"HasScalingMode");
 }
 
 void ScalingModesViewModel::_ScalingModesService_Moved(uint32_t index, bool isMoveUp) {
@@ -229,6 +235,7 @@ void ScalingModesViewModel::_ScalingModesService_Moved(uint32_t index, bool isMo
 
 void ScalingModesViewModel::_ScalingModesService_Removed(uint32_t index) {
 	_scalingModes.RemoveAt(index);
+	RaisePropertyChanged(L"HasScalingMode");
 }
 
 }

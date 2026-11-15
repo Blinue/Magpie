@@ -17,9 +17,8 @@
 			<Button.Content>
 				<local:SimpleStackPanel Orientation="Horizontal"
 				                        Spacing="8">
-					<FontIcon VerticalAlignment="Center"
-					          FontSize="{StaticResource StandardIconSize}"
-					          Glyph="&#xE74D;" />
+					<FontIcon Glyph="&#xE74D;"
+					          Style="{StaticResource ButtonFontIconStyle}" />
 					<TextBlock x:Uid="DeleteConfirmationFlyoutContent_Delete"
 					           VerticalAlignment="Center" />
 				</local:SimpleStackPanel>

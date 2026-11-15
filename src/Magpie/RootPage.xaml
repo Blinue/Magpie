@@ -97,7 +97,7 @@
 								                Margin="10"
 								                HorizontalContentAlignment="Center"
 								                VerticalContentAlignment="Center"
-								                Visibility="{x:Bind NewProfileViewModel.IsNoCandidateWindow, Mode=OneWay}">
+								                Visibility="{x:Bind NewProfileViewModel.HasCandidateWindow, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}">
 									<local:SimpleStackPanel Spacing="20">
 										<FontIcon HorizontalAlignment="Center"
 										          FontSize="40"
@@ -107,7 +107,7 @@
 									</local:SimpleStackPanel>
 								</ContentControl>
 
-								<local:SimpleStackPanel Visibility="{x:Bind NewProfileViewModel.IsAnyCandidateWindow, Mode=OneWay}">
+								<local:SimpleStackPanel Visibility="{x:Bind NewProfileViewModel.HasCandidateWindow, Mode=OneWay}">
 									<TextBlock x:Name="NewProfileTitleTextBlock"
 									           x:Uid="Root_NewProfileFlyout_Title"
 									           Margin="0,5,0,20"

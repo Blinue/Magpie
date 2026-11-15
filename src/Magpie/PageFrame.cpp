@@ -24,8 +24,8 @@ void PageFrame::InitializeComponent() {
 
 	PageFrameT::InitializeComponent();
 
-	_UpdateIconContainer();
-	_UpdateHeaderActionPresenter();
+	_OnIconContainerChanged();
+	_OnHeaderActionChanged();
 }
 
 void PageFrame::Loaded(IInspectable const&, RoutedEventArgs const&) {
@@ -92,7 +92,7 @@ void PageFrame::_RegisterDependencyProperties() {
 		xaml_typename<IconElement>(),
 		xaml_typename<class_type>(),
 		PropertyMetadata(nullptr, [](DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-			get_self<PageFrame>(sender.try_as<class_type>())->_UpdateIconContainer();
+			get_self<PageFrame>(sender.try_as<class_type>())->_OnIconContainerChanged();
 		})
 	);
 
@@ -101,7 +101,7 @@ void PageFrame::_RegisterDependencyProperties() {
 		xaml_typename<FrameworkElement>(),
 		xaml_typename<class_type>(),
 		PropertyMetadata(nullptr, [](DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-			get_self<PageFrame>(sender.try_as<class_type>())->_UpdateHeaderActionPresenter();
+			get_self<PageFrame>(sender.try_as<class_type>())->_OnHeaderActionChanged();
 		})
 	);
 
@@ -109,16 +109,28 @@ void PageFrame::_RegisterDependencyProperties() {
 		L"MainContent",
 		xaml_typename<IInspectable>(),
 		xaml_typename<class_type>(),
-		nullptr
+		PropertyMetadata(nullptr, [](DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
+			get_self<PageFrame>(sender.try_as<class_type>())->_OnMainContentChanged();
+		})
 	);
 }
 
-void PageFrame::_UpdateIconContainer() {
+void PageFrame::_OnIconContainerChanged() {
 	IconContainer().Visibility(Icon() ? Visibility::Visible : Visibility::Collapsed);
 }
 
-void PageFrame::_UpdateHeaderActionPresenter() {
+void PageFrame::_OnHeaderActionChanged() {
 	HeaderActionPresenter().Visibility(HeaderAction() ? Visibility::Visible : Visibility::Collapsed);
+}
+
+void PageFrame::_OnMainContentChanged() {
+	static double pageMaxWidth =
+		Resources().TryLookup(box_value(L"PageMaxWidth")).try_as<double>().value();
+
+	// 如果在 ContentControl 上设置 MaxWidth，如果页面根元素是 Grid 可能会有布局错误
+	if (FrameworkElement content = MainContent().try_as<FrameworkElement>()) {
+		content.MaxWidth(pageMaxWidth);
+	}
 }
 
 }

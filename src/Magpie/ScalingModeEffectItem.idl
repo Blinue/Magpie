@@ -1,7 +1,8 @@
 namespace Magpie {
 	runtimeclass ScalingTypeItem {
-		String Name { get; };
-		String Desc { get; };
+		ScalingTypeItem();
+		String Name;
+		String Desc;
 	}
 
 	runtimeclass ScalingModeEffectItem : Windows.UI.Xaml.Data.INotifyPropertyChanged {
@@ -12,7 +13,6 @@ namespace Magpie {
 		Boolean CanScale { get; };
 		Boolean HasParameters { get; };
 
-		IVector<IInspectable> ScalingTypes { get; };
 		Int32 ScalingType;
 		Boolean IsShowScaleFactors { get; };
 		Boolean IsShowScalingPixels { get; };
