@@ -6,7 +6,7 @@
 
 namespace Magpie {
 
-bool PresenterBase::Initialize(HWND hwndAttach, const DeviceResources& deviceResources) noexcept {
+ScalingError PresenterBase::Initialize(HWND hwndAttach, const DeviceResources& deviceResources) noexcept {
 	_deviceResources = &deviceResources;
 
 	HRESULT hr = deviceResources.GetD3DDevice()->CreateFence(
@@ -16,15 +16,20 @@ bool PresenterBase::Initialize(HWND hwndAttach, const DeviceResources& deviceRes
 		// 这个错误会在某些很旧的显卡上出现，似乎是驱动的 bug。文档中提到 ID3D11Device5::CreateFence 
 		// 和 ID3D12Device::CreateFence 等价，但支持 DX12 的显卡也有失败的可能，如 GH#1013
 		Logger::Get().ComError("CreateFence 失败", hr);
-		return false;
+		return ScalingError::CreateFenceFailed;
 	}
 
 	if (!_fenceEvent.try_create(wil::EventOptions::None, nullptr)) {
 		Logger::Get().Win32Error("CreateEvent 失败");
-		return false;
+		return ScalingError::ScalingFailedGeneral;
 	}
 
-	return _Initialize(hwndAttach);
+	if (!_Initialize(hwndAttach)) {
+		Logger::Get().Error("_Initialize 失败");
+		return ScalingError::ScalingFailedGeneral;
+	}
+
+	return ScalingError::NoError;
 }
 
 uint32_t PresenterBase::_CalcBufferCount() noexcept {

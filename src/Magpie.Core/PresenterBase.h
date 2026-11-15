@@ -1,4 +1,5 @@
 #pragma once
+#include "ScalingOptions.h"
 
 namespace Magpie {
 
@@ -8,7 +9,7 @@ class PresenterBase {
 public:
 	virtual ~PresenterBase() noexcept {}
 
-	bool Initialize(HWND hwndAttach, const DeviceResources& deviceResources) noexcept;
+	ScalingError Initialize(HWND hwndAttach, const DeviceResources& deviceResources) noexcept;
 
 	virtual bool BeginFrame(
 		winrt::com_ptr<ID3D11Texture2D>& frameTex,

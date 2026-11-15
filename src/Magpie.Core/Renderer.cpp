@@ -94,14 +94,17 @@ ScalingError Renderer::Initialize(HWND hwndAttach, OverlayOptions& overlayOption
 
 #ifdef MP_USE_COMPSWAPCHAIN
 	_presenter = std::make_unique<CompSwapchainPresenter>();
-	if (!_presenter->Initialize(hwndAttach, _frontendResources)) {
-		Logger::Get().Error("初始化 CompSwapchainPresenter 失败");
 #else
 	_presenter = std::make_unique<AdaptivePresenter>();
-	if (!_presenter->Initialize(hwndAttach, _frontendResources)) {
+#endif
+	ScalingError result = _presenter->Initialize(hwndAttach, _frontendResources);
+	if (result != ScalingError::NoError) {
+#ifdef MP_USE_COMPSWAPCHAIN
+		Logger::Get().Error("初始化 CompSwapchainPresenter 失败");
+#else
 		Logger::Get().Error("初始化 AdaptivePresenter 失败");
 #endif
-		return ScalingError::ScalingFailedGeneral;
+		return result;
 	}
 
 	// 等待后端初始化完成
