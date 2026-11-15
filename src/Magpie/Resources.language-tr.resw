@@ -120,7 +120,7 @@
   <data name="ScalingModes_ScaleFlyout_Type.Text" xml:space="preserve">
     <value>Tür</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fit.Desc" xml:space="preserve">
     <value>Ekranı orantılı ölçek ile doldurduktan sonra ölçek etkenini ayarla</value>
   </data>
   <data name="Profile_MoreOptions_RenameFlyout_OK.Content" xml:space="preserve">
@@ -393,22 +393,22 @@
   <data name="ScalingModes_ScaleFlyout_WidthPixels.Text" xml:space="preserve">
     <value>Genişlik (piksel)</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Absolute_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute.Desc" xml:space="preserve">
     <value>Ölçek sonrası boyutu ayarla</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Factor.Name" xml:space="preserve">
     <value>Etken</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Factor.Desc" xml:space="preserve">
     <value>Giriş görüntüsüne göre ölçek etkeni ayarla</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fill.Name" xml:space="preserve">
     <value>Doldur</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fill.Desc" xml:space="preserve">
     <value>Ekranı doldurur, görüntü uzatılabilir</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fit.Name" xml:space="preserve">
     <value>Sığdır</value>
   </data>
   <data name="Profile_General.Header" xml:space="preserve">
@@ -447,7 +447,7 @@
   <data name="Profile_Performance.Header" xml:space="preserve">
     <value>Performans</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute.Name" xml:space="preserve">
     <value>Salt</value>
   </data>
   <data name="Profile_MoreOptions_Reorder.Text" xml:space="preserve">

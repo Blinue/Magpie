@@ -141,7 +141,7 @@
   <data name="ScalingModes_Rename.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Переименовать</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fill.Name" xml:space="preserve">
     <value>Заполнение</value>
   </data>
   <data name="About_Version_UpdateToDate_Installing.Text" xml:space="preserve">
@@ -390,10 +390,10 @@
   <data name="ScalingModes_ScaleFlyout_WidthFactor.Text" xml:space="preserve">
     <value>Ширина (множитель масштабирования)</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fill.Desc" xml:space="preserve">
     <value>Заполняет экран, изображение может быть растянуто</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fit.Name" xml:space="preserve">
     <value>Вписывание</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_WidthPixels.Text" xml:space="preserve">
@@ -402,22 +402,22 @@
   <data name="ScalingModes_ScaleFlyout_Type.Text" xml:space="preserve">
     <value>Тип</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute.Name" xml:space="preserve">
     <value>Абсолютно</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Absolute_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute.Desc" xml:space="preserve">
     <value>Установить размер после масштабирования</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Factor.Name" xml:space="preserve">
     <value>Множитель</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Factor.Desc" xml:space="preserve">
     <value>Выставить множитель масштабирования относительно входного изображения</value>
   </data>
   <data name="Profile_General_Multimonitor_All.Content" xml:space="preserve">
     <value>Все мониторы</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fit.Desc" xml:space="preserve">
     <value>Выставить множитель масштабирования после заполнения экрана пропорциональным масштабированием</value>
   </data>
   <data name="Profile_General.Header" xml:space="preserve">

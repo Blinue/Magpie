@@ -10,9 +10,19 @@
 		<DataTemplate x:Key="EffectParametersFlyout"
 		              x:DataType="local:EffectParametersViewModel">
 			<local:SimpleStackPanel Margin="0,0,0,-17">
+				<Button MaxWidth="260"
+				        Margin="0,0,0,12"
+				        Click="{x:Bind Reset, Mode=OneTime}">
+					<local:SimpleStackPanel Orientation="Horizontal"
+					                        Spacing="8">
+						<FontIcon Glyph="&#xE7A7;"
+						          Style="{StaticResource ButtonFontIconStyle}" />
+						<TextBlock x:Uid="ScalingModes_EffectParametersFlyout_Reset" />
+					</local:SimpleStackPanel>
+				</Button>
 				<ItemsControl x:Name="BoolParamsListView"
 				              MaxWidth="260"
-				              Margin="0,0,0,15"
+				              Margin="0,0,0,12"
 				              x:Load="{x:Bind HasBoolParams, Mode=OneTime}"
 				              IsTabStop="False"
 				              ItemsSource="{x:Bind BoolParams, Mode=OneTime}">
@@ -374,11 +384,8 @@
 																	</local:SimpleStackPanel.Resources>
 																	<local:SimpleStackPanel Spacing="8">
 																		<TextBlock x:Uid="ScalingModes_ScaleFlyout_Type" />
-																		<!--  硬编码会导致崩溃！  -->
-																		<!--  https://github.com/microsoft/microsoft-ui-xaml/issues/3612  -->
 																		<ComboBox HorizontalAlignment="Stretch"
 																		          DropDownOpened="ComboBox_DropDownOpened"
-																		          ItemsSource="{x:Bind ScalingTypes, Mode=OneTime}"
 																		          SelectedIndex="{x:Bind ScalingType, Mode=TwoWay}">
 																			<ComboBox.Resources>
 																				<Style x:Key="Description"
@@ -388,6 +395,12 @@
 																					<Setter Property="TextWrapping" Value="WrapWholeWords" />
 																				</Style>
 																			</ComboBox.Resources>
+																			<ComboBox.Items>
+																				<local:ScalingTypeItem x:Uid="ScalingModes_ScaleFlyout_Type_Factor" />
+																				<local:ScalingTypeItem x:Uid="ScalingModes_ScaleFlyout_Type_Fit" />
+																				<local:ScalingTypeItem x:Uid="ScalingModes_ScaleFlyout_Type_Absolute" />
+																				<local:ScalingTypeItem x:Uid="ScalingModes_ScaleFlyout_Type_Fill" />
+																			</ComboBox.Items>
 																			<ComboBox.ItemTemplate>
 																				<DataTemplate x:DataType="local:ScalingTypeItem">
 																					<local:SimpleStackPanel>

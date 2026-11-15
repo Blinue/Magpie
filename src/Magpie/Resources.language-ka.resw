@@ -79,10 +79,10 @@
   <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
     <value>მუქი</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Factor.Name" xml:space="preserve">
     <value>კოეფიციენტი</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fill.Name" xml:space="preserve">
     <value>შევსება</value>
   </data>
   <data name="Home_Activation_Timer_Cancel" xml:space="preserve">
@@ -91,7 +91,7 @@
   <data name="About_OtherLinks_FAQ.Text" xml:space="preserve">
     <value>ხდკ</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fit.Name" xml:space="preserve">
     <value>ჩატევა</value>
   </data>
   <data name="Profile_SourceWindow_CustomCropping_Right.Header" xml:space="preserve">
@@ -112,7 +112,7 @@
   <data name="ScalingModes_Scale.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>მასშტაბი</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute.Name" xml:space="preserve">
     <value>აბსოლუტური</value>
   </data>
   <data name="Profile_SourceWindow_CustomCropping_Top.Header" xml:space="preserve">

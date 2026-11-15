@@ -249,22 +249,22 @@
   <data name="ScalingModes_ScaleFlyout_Type.Text" xml:space="preserve">
     <value>Tipo</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Factor.Name" xml:space="preserve">
     <value>Fator</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Factor.Desc" xml:space="preserve">
     <value>Definir o fator de redimensionamento em relação à imagem original</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fill.Name" xml:space="preserve">
     <value>Preenchimento</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fill.Desc" xml:space="preserve">
     <value>Preenche a tela, a imagem pode ser esticada</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fit.Name" xml:space="preserve">
     <value>Ajustar</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fit.Desc" xml:space="preserve">
     <value>Definir o fator de redimensionamento após preencher a tela com escalonamento proporcional</value>
   </data>
   <data name="Profile_General_AutoScale.Header" xml:space="preserve">
@@ -477,7 +477,7 @@
   <data name="ScalingModes_ScaleFlyout_WidthFactor.Text" xml:space="preserve">
     <value>Largura (fator de redimensionamento)</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Absolute_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute.Desc" xml:space="preserve">
     <value>Definir o tamanho após o redimensionamento</value>
   </data>
   <data name="Profile_General_Multimonitor_All.Content" xml:space="preserve">
@@ -630,7 +630,7 @@
   <data name="ScalingModes_Scale.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Redimensionamento</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute.Name" xml:space="preserve">
     <value>Absoluto</value>
   </data>
   <data name="Profile_General_3DGameMode.Header" xml:space="preserve">

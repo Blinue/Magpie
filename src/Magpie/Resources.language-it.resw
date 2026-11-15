@@ -294,25 +294,25 @@
   <data name="ScalingModes_ScaleFlyout_Type.Text" xml:space="preserve">
     <value>Tipo</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute.Name" xml:space="preserve">
     <value>Assoluto</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Absolute_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute.Desc" xml:space="preserve">
     <value>Imposta la dimensione dopo il ridimensionamento</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Factor.Name" xml:space="preserve">
     <value>Fattore</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Factor.Desc" xml:space="preserve">
     <value>Impostare il fattore di scala relativo all'immagine in entrata</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fill.Name" xml:space="preserve">
     <value>Riempi</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fill.Desc" xml:space="preserve">
     <value>Riempi lo schermo, l'immagine potrebbe essere allungata</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fit.Name" xml:space="preserve">
     <value>Adatta</value>
   </data>
   <data name="Profile_General.Header" xml:space="preserve">
@@ -321,7 +321,7 @@
   <data name="Profile_General_3DGameMode.Header" xml:space="preserve">
     <value>Modalità gioco 3D</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fit.Desc" xml:space="preserve">
     <value>Imposta il fattore di ridimensionamento dopo aver riempito lo schermo con il ridimensionamento proporzionale</value>
   </data>
   <data name="Profile_General_Multimonitor.Header" xml:space="preserve">

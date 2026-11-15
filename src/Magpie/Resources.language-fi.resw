@@ -310,28 +310,28 @@
   <data name="ScalingModes_ScaleFlyout_Type.Text" xml:space="preserve">
     <value>Tyyppi</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute.Name" xml:space="preserve">
     <value>Absoluuttinen</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Absolute_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute.Desc" xml:space="preserve">
     <value>Aseta koko skaalauksen jälkeen</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Factor.Name" xml:space="preserve">
     <value>Kerroin</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Factor.Desc" xml:space="preserve">
     <value>Aseta skaalauskerroin suhteessa kuvaan</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fill.Name" xml:space="preserve">
     <value>Täyttö</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fill.Desc" xml:space="preserve">
     <value>Täyttää ruudun, kuva voi venyä</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fit.Name" xml:space="preserve">
     <value>Sovita</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fit.Desc" xml:space="preserve">
     <value>Sovittaa skaalakertoimen ruuduntäytön jälkeen suhteellisella skaalauksella</value>
   </data>
   <data name="Profile_General.Header" xml:space="preserve">

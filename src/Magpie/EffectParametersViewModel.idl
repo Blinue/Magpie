@@ -18,6 +18,8 @@ namespace Magpie {
 		UInt32 ScalingModeIdx;
 		UInt32 EffectIdx;
 
+		void Reset();
+
 		IVector<IInspectable> BoolParams { get; };
 		IVector<IInspectable> FloatParams { get; };
 		Boolean HasBoolParams { get; };

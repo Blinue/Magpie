@@ -274,7 +274,7 @@
   <data name="About_Feedback_Discussion.Header" xml:space="preserve">
     <value>Beszélgetések</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fill.Name" xml:space="preserve">
     <value>Kitöltés</value>
   </data>
   <data name="Root_NewProfileFlyout_Name.Text" xml:space="preserve">

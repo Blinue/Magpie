@@ -162,7 +162,7 @@
   <data name="About_OtherLinks_FAQ.Text" xml:space="preserve">
     <value>FAQ</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute.Name" xml:space="preserve">
     <value>절대값</value>
   </data>
   <data name="ScalingModes_Delete.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
@@ -300,10 +300,10 @@
   <data name="ScalingModes_ScaleFlyout_Type.Text" xml:space="preserve">
     <value>유형</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fit.Name" xml:space="preserve">
     <value>맞추기</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fit.Desc" xml:space="preserve">
     <value>비례 스케일링으로 화면을 채운 후에 배율 인수를 설정합니다</value>
   </data>
   <data name="Profile_General.Header" xml:space="preserve">
@@ -541,7 +541,7 @@
   <data name="ScalingModes_MoreOptionsFlyout_Delete.Text" xml:space="preserve">
     <value>삭제</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Factor.Desc" xml:space="preserve">
     <value>입력 이미지를 기준으로 배율 인수 설정</value>
   </data>
   <data name="ScalingModes_RenameFlyout_OK.Content" xml:space="preserve">
@@ -556,13 +556,13 @@
   <data name="ScalingModes_AddEffect.Text" xml:space="preserve">
     <value>효과 추가</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Factor.Name" xml:space="preserve">
     <value>인수</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Absolute_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute.Desc" xml:space="preserve">
     <value>스케일링 한 후에 크기 설정</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fill.Desc" xml:space="preserve">
     <value>화면을 채웁니다. 이미지가 늘어날 수 있습니다</value>
   </data>
   <data name="ScalingModes_MoveUp.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
@@ -571,7 +571,7 @@
   <data name="ScalingModes_NewScalingModeFlyout_Title.Text" xml:space="preserve">
     <value>새 스케일링 모드</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fill.Name" xml:space="preserve">
     <value>채우기</value>
   </data>
   <data name="ScalingModes_NewScalingModeFlyout_Name.Text" xml:space="preserve">

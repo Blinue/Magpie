@@ -82,30 +82,6 @@ bool ScalingModeEffectItem::HasParameters() const noexcept {
 	return _effectInfo && !_effectInfo->params.empty();
 }
 
-IVector<IInspectable> ScalingModeEffectItem::ScalingTypes() noexcept {
-	using Windows::ApplicationModel::Resources::ResourceLoader;
-	LocalizationService& ls = LocalizationService::Get();
-	
-	return single_threaded_vector(std::vector<IInspectable>{
-		make<ScalingTypeItem>(
-			ls.GetLocalizedString(L"ScalingModes_ScaleFlyout_Type_Factor"),
-			ls.GetLocalizedString(L"ScalingModes_ScaleFlyout_Type_Factor_Description")
-		),
-		make<ScalingTypeItem>(
-			ls.GetLocalizedString(L"ScalingModes_ScaleFlyout_Type_Fit"),
-			ls.GetLocalizedString(L"ScalingModes_ScaleFlyout_Type_Fit_Description")
-		),
-		make<ScalingTypeItem>(
-			ls.GetLocalizedString(L"ScalingModes_ScaleFlyout_Type_Absolute"),
-			ls.GetLocalizedString(L"ScalingModes_ScaleFlyout_Type_Absolute_Description")
-		),
-		make<ScalingTypeItem>(
-			ls.GetLocalizedString(L"ScalingModes_ScaleFlyout_Type_Fill"),
-			ls.GetLocalizedString(L"ScalingModes_ScaleFlyout_Type_Fill_Description")
-		),
-	});
-}
-
 int ScalingModeEffectItem::ScalingType() const noexcept {
 	if (_IsRemoved()) {
 		return (int)ScalingType::Normal;

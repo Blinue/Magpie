@@ -306,22 +306,22 @@
   <data name="ScalingModes_ScaleFlyout_Type.Text" xml:space="preserve">
     <value>Тип</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute.Name" xml:space="preserve">
     <value>Абсолютний</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Absolute_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Absolute.Desc" xml:space="preserve">
     <value>Встановити розмір після масштабування</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Factor.Name" xml:space="preserve">
     <value>Коефіцієнт</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fill.Name" xml:space="preserve">
     <value>Заповнити</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fill.Desc" xml:space="preserve">
     <value>Заповнює екран, зображення може розтягуватися</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fit.Name" xml:space="preserve">
     <value>Підігнати</value>
   </data>
   <data name="Profile_General.Header" xml:space="preserve">
@@ -577,7 +577,7 @@
   <data name="About_Version_CheckForUpdatesFailed.Title" xml:space="preserve">
     <value>Не вдалося перевірити наявність оновлень, спробуйте пізніше</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Factor.Desc" xml:space="preserve">
     <value>Встановити коефіцієнт масштабування відносно вхідного зображення</value>
   </data>
   <data name="ScalingModes_ScaleFlyout_WidthFactor.Text" xml:space="preserve">
@@ -586,7 +586,7 @@
   <data name="Profile_MoreOptions_DeleteFlyout.Text" xml:space="preserve">
     <value>Ви впевнені, що хочете видалити цей профіль?</value>
   </data>
-  <data name="ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
+  <data name="ScalingModes_ScaleFlyout_Type_Fit.Desc" xml:space="preserve">
     <value>Встановити коефіцієнт масштабування після заповнення екрана за допомогою пропорційного масштабування</value>
   </data>
   <data name="Profile_Performance_GraphicsCard.Header" xml:space="preserve">

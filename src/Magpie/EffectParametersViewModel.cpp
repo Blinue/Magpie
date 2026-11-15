@@ -121,6 +121,39 @@ EffectParametersViewModel::EffectParametersViewModel(uint32_t scalingModeIdx, ui
 	}
 }
 
+void EffectParametersViewModel::Reset() noexcept {
+	if (_IsRemoved()) {
+		return;
+	}
+
+	_Data().clear();
+	LazySaveAppSettings();
+
+	if (_boolParams) {
+		for (const IInspectable& boolParam : _boolParams) {
+			ScalingModeBoolParameter* boolParamImpl =
+				get_self<ScalingModeBoolParameter>(boolParam.try_as<Magpie::ScalingModeBoolParameter>());
+
+			const EffectParameterDesc& param = _effectInfo->params[boolParamImpl->Index()];
+			boolParamImpl->Value((bool)std::get<1>(param.constant).defaultValue);
+		}
+	}
+	
+	if (_floatParams) {
+		for (const IInspectable& floatParam : _floatParams) {
+			ScalingModeFloatParameter* floatParamImpl =
+				get_self<ScalingModeFloatParameter>(floatParam.try_as<Magpie::ScalingModeFloatParameter>());
+
+			const EffectParameterDesc& param = _effectInfo->params[floatParamImpl->Index()];
+			if (param.constant.index() == 0) {
+				floatParamImpl->Value(std::get<0>(param.constant).defaultValue);
+			} else {
+				floatParamImpl->Value(std::get<1>(param.constant).defaultValue);
+			}
+		}
+	}
+}
+
 // 应确保被删除后依然处于合法的状态，调用任何方法都不会崩溃，见 ScalingModeItem::_IsRemoved
 bool EffectParametersViewModel::_IsRemoved() const noexcept {
 	return _scalingModeIdx == std::numeric_limits<uint32_t>::max() ||
