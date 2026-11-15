@@ -195,14 +195,11 @@
   <data name="Settings_Launch.Header" xml:space="preserve">
     <value>Avvia</value>
   </data>
-  <data name="ScalingModes_General_Export.Text" xml:space="preserve">
+  <data name="ScalingModes_Export.Text" xml:space="preserve">
     <value>Esporta</value>
   </data>
-  <data name="ScalingModes_General_Import.Text" xml:space="preserve">
+  <data name="ScalingModes_Import.Text" xml:space="preserve">
     <value>Importa</value>
-  </data>
-  <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Altre opzioni</value>
   </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
     <value>Devi eseguire l'app come amministratore per usare questa impostazione</value>

@@ -225,10 +225,10 @@
   <data name="Settings_Launch.Header" xml:space="preserve">
     <value>啟動</value>
   </data>
-  <data name="ScalingModes_General_Export.Text" xml:space="preserve">
+  <data name="ScalingModes_Export.Text" xml:space="preserve">
     <value>匯出</value>
   </data>
-  <data name="ScalingModes_General_Import.Text" xml:space="preserve">
+  <data name="ScalingModes_Import.Text" xml:space="preserve">
     <value>匯入</value>
   </data>
   <data name="NotifyIcon_Exit" xml:space="preserve">
@@ -248,9 +248,6 @@
   </data>
   <data name="ToggleSwitch.OnContent" xml:space="preserve">
     <value>開啟</value>
-  </data>
-  <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>更多選項</value>
   </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
     <value>以管理員身分執行時才能使用此選項</value>

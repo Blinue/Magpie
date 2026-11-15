@@ -240,14 +240,11 @@
   <data name="Settings_Launch.Header" xml:space="preserve">
     <value>Launch</value>
   </data>
-  <data name="ScalingModes_General_Export.Text" xml:space="preserve">
+  <data name="ScalingModes_Export.Text" xml:space="preserve">
     <value>Export</value>
   </data>
-  <data name="ScalingModes_General_Import.Text" xml:space="preserve">
+  <data name="ScalingModes_Import.Text" xml:space="preserve">
     <value>Import</value>
-  </data>
-  <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>More options</value>
   </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
     <value>You need to run as administrator to use this setting</value>
@@ -337,7 +334,7 @@
     <value>Move up</value>
   </data>
   <data name="ScalingModes_NewScalingMode.Text" xml:space="preserve">
-    <value>New scaling mode</value>
+    <value>New</value>
   </data>
   <data name="ScalingModes_NewScalingModeFlyout_Title.Text" xml:space="preserve">
     <value>New scaling mode</value>
@@ -1134,5 +1131,8 @@
   </data>
   <data name="Root_ProfileFlyout_DeleteConfirmationText" xml:space="preserve">
     <value>Are you sure you want to delete "{}"?</value>
+  </data>
+  <data name="ScalingModes_NoScalingMode.Text" xml:space="preserve">
+    <value>No scaling mode yet</value>
   </data>
 </root>

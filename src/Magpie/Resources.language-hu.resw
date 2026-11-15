@@ -205,7 +205,7 @@
   <data name="Settings_General_Language.Header" xml:space="preserve">
     <value>Nyelv</value>
   </data>
-  <data name="ScalingModes_General_Import.Text" xml:space="preserve">
+  <data name="ScalingModes_Import.Text" xml:space="preserve">
     <value>Importálás</value>
   </data>
   <data name="Root_Defaults.Content" xml:space="preserve">

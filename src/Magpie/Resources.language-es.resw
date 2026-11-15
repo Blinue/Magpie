@@ -222,11 +222,8 @@
   <data name="Settings_Launch.Header" xml:space="preserve">
     <value>Lanzamiento</value>
   </data>
-  <data name="ScalingModes_General_Export.Text" xml:space="preserve">
+  <data name="ScalingModes_Export.Text" xml:space="preserve">
     <value>Exportar</value>
-  </data>
-  <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Mas opciones</value>
   </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Header" xml:space="preserve">
     <value>Ejecutar siempre como administrador</value>
@@ -519,7 +516,7 @@
   <data name="Profile_MoreOptions_RenameFlyout_Title.Text" xml:space="preserve">
     <value>Renombrar</value>
   </data>
-  <data name="ScalingModes_General_Import.Text" xml:space="preserve">
+  <data name="ScalingModes_Import.Text" xml:space="preserve">
     <value>Importar</value>
   </data>
   <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Header" xml:space="preserve">

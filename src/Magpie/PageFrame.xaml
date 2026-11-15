@@ -31,7 +31,7 @@
 			</Grid.ColumnDefinitions>
 			<ContentControl x:Name="IconContainer"
 			                Grid.Column="0"
-			                Margin="0,5,16,0"
+			                Margin="0,4.5,16,0"
 			                Content="{x:Bind Icon, Mode=OneWay}"
 			                IsTabStop="False" />
 			<TextBlock Grid.Column="1"
@@ -72,7 +72,6 @@
 		              VerticalScrollBarVisibility="Auto"
 		              ViewChanging="ScrollViewer_ViewChanging">
 			<ContentControl Grid.Column="0"
-			                MaxWidth="{StaticResource PageMaxWidth}"
 			                Margin="0,0,0,20"
 			                HorizontalContentAlignment="Stretch"
 			                VerticalContentAlignment="Stretch"

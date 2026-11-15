@@ -216,14 +216,11 @@
   <data name="Settings_Launch.Header" xml:space="preserve">
     <value>Jalankan</value>
   </data>
-  <data name="ScalingModes_General_Export.Text" xml:space="preserve">
+  <data name="ScalingModes_Export.Text" xml:space="preserve">
     <value>Ekspor</value>
   </data>
-  <data name="ScalingModes_General_Import.Text" xml:space="preserve">
+  <data name="ScalingModes_Import.Text" xml:space="preserve">
     <value>Impor</value>
-  </data>
-  <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Opsi lainnya</value>
   </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Header" xml:space="preserve">
     <value>Selalu jalan sebagai administrator</value>

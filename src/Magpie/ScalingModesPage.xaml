@@ -66,38 +66,105 @@
 		</DataTemplate>
 	</Page.Resources>
 	<local:PageFrame x:Uid="ScalingModes_PageFrame">
-		<local:PageFrame.HeaderAction>
-			<Button x:Uid="ScalingModes_General_MoreOptions"
-			        Content="&#xE712;">
-				<Button.Flyout>
-					<MenuFlyout Placement="Bottom"
-					            ShouldConstrainToRootBounds="False">
-						<MenuFlyoutItem x:Uid="ScalingModes_General_Export"
-						                Click="{x:Bind ViewModel.Export}">
-							<MenuFlyoutItem.Icon>
-								<FontIcon Glyph="&#xEDE1;" />
-							</MenuFlyoutItem.Icon>
-						</MenuFlyoutItem>
-						<MenuFlyoutItem x:Uid="ScalingModes_General_Import"
-						                Click="{x:Bind ViewModel.Import}">
-							<MenuFlyoutItem.Icon>
-								<FontIcon Glyph="&#xE8B5;" />
-							</MenuFlyoutItem.Icon>
-						</MenuFlyoutItem>
-					</MenuFlyout>
-				</Button.Flyout>
-			</Button>
-		</local:PageFrame.HeaderAction>
-
-		<local:SimpleStackPanel Padding="0,4,0,0"
-		                        HorizontalAlignment="Stretch"
-		                        ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
-		                        Orientation="Vertical">
-			<!--  Padding 是为了缓解一个动画 bug  -->
-			<ListView Padding="0,0,0,44"
+		<Grid Padding="0,4,0,0">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="*" />
+			</Grid.RowDefinitions>
+			<local:SimpleStackPanel Grid.Row="0"
+			                        Orientation="Horizontal"
+			                        Spacing="8">
+				<Button HorizontalAlignment="Right"
+				        Style="{StaticResource AccentButtonStyle}">
+					<Button.Flyout>
+						<Flyout x:Name="NewScalingModeFlyout"
+						        Opening="NewScalingModeFlyout_Opening"
+						        Placement="Bottom">
+							<local:SimpleStackPanel>
+								<TextBlock x:Uid="ScalingModes_NewScalingModeFlyout_Title"
+								           Margin="0,5,0,20"
+								           FontSize="18"
+								           FontWeight="SemiBold" />
+								<local:SimpleStackPanel MinWidth="250"
+								                        HorizontalAlignment="Stretch"
+								                        Spacing="15">
+									<local:SimpleStackPanel Spacing="8">
+										<TextBlock x:Uid="ScalingModes_NewScalingModeFlyout_Name" />
+										<TextBox HorizontalAlignment="Stretch"
+										         KeyDown="NewScalingModeNameTextBox_KeyDown"
+										         Text="{x:Bind ViewModel.NewScalingModeName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+											<TextBox.ContextFlyout>
+												<local:TextMenuFlyout />
+											</TextBox.ContextFlyout>
+										</TextBox>
+									</local:SimpleStackPanel>
+									<local:SimpleStackPanel Spacing="8">
+										<TextBlock x:Uid="ScalingModes_NewScalingModeFlyout_CopyFrom" />
+										<ComboBox HorizontalAlignment="Stretch"
+										          ItemsSource="{x:Bind ViewModel.NewScalingModeCopyFromList, Mode=OneWay}"
+										          SelectedIndex="{x:Bind ViewModel.NewScalingModeCopyFrom, Mode=TwoWay}" />
+									</local:SimpleStackPanel>
+									<Button x:Uid="ScalingModes_NewScalingModeFlyout_Create"
+									        MinWidth="100"
+									        Margin="0,15,0,0"
+									        HorizontalAlignment="Right"
+									        Click="NewScalingModeConfirmButton_Click"
+									        IsEnabled="{x:Bind ViewModel.IsAddButtonEnabled, Mode=OneWay}"
+									        Style="{StaticResource AccentButtonStyle}" />
+								</local:SimpleStackPanel>
+							</local:SimpleStackPanel>
+						</Flyout>
+					</Button.Flyout>
+					<Button.Content>
+						<local:SimpleStackPanel Orientation="Horizontal"
+						                        Spacing="8">
+							<FontIcon Glyph="&#xE710;"
+							          Style="{StaticResource ButtonFontIconStyle}" />
+							<TextBlock x:Uid="ScalingModes_NewScalingMode" />
+						</local:SimpleStackPanel>
+					</Button.Content>
+				</Button>
+				<Button Click="{x:Bind ViewModel.Import}">
+					<local:SimpleStackPanel Orientation="Horizontal"
+					                        Spacing="8">
+						<FontIcon Glyph="&#xE8B5;"
+						          Style="{StaticResource ButtonFontIconStyle}" />
+						<TextBlock x:Uid="ScalingModes_Import" />
+					</local:SimpleStackPanel>
+				</Button>
+				<Button Click="{x:Bind ViewModel.Export}">
+					<local:SimpleStackPanel Orientation="Horizontal"
+					                        Spacing="8">
+						<FontIcon Glyph="&#xEDE1;"
+						          Style="{StaticResource ButtonFontIconStyle}" />
+						<TextBlock x:Uid="ScalingModes_Export" />
+					</local:SimpleStackPanel>
+				</Button>
+			</local:SimpleStackPanel>
+			<local:SimpleStackPanel Grid.Row="1"
+			                        Padding="0,12,0,0"
+			                        HorizontalAlignment="Center"
+			                        VerticalAlignment="Center"
+			                        Spacing="16"
+			                        Visibility="{x:Bind ViewModel.HasScalingMode, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}">
+				<PathIcon Width="80"
+				          Height="80"
+				          HorizontalAlignment="Center"
+				          Data="{StaticResource SpecialEffectSizeIconData}">
+					<PathIcon.RenderTransform>
+						<ScaleTransform ScaleX="4" ScaleY="4" />
+					</PathIcon.RenderTransform>
+				</PathIcon>
+				<TextBlock x:Uid="ScalingModes_NoScalingMode"
+				           HorizontalAlignment="Center"
+				           TextWrapping="WrapWholeWords" />
+			</local:SimpleStackPanel>
+			<ListView Grid.Row="1"
+			          Padding="0,12,0,0"
 			          ItemsSource="{x:Bind ViewModel.ScalingModes, Mode=OneTime}"
 			          SelectionMode="None"
-			          TabNavigation="Local">
+			          TabNavigation="Local"
+			          Visibility="{x:Bind ViewModel.HasScalingMode, Mode=OneWay}">
 				<ListView.ItemContainerTransitions>
 					<TransitionCollection>
 						<ContentThemeTransition />
@@ -229,9 +296,8 @@
 																<Button.Content>
 																	<local:SimpleStackPanel Orientation="Horizontal"
 																	                        Spacing="8">
-																		<FontIcon VerticalAlignment="Center"
-																		          FontSize="{StaticResource StandardIconSize}"
-																		          Glyph="&#xE74D;" />
+																		<FontIcon Glyph="&#xE74D;"
+																		          Style="{StaticResource ButtonFontIconStyle}" />
 																		<TextBlock x:Uid="ScalingModes_DeleteFlyout_Delete"
 																		           VerticalAlignment="Center" />
 																	</local:SimpleStackPanel>
@@ -490,8 +556,8 @@
 										<local:SimpleStackPanel VerticalAlignment="Center"
 										                        Orientation="Horizontal"
 										                        Spacing="8">
-											<FontIcon FontSize="{StaticResource StandardIconSize}"
-											          Glyph="&#xE710;" />
+											<FontIcon Glyph="&#xE710;"
+											          Style="{StaticResource ButtonFontIconStyle}" />
 											<TextBlock x:Uid="ScalingModes_AddEffect"
 											           Margin="0,-1,0,0" />
 										</local:SimpleStackPanel>
@@ -502,58 +568,6 @@
 					</DataTemplate>
 				</ListView.ItemTemplate>
 			</ListView>
-			<local:SimpleStackPanel Margin="0,-36,0,0">
-				<Button HorizontalAlignment="Right"
-				        Style="{StaticResource AccentButtonStyle}">
-					<Button.Flyout>
-						<Flyout x:Name="NewScalingModeFlyout"
-						        Opening="NewScalingModeFlyout_Opening"
-						        Placement="Left">
-							<local:SimpleStackPanel>
-								<TextBlock x:Uid="ScalingModes_NewScalingModeFlyout_Title"
-								           Margin="0,5,0,20"
-								           FontSize="18"
-								           FontWeight="SemiBold" />
-								<local:SimpleStackPanel MinWidth="250"
-								                        HorizontalAlignment="Stretch"
-								                        Spacing="15">
-									<local:SimpleStackPanel Spacing="8">
-										<TextBlock x:Uid="ScalingModes_NewScalingModeFlyout_Name" />
-										<TextBox HorizontalAlignment="Stretch"
-										         KeyDown="NewScalingModeNameTextBox_KeyDown"
-										         Text="{x:Bind ViewModel.NewScalingModeName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-											<TextBox.ContextFlyout>
-												<local:TextMenuFlyout />
-											</TextBox.ContextFlyout>
-										</TextBox>
-									</local:SimpleStackPanel>
-									<local:SimpleStackPanel Spacing="8">
-										<TextBlock x:Uid="ScalingModes_NewScalingModeFlyout_CopyFrom" />
-										<ComboBox HorizontalAlignment="Stretch"
-										          ItemsSource="{x:Bind ViewModel.NewScalingModeCopyFromList, Mode=OneWay}"
-										          SelectedIndex="{x:Bind ViewModel.NewScalingModeCopyFrom, Mode=TwoWay}" />
-									</local:SimpleStackPanel>
-									<Button x:Uid="ScalingModes_NewScalingModeFlyout_Create"
-									        MinWidth="100"
-									        Margin="0,15,0,0"
-									        HorizontalAlignment="Right"
-									        Click="NewScalingModeConfirmButton_Click"
-									        IsEnabled="{x:Bind ViewModel.IsAddButtonEnabled, Mode=OneWay}"
-									        Style="{StaticResource AccentButtonStyle}" />
-								</local:SimpleStackPanel>
-							</local:SimpleStackPanel>
-						</Flyout>
-					</Button.Flyout>
-					<Button.Content>
-						<local:SimpleStackPanel Orientation="Horizontal"
-						                        Spacing="8">
-							<FontIcon FontSize="{StaticResource StandardIconSize}"
-							          Glyph="&#xE710;" />
-							<TextBlock x:Uid="ScalingModes_NewScalingMode" />
-						</local:SimpleStackPanel>
-					</Button.Content>
-				</Button>
-			</local:SimpleStackPanel>
-		</local:SimpleStackPanel>
+		</Grid>
 	</local:PageFrame>
 </Page>

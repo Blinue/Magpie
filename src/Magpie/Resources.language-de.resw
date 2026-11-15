@@ -204,9 +204,6 @@
   <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
     <value>Dunkel</value>
   </data>
-  <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Weitere Optionen</value>
-  </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
     <value>Du brauchst Administrationsrechte, um diese Einstellung zu nutzen</value>
   </data>
@@ -336,10 +333,10 @@
   <data name="Settings_Launch.Header" xml:space="preserve">
     <value>Starten</value>
   </data>
-  <data name="ScalingModes_General_Export.Text" xml:space="preserve">
+  <data name="ScalingModes_Export.Text" xml:space="preserve">
     <value>Exportieren</value>
   </data>
-  <data name="ScalingModes_General_Import.Text" xml:space="preserve">
+  <data name="ScalingModes_Import.Text" xml:space="preserve">
     <value>Importieren</value>
   </data>
   <data name="Home_UpdateCard_ReleaseNotes.Content" xml:space="preserve">

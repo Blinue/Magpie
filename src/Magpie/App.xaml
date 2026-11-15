@@ -84,7 +84,13 @@
 			<x:Double x:Key="SettingsCardSpacing">2</x:Double>
 			<x:Double x:Key="SettingsGroupSpacing">32</x:Double>
 
-			<x:Double x:Key="StandardIconSize">14</x:Double>
+			<Style x:Key="ButtonFontIconStyle"
+			       TargetType="FontIcon">
+				<Setter Property="FontSize" Value="14" />
+				<!--  使图标居中对齐  -->
+				<Setter Property="Margin" Value="0,1,0,0" />
+				<Setter Property="VerticalAlignment" Value="Center" />
+			</Style>
 
 			<!--  InfoBar  -->
 			<Thickness x:Key="InfoBarIconMargin">0,16,22,16</Thickness>

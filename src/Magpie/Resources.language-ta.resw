@@ -297,14 +297,11 @@
   <data name="Settings_Launch.Header" xml:space="preserve">
     <value>ஏவுதல்</value>
   </data>
-  <data name="ScalingModes_General_Export.Text" xml:space="preserve">
+  <data name="ScalingModes_Export.Text" xml:space="preserve">
     <value>ஏற்றுமதி</value>
   </data>
-  <data name="ScalingModes_General_Import.Text" xml:space="preserve">
+  <data name="ScalingModes_Import.Text" xml:space="preserve">
     <value>இறக்குமதி</value>
-  </data>
-  <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>மேலும் விருப்பங்கள்</value>
   </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
     <value>இந்த அமைப்பைப் பயன்படுத்த நீங்கள் நிர்வாகியாக இயங்க வேண்டும்</value>

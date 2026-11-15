@@ -204,11 +204,8 @@
   <data name="Settings_Launch.Header" xml:space="preserve">
     <value>Запуск</value>
   </data>
-  <data name="ScalingModes_General_Export.Text" xml:space="preserve">
+  <data name="ScalingModes_Export.Text" xml:space="preserve">
     <value>Експорт</value>
-  </data>
-  <data name="ScalingModes_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Додаткові параметри</value>
   </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
     <value>Щоб скористатися цим параметром, вам потрібно запустити від імені адміністратора</value>
@@ -553,7 +550,7 @@
   <data name="About_Feedback_ReportBug.Header" xml:space="preserve">
     <value>Повідомити про помилку</value>
   </data>
-  <data name="ScalingModes_General_Import.Text" xml:space="preserve">
+  <data name="ScalingModes_Import.Text" xml:space="preserve">
     <value>Імпорт</value>
   </data>
   <data name="Home_UpdateCard_AutoCheckForUpdates.Content" xml:space="preserve">

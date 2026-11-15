@@ -93,8 +93,8 @@
 												        IsEnabled="{x:Bind ViewModel.CanMoveUp, Mode=OneWay}">
 													<local:SimpleStackPanel Orientation="Horizontal"
 													                        Spacing="8">
-														<FontIcon FontSize="{StaticResource StandardIconSize}"
-														          Glyph="&#xE74A;" />
+														<FontIcon Glyph="&#xE74A;"
+														          Style="{StaticResource ButtonFontIconStyle}" />
 														<TextBlock x:Uid="Profile_MoreOptions_ReorderFlyout_MoveUp" />
 													</local:SimpleStackPanel>
 												</Button>
@@ -104,8 +104,8 @@
 												        IsEnabled="{x:Bind ViewModel.CanMoveDown, Mode=OneWay}">
 													<local:SimpleStackPanel Orientation="Horizontal"
 													                        Spacing="8">
-														<FontIcon FontSize="{StaticResource StandardIconSize}"
-														          Glyph="&#xE74B;" />
+														<FontIcon Glyph="&#xE74B;"
+														          Style="{StaticResource ButtonFontIconStyle}" />
 														<TextBlock x:Uid="Profile_MoreOptions_ReorderFlyout_MoveDown" />
 													</local:SimpleStackPanel>
 												</Button>

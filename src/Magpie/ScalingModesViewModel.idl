@@ -9,5 +9,7 @@ namespace Magpie {
         IVector<IInspectable> NewScalingModeCopyFromList { get; };
         Int32 NewScalingModeCopyFrom;
         Boolean IsAddButtonEnabled { get; };
+
+        Boolean HasScalingMode { get; };
     }
 }

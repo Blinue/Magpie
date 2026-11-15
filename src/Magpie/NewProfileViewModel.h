@@ -42,11 +42,7 @@ struct NewProfileViewModel : NewProfileViewModelT<NewProfileViewModel>,
 		return _isConfirmButtonEnabled;
 	}
 
-	bool IsNoCandidateWindow() const noexcept {
-		return !_candidateWindows || _candidateWindows.Size() == 0;
-	}
-
-	bool IsAnyCandidateWindow() const noexcept {
+	bool HasCandidateWindow() const noexcept {
 		return _candidateWindows && _candidateWindows.Size() != 0;
 	}
 
