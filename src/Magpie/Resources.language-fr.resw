@@ -346,7 +346,7 @@
   <data name="Profile_General_AutoScale.Header" xml:space="preserve">
     <value>Mise à l'échelle automatique au premier plan</value>
   </data>
-  <data name="Profile_Launch.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="Profile_Launch.Text" xml:space="preserve">
     <value>Lancer</value>
   </data>
   <data name="Home_Advanced_InlineParams.Description" xml:space="preserve">

@@ -420,7 +420,7 @@
   <data name="Profile_General_ScalingMode.Header" xml:space="preserve">
     <value>Scaling mode</value>
   </data>
-  <data name="Profile_Launch.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="Profile_Launch.Text" xml:space="preserve">
     <value>Launch</value>
   </data>
   <data name="Profile_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
