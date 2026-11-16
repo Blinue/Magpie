@@ -468,7 +468,7 @@
   <data name="Profile_General_Multimonitor.Header" xml:space="preserve">
     <value>விருப்பமான மானிட்டர்கள்</value>
   </data>
-  <data name="Profile_Launch.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="Profile_Launch.Text" xml:space="preserve">
     <value>ஏவுதல்</value>
   </data>
   <data name="Profile_General_Multimonitor_All.Content" xml:space="preserve">
