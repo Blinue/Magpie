@@ -622,7 +622,7 @@
   <data name="DeleteConfirmationFlyoutContent_Delete.Text" xml:space="preserve">
     <value>刪除</value>
   </data>
-  <data name="Profile_Launch.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="Profile_Launch.Text" xml:space="preserve">
     <value>啟動</value>
   </data>
   <data name="Profile_MoreOptions_RenameFlyout_Title.Text" xml:space="preserve">

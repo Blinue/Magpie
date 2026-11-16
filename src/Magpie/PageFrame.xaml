@@ -44,21 +44,7 @@
 			                Grid.Column="2"
 			                VerticalContentAlignment="Center"
 			                Content="{x:Bind HeaderAction, Mode=OneWay}"
-			                IsTabStop="False">
-				<ContentControl.Resources>
-					<ResourceDictionary>
-						<Style BasedOn="{StaticResource SubtleButtonStyle}"
-						       TargetType="Button">
-							<Setter Property="Width" Value="36" />
-							<Setter Property="Height" Value="36" />
-							<Setter Property="Padding" Value="0" />
-							<Setter Property="BorderThickness" Value="0" />
-							<Setter Property="FontFamily" Value="{ThemeResource SymbolThemeFontFamily}" />
-							<Setter Property="FontSize" Value="18" />
-						</Style>
-					</ResourceDictionary>
-				</ContentControl.Resources>
-			</ContentControl>
+			                IsTabStop="False" />
 		</Grid>
 		<!--  ScrollViewer 可以接受焦点，这使用户可以通过键盘滚动页面  -->
 		<!--  Padding 左右边距使用代码动态调整  -->

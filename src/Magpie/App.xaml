@@ -92,6 +92,9 @@
 				<Setter Property="VerticalAlignment" Value="Center" />
 			</Style>
 
+			<x:Double x:Key="PageFrameHeaderButtonHeight">34</x:Double>
+			<x:Double x:Key="PageFrameHeaderIconFontSize">16</x:Double>
+
 			<!--  InfoBar  -->
 			<Thickness x:Key="InfoBarIconMargin">0,16,22,16</Thickness>
 			<Thickness x:Key="InfoBarContentRootPadding">20,0,0,0</Thickness>

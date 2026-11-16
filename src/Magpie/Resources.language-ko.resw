@@ -132,7 +132,7 @@
   <data name="Profile_General_ScalingMode.Header" xml:space="preserve">
     <value>스케일링 모드</value>
   </data>
-  <data name="Profile_Launch.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="Profile_Launch.Text" xml:space="preserve">
     <value>실행</value>
   </data>
   <data name="DeleteConfirmationFlyoutContent_Delete.Text" xml:space="preserve">

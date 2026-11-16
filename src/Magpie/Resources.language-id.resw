@@ -381,7 +381,7 @@
   <data name="Profile_General_ScalingMode.Header" xml:space="preserve">
     <value>Mode penskalaan</value>
   </data>
-  <data name="Profile_Launch.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="Profile_Launch.Text" xml:space="preserve">
     <value>Jalankan</value>
   </data>
   <data name="Home_Activation_Timer_Cancel" xml:space="preserve">

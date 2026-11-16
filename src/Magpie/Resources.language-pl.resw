@@ -557,7 +557,7 @@
   <data name="Profile_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Więcej opcji</value>
   </data>
-  <data name="Profile_Launch.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="Profile_Launch.Text" xml:space="preserve">
     <value>Uruchom</value>
   </data>
   <data name="DeleteConfirmationFlyoutContent_Delete.Text" xml:space="preserve">

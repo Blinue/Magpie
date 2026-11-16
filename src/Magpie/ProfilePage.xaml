@@ -17,13 +17,29 @@
 			<local:SimpleStackPanel Orientation="Horizontal"
 			                        Spacing="2"
 			                        Visibility="{x:Bind ViewModel.IsNotDefaultProfile, Mode=OneTime}">
-				<Button x:Uid="Profile_Launch"
+				<Button Height="{StaticResource PageFrameHeaderButtonHeight}"
 				        Click="{x:Bind ViewModel.Launch}"
-				        Content="&#xE768;"
-				        IsEnabled="{x:Bind ViewModel.IsProgramExist, Mode=OneTime}" />
+				        IsEnabled="{x:Bind ViewModel.IsProgramExist, Mode=OneTime}"
+				        Style="{StaticResource SubtleButtonStyle}">
+					<local:SimpleStackPanel Orientation="Horizontal"
+					                        Spacing="8">
+						<FontIcon VerticalAlignment="Center"
+						          FontSize="{StaticResource PageFrameHeaderIconFontSize}"
+						          Glyph="&#xE768;"
+						          Style="{StaticResource ButtonFontIconStyle}" />
+						<TextBlock x:Uid="Profile_Launch"
+						           VerticalAlignment="Center" />
+					</local:SimpleStackPanel>
+				</Button>
 				<Button x:Name="MoreOptionsButton"
 				        x:Uid="Profile_MoreOptions"
-				        Content="&#xE712;">
+				        Width="{StaticResource PageFrameHeaderButtonHeight}"
+				        Height="{StaticResource PageFrameHeaderButtonHeight}"
+				        Padding="0"
+				        Content="&#xE712;"
+				        FontFamily="{ThemeResource SymbolThemeFontFamily}"
+				        FontSize="{StaticResource PageFrameHeaderIconFontSize}"
+				        Style="{StaticResource SubtleButtonStyle}">
 					<Button.Flyout>
 						<MenuFlyout Placement="Bottom"
 						            ShouldConstrainToRootBounds="False">
