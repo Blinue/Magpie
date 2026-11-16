@@ -18,10 +18,9 @@ enum class AppTheme {
 	System
 };
 
-struct ExtensionOption {
+struct ExtensionSetting {
 	std::string extId;
 	std::string updateUrl;
-	phmap::flat_hash_map<std::string, OptionValue> optionValues;
 	bool isEnabled = false;
 };
 
@@ -285,8 +284,14 @@ public:
 		return _overlayWindowOptions;
 	}
 
-	const SmallVectorImpl<ExtensionOption>& ExtensionOptions() noexcept {
-		return _extensionOptions;
+	phmap::flat_hash_map<std::string, phmap::flat_hash_map<std::string, OptionValue>>&
+		ImageEncoderParams() noexcept
+	{
+		return _imageEncoderParams;
+	}
+
+	SmallVectorImpl<ExtensionSetting>& ExtensionSettings() noexcept {
+		return _extensionSettings;
 	}
 
 	Event<AppTheme> ThemeChanged;
@@ -343,7 +348,10 @@ private:
 
 	phmap::flat_hash_map<std::string, OverlayWindowOption> _overlayWindowOptions;
 	
-	SmallVector<ExtensionOption, 0> _extensionOptions;
+	// imageEncoderFullId -> (optionId -> value)
+	phmap::flat_hash_map<std::string, phmap::flat_hash_map<std::string, OptionValue>> _imageEncoderParams;
+
+	SmallVector<::Magpie::ExtensionSetting, 0> _extensionSettings;
 
 	std::atomic<bool> _isSaving;
 	bool _isAlwaysRunAsAdmin = false;

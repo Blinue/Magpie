@@ -161,6 +161,9 @@
       <Filter>Services</Filter>
     </ClInclude>
     <ClInclude Include="MagpieExtApi.h" />
+    <ClInclude Include="ExtensionInfo.h">
+      <Filter>Models</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Pages">
@@ -286,6 +289,9 @@
     <None Include="res\BT2020_G24.icc">
       <Filter>Resources</Filter>
     </None>
+    <None Include="ExtensionsViewModel.idl">
+      <Filter>ViewModels</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="HomePage.xaml">
@@ -344,6 +350,9 @@
     </Page>
     <Page Include="DeleteConfirmationFlyoutContent.xaml">
       <Filter>Controls</Filter>
+    </Page>
+    <Page Include="ExtensionsPage.xaml">
+      <Filter>Pages</Filter>
     </Page>
   </ItemGroup>
   <ItemGroup>

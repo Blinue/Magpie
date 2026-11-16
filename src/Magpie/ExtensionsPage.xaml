@@ -6,5 +6,73 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       mc:Ignorable="d">
-	<local:PageFrame x:Uid="Home_ExtensionsFrame" />
+	<local:PageFrame x:Uid="Home_ExtensionsFrame">
+		<local:PageFrame.HeaderAction>
+			<Button x:Uid="Profile_MoreOptions"
+			        Width="{StaticResource PageFrameHeaderButtonHeight}"
+			        Height="{StaticResource PageFrameHeaderButtonHeight}"
+			        Padding="0"
+			        Content="&#xE712;"
+			        FontFamily="{ThemeResource SymbolThemeFontFamily}"
+			        FontSize="{StaticResource PageFrameHeaderIconFontSize}"
+			        Style="{StaticResource SubtleButtonStyle}">
+				<Button.Flyout>
+					<MenuFlyout Placement="Bottom"
+					            ShouldConstrainToRootBounds="False">
+						<MenuFlyoutItem Text="导入扩展 dll">
+							<MenuFlyoutItem.Icon>
+								<FontIcon Glyph="&#xE8F1;" />
+							</MenuFlyoutItem.Icon>
+						</MenuFlyoutItem>
+						<MenuFlyoutItem Text="导入着色器效果">
+							<MenuFlyoutItem.Icon>
+								<FontIcon Glyph="&#xF000;" />
+							</MenuFlyoutItem.Icon>
+						</MenuFlyoutItem>
+					</MenuFlyout>
+				</Button.Flyout>
+			</Button>
+		</local:PageFrame.HeaderAction>
+		<local:SimpleStackPanel Margin="0,4,0,0"
+		                        ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
+		                        Orientation="Vertical"
+		                        Spacing="{StaticResource SettingsGroupSpacing}">
+			<local:SettingsGroup Header="已安装">
+				<ListView Grid.Row="1"
+				          Margin="0,12,0,0"
+				          ItemsSource="{x:Bind ViewModel.Extensions, Mode=OneTime}"
+				          SelectionMode="None"
+				          TabNavigation="Local">
+					<ListView.ItemContainerTransitions>
+						<TransitionCollection>
+							<ContentThemeTransition />
+							<RepositionThemeTransition IsStaggeringEnabled="False" />
+						</TransitionCollection>
+					</ListView.ItemContainerTransitions>
+					<ListView.Resources>
+						<Style TargetType="ListViewItem">
+							<Setter Property="Margin" Value="0,0,0,2" />
+							<Setter Property="Padding" Value="0" />
+							<Setter Property="MinHeight" Value="0" />
+							<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+							<Setter Property="IsTabStop" Value="False" />
+						</Style>
+					</ListView.Resources>
+					<ListView.ItemTemplate>
+						<DataTemplate x:DataType="local:ExtensionItem">
+							<local:SettingsExpander Description="{x:Bind Description, Mode=OneWay}"
+							                        Header="{x:Bind Name, Mode=OneWay}">
+								<ToggleSwitch IsOn="{x:Bind IsEnabled, Mode=TwoWay}" />
+							</local:SettingsExpander>
+						</DataTemplate>
+					</ListView.ItemTemplate>
+				</ListView>
+			</local:SettingsGroup>
+			<local:SettingsGroup Header="仓库">
+				<local:SettingsCard Header="test1" />
+				<local:SettingsCard Header="test2" />
+				<local:SettingsCard Header="test3" />
+			</local:SettingsGroup>
+		</local:SimpleStackPanel>
+	</local:PageFrame>
 </Page>

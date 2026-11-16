@@ -266,6 +266,7 @@ INumberFormatter2 App::DoubleFormatter() {
 
 void App::_Uninitialize() noexcept {
 	NotifyIconService::Get().Uninitialize();
+	ExtensionService::Get().Uninitialize();
 	UpdateService::Get().Uninitialize();
 	ScalingService::Get().Uninitialize();
 	// 提前取消热键注册，这样关闭 Magpie 后立即重新打开不会注册热键失败

@@ -1,4 +1,5 @@
 #pragma once
+#include "ExtensionInfo.h"
 #include "MagpieExtApi.h"
 #include "Singleton.h"
 #include "SmallVector.h"
@@ -12,6 +13,10 @@ class ExtensionService : public Singleton<ExtensionService> {
 public:
 	void Initialize() noexcept;
 
+	void Uninitialize() noexcept;
+
+	bool AddExtension(std::string_view extId, std::string_view updateUrl) noexcept;
+
 private:
 	ExtensionService() = default;
 
@@ -19,19 +24,17 @@ private:
 
 	static HRESULT _HostApiRegisterExtension(const MagpieExtensionDesc* desc);
 
-	// 按 dll 加载顺序排序，这样可以倒序卸载
-	SmallVector<wil::unique_hmodule> _extDllHandles;
-
 	struct _ExtensionData {
-		uint32_t idx = 0;
-		std::string displayName;
-		std::string author;
-		std::string homePageUrl;
-		std::string description;
+		ExtensionInfo info;
+		wil::unique_hmodule hDll;
+		// 记录 dll 加载顺序，从而倒序卸载
+		uint32_t loadNo = 0;
 	};
 
 	// extId -> ExtensionData
 	phmap::flat_hash_map<std::string, _ExtensionData> _extDatas;
+
+	uint32_t _nextLoadNo = 0;
 };
 
 }

@@ -49,15 +49,50 @@ static const char* HotApiGetLanguage() noexcept {
 }
 
 void ExtensionService::Initialize() noexcept {
-	for (const ExtensionOption& extOption : AppSettings::Get().ExtensionOptions()) {
-		if (!extOption.isEnabled) {
+	for (const ExtensionSetting& extSetting : AppSettings::Get().ExtensionSettings()) {
+		if (!extSetting.isEnabled) {
 			continue;
 		}
 
-		if (!_LoadExtension(extOption.extId)) {
-			Logger::Get().Error(StrHelper::Concat("加载插件 ", extOption.extId, " 失败"));
+		if (!_LoadExtension(extSetting.extId)) {
+			Logger::Get().Error(StrHelper::Concat("加载插件 ", extSetting.extId, " 失败"));
 		}
 	}
+}
+
+void ExtensionService::Uninitialize() noexcept {
+	if (_extDatas.empty()) {
+		return;
+	}
+
+	SmallVector<std::pair<uint32_t, wil::unique_hmodule>> hDlls;
+	hDlls.reserve(_extDatas.size());
+	for (auto& pair : _extDatas) {
+		hDlls.emplace_back(pair.second.loadNo, std::move(pair.second.hDll));
+	}
+
+	// 按 loadNo 从小到大排序，这样会倒序卸载
+	std::sort(hDlls.begin(), hDlls.end(), [](const auto& l, const auto& r) {
+		return l.first < r.first;
+	});
+}
+
+bool ExtensionService::AddExtension(std::string_view extId, std::string_view updateUrl) noexcept {
+	assert(!_extDatas.contains(extId));
+
+	if (!_LoadExtension(extId)) {
+		Logger::Get().Error(StrHelper::Concat("加载插件 ", extId, " 失败"));
+		return false;
+	}
+
+	AppSettings::Get().ExtensionSettings().push_back(ExtensionSetting{
+		.extId = std::string(extId),
+		.updateUrl = std::string(updateUrl),
+		.isEnabled = true
+	});
+
+	AppSettings::Get().SaveAsync();
+	return true;
 }
 
 static std::wstring GetExtDllPath(std::string_view extId) noexcept {
@@ -101,9 +136,8 @@ bool ExtensionService::_LoadExtension(std::string_view extId) noexcept {
 		return false;
 	}
 
-	it->second.idx = (uint32_t)_extDllHandles.size();
-	// _extDllHandles 按 dll 加载顺序排序
-	_extDllHandles.push_back(std::move(hDll));
+	it->second.hDll = std::move(hDll);
+	it->second.loadNo = _nextLoadNo++;
 	return true;
 }
 
@@ -175,10 +209,10 @@ HRESULT ExtensionService::_HostApiRegisterExtension(const MagpieExtensionDesc* d
 	}
 
 	_ExtensionData& extData = ExtensionService::Get()._extDatas[CurExtId];
-	extData.displayName = desc->displayName;
-	extData.author = desc->author ? desc->author : "";
-	extData.homePageUrl = desc->homePageUrl ? desc->homePageUrl : "";
-	extData.description = desc->description ? desc->description : "";
+	extData.info.displayName = desc->displayName;
+	extData.info.author = desc->author ? desc->author : "";
+	extData.info.homePageUrl = desc->homePageUrl ? desc->homePageUrl : "";
+	extData.info.description = desc->description ? desc->description : "";
 
 	if (desc->imageEncoderDescs) {
 		for (uint32_t i = 0; i < desc->imageEncoderCount; ++i) {
@@ -249,9 +283,12 @@ HRESULT ExtensionService::_HostApiRegisterExtension(const MagpieExtensionDesc* d
 					}
 				}
 			}
+
+			const std::string& imageEncoderId = extData.info.imageEncoderIds.emplace_back(
+				StrHelper::Concat(CurExtId, "/", apiEncoderDesc.id));
 			
 			ImageEncoderFactory::Get().RegisterImageEncoder(
-				StrHelper::Concat(CurExtId, "/", apiEncoderDesc.id),
+				imageEncoderId,
 				std::move(metadata),
 				[encode(apiEncoderDesc.encode)](
 					const phmap::flat_hash_map<std::string, OptionValue>& optionValues,

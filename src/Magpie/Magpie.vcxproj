@@ -154,6 +154,7 @@
       <DependentUpon>EffectParametersViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="ExtensionInfo.h" />
     <ClInclude Include="ExtensionsPage.h">
       <DependentUpon>ExtensionsPage.xaml</DependentUpon>
       <SubType>Code</SubType>

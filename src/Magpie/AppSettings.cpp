@@ -649,43 +649,51 @@ rapidjson::StringBuffer AppSettings::_WriteConfigJson() const noexcept {
 	writer.EndObject();
 	writer.EndObject();
 
-	writer.Key("extensions");
+	writer.Key("imageEncoderParams");
 	writer.StartArray();
-	for (const ExtensionOption& extOption : _extensionOptions) {
-		writer.StartObject();
-		writer.Key("id");
-		writer.String(extOption.extId.c_str());
-		writer.Key("updateUrl");
-		writer.String(extOption.updateUrl.c_str());
-		writer.Key("enabled");
-		writer.Bool(extOption.isEnabled);
-		writer.Key("optionValues");
-		writer.StartArray();
-		for (const auto& [optionId, value] : extOption.optionValues) {
+	for (const auto& [encoderId, params] : _imageEncoderParams) {
+		for (const auto& [optionId, optionValue] : params) {
 			writer.StartObject();
 			writer.Key("id");
-			writer.String(optionId.c_str());
-			switch (value.index()) {
+			writer.String(StrHelper::Concat(encoderId, "/", optionId).c_str());
+			switch (optionValue.index()) {
 			case 0:
 				writer.Key("boolValue");
-				writer.Bool(std::get<0>(value));
+				writer.Bool(std::get<0>(optionValue));
 				break;
 			case 1:
 				writer.Key("intValue");
-				writer.Int(std::get<1>(value));
+				writer.Int(std::get<1>(optionValue));
 				break;
 			case 2:
 				writer.Key("floatValue");
-				writer.Double(std::get<2>(value));
+				writer.Double(std::get<2>(optionValue));
+				break;
+			case 3:
+				writer.Key("stringValue");
+				writer.String(std::get<3>(optionValue).c_str());
 				break;
 			default:
-				writer.Key("stringValue");
-				writer.String(std::get<3>(value).c_str());
+				writer.Key("selectionValue");
+				writer.Uint(std::get<4>(optionValue));
 				break;
 			}
 			writer.EndObject();
 		}
-		writer.EndArray();
+	}
+	writer.EndArray();
+
+	// 保存成数组以保留顺序
+	writer.Key("extensions");
+	writer.StartArray();
+	for (const ExtensionSetting& extSetting : _extensionSettings) {
+		writer.StartObject();
+		writer.Key("id");
+		writer.String(extSetting.extId.c_str());
+		writer.Key("updateUrl");
+		writer.String(extSetting.updateUrl.c_str());
+		writer.Key("enabled");
+		writer.Bool(extSetting.isEnabled);
 		writer.EndObject();
 	}
 	writer.EndArray();
@@ -693,6 +701,44 @@ rapidjson::StringBuffer AppSettings::_WriteConfigJson() const noexcept {
 	writer.EndObject();
 
 	return json;
+}
+
+static std::optional<OptionValue> LoadOptionValue(
+	const rapidjson::GenericObject<true, rapidjson::Value>& paramObj
+) noexcept {
+	std::optional<OptionValue> result;
+
+	auto it = paramObj.FindMember("boolValue");
+	if (it != paramObj.MemberEnd() && it->value.IsBool()) {
+		result = it->value.GetBool();
+		return result;
+	}
+
+	it = paramObj.FindMember("intValue");
+	if (it != paramObj.MemberEnd() && it->value.IsInt()) {
+		result = it->value.GetInt();
+		return result;
+	}
+
+	it = paramObj.FindMember("floatValue");
+	if (it != paramObj.MemberEnd() && it->value.IsInt()) {
+		result = it->value.GetFloat();
+		return result;
+	}
+
+	it = paramObj.FindMember("stringValue");
+	if (it != paramObj.MemberEnd() && it->value.IsInt()) {
+		result = it->value.GetString();
+		return result;
+	}
+
+	it = paramObj.FindMember("selectionValue");
+	if (it != paramObj.MemberEnd() && it->value.IsUint()) {
+		result = it->value.GetUint();
+		return result;
+	}
+
+	return result;
 }
 
 // 永远不会失败，遇到不合法的配置项时静默忽略
@@ -947,9 +993,38 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		}
 	}
 
+	if (auto it = root.FindMember("imageEncoderParams"); it != root.MemberEnd() && it->value.IsArray()) {
+		auto encoderParamsArray = it->value.GetArray();
+
+		for (const rapidjson::Value& enocderParamNode : encoderParamsArray) {
+			if (!enocderParamNode.IsObject()) {
+				continue;
+			}
+
+			auto enocderParamObj = enocderParamNode.GetObj();
+
+			// 格式为 extId/encoderId/optionId
+			std::string optionFullId;
+			if (!JsonHelper::ReadString(enocderParamObj, "id", optionFullId, true)) {
+				continue;
+			}
+
+			auto splits = StrHelper::Split<3>(optionFullId, '/');
+			if (splits.size() != 3) {
+				continue;
+			}
+
+			std::optional<OptionValue> value = LoadOptionValue(enocderParamObj);
+			if (value) {
+				std::string_view encoderFullId(optionFullId.c_str(), splits[0].size() + 1 + splits[1].size());
+				_imageEncoderParams[encoderFullId][splits[2]] = *value;
+			}
+		}
+	}
+
 	if (auto it = root.FindMember("extensions"); it != root.MemberEnd() && it->value.IsArray()) {
 		auto extensionsArray = it->value.GetArray();
-		_extensionOptions.reserve(extensionsArray.Size());
+		_extensionSettings.reserve(extensionsArray.Size());
 
 		for (const rapidjson::Value& extNode : extensionsArray) {
 			if (!extNode.IsObject()) {
@@ -963,56 +1038,11 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 				continue;
 			}
 
-			ExtensionOption& extOption = _extensionOptions.emplace_back();
-			extOption.extId = std::move(extId);
+			ExtensionSetting& extSetting = _extensionSettings.emplace_back();
+			extSetting.extId = std::move(extId);
 
-			JsonHelper::ReadString(extObj, "updateUrl", extOption.updateUrl);
-			JsonHelper::ReadBool(extObj, "enabled", extOption.isEnabled);
-
-			it = extObj.FindMember("optionValues");
-			if (it == extObj.MemberEnd() || !it->value.IsArray()) {
-				continue;
-			}
-
-			auto optionsArray = it->value.GetArray();
-			extOption.optionValues.reserve(optionsArray.Size());
-
-			for (const rapidjson::Value& optionNode : optionsArray) {
-				if (!optionNode.IsObject()) {
-					continue;
-				}
-
-				auto optionObj = optionNode.GetObj();
-				it = optionObj.FindMember("id");
-				if (it == optionObj.MemberEnd() || !it->value.IsString()) {
-					continue;
-				}
-
-				auto& value = extOption.optionValues[it->value.GetString()];
-
-				it = optionObj.FindMember("boolValue");
-				if (it != optionObj.MemberEnd() && it->value.IsBool()) {
-					value = it->value.GetBool();
-					continue;
-				}
-
-				it = optionObj.FindMember("intValue");
-				if (it != optionObj.MemberEnd() && it->value.IsInt()) {
-					value = it->value.GetInt();
-					continue;
-				}
-
-				it = optionObj.FindMember("floatValue");
-				if (it != optionObj.MemberEnd() && it->value.IsFloat()) {
-					value = it->value.GetFloat();
-				}
-
-				it = optionObj.FindMember("stringValue");
-				if (it != optionObj.MemberEnd() && it->value.IsString()) {
-					value = it->value.GetString();
-					continue;
-				}
-			}
+			JsonHelper::ReadString(extObj, "updateUrl", extSetting.updateUrl);
+			JsonHelper::ReadBool(extObj, "enabled", extSetting.isEnabled);
 		}
 	}
 }

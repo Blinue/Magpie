@@ -1,5 +1,12 @@
 namespace Magpie {
-    runtimeclass ExtensionsViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged {
-        IVector<IInspectable> Extensions { get; };
-    }
+	runtimeclass ExtensionItem : Windows.UI.Xaml.Data.INotifyPropertyChanged {
+		String Name { get; };
+		String Description { get; };
+		Boolean IsEnabled;
+	}
+
+	runtimeclass ExtensionsViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged {
+		Boolean HasExtension { get; };
+		IVector<IInspectable> Extensions { get; };
+	}
 }

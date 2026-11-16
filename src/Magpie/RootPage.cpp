@@ -185,7 +185,7 @@ void RootPage::NavigationView_SelectionChanged(
 
 		IInspectable tag = selectedItem.try_as<MUXC::NavigationViewItem>().Tag();
 		if (tag) {
-			hstring tagStr = unbox_value<hstring>(tag);
+			hstring tagStr = unbox_value_or<hstring>(tag, hstring());
 			Interop::TypeName typeName;
 			if (tagStr == L"ScalingModes") {
 				typeName = xaml_typename<ScalingModesPage>();
