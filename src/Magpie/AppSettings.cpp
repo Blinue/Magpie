@@ -251,7 +251,7 @@ static bool SafeSaveConfig(const std::wstring& configPath, std::string_view json
 winrt::fire_and_forget AppSettings::SaveAsync() noexcept {
 	_UpdateWindowPlacement();
 
-	if (!Win32Helper::CreateDir(AppFolderManager::Get().GetConfigDir(), true)) {
+	if (!Win32Helper::CreateDir(std::wstring(AppFolderManager::Get().GetConfigDir()), true)) {
 		Logger::Get().Win32Error("创建配置文件夹失败");
 		co_return;
 	}

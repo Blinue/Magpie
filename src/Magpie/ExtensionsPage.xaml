@@ -19,7 +19,8 @@
 				<Button.Flyout>
 					<MenuFlyout Placement="Bottom"
 					            ShouldConstrainToRootBounds="False">
-						<MenuFlyoutItem Text="导入扩展 dll">
+						<MenuFlyoutItem Click="{x:Bind ViewModel.ImportDll}"
+						                Text="导入扩展 dll">
 							<MenuFlyoutItem.Icon>
 								<FontIcon Glyph="&#xE8F1;" />
 							</MenuFlyoutItem.Icon>

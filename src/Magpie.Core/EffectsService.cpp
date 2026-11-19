@@ -347,7 +347,7 @@ void serialize(Archive& ar, ShaderEffectDrawInfo& o) {
 }
 
 static bool ReadFileCache(const std::string& key, ShaderEffectDrawInfo& drawInfo) noexcept {
-	const wchar_t* cacheDir = AppFolderManager::Get().GetCacheDir();
+	wil::zwstring_view cacheDir = AppFolderManager::Get().GetCacheDir();
 	std::wstring cacheFilePath = StrHelper::Concat(cacheDir, L"\\", StrHelper::UTF8ToUTF16(key));
 	if (!Win32Helper::FileExists(cacheFilePath.c_str())) {
 		return false;
@@ -393,8 +393,8 @@ static bool WriteFileCache(const std::string& key, const ShaderEffectDrawInfo& d
 		return false;
 	}
 
-	const wchar_t* cacheDir = AppFolderManager::Get().GetCacheDir();
-	if (!Win32Helper::CreateDir(cacheDir, true)) {
+	wil::zwstring_view cacheDir = AppFolderManager::Get().GetCacheDir();
+	if (!Win32Helper::CreateDir(std::wstring(cacheDir), true)) {
 		Logger::Get().Error("创建缓存文件夹失败");
 		return false;
 	}

@@ -203,16 +203,17 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 	DownloadProgressChanged.Invoke(_downloadProgress);
 
 	// 清空 update 文件夹
-	std::filesystem::path updateDir = AppFolderManager::Get().GetUpdateDir();
+	std::filesystem::path updateDir(StrHelper::Concat(AppFolderManager::Get().GetTempDir(), L"\\update"));
 	if (Win32Helper::DirExists(updateDir.c_str())) {
-		// 清空失败也继续
 		HRESULT hr = wil::RemoveDirectoryRecursiveNoThrow(
 			updateDir.c_str(), wil::RemoveDirectoryOptions::KeepRootDirectory);
 		if (FAILED(hr)) {
 			Logger::Get().ComError("RemoveDirectoryRecursiveNoThrow 失败", hr);
+			_Status(UpdateStatus::ErrorWhileDownloading);
+			co_return;
 		}
 	} else {
-		if (!Win32Helper::CreateDir(updateDir.c_str())) {
+		if (!Win32Helper::CreateDir(updateDir.c_str(), true)) {
 			Logger::Get().Error("创建 update 文件夹失败");
 			_Status(UpdateStatus::ErrorWhileDownloading);
 			co_return;
@@ -220,6 +221,7 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 	}
 	
 	std::filesystem::path updatePkgPath = updateDir / L"update.zip";
+	
 	wil::unique_hfile updatePkg(
 		CreateFile2(updatePkgPath.c_str(), GENERIC_WRITE, 0, CREATE_ALWAYS, nullptr));
 	if (!updatePkg) {
@@ -396,13 +398,20 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 	// 2. 删除旧版本文件，复制新版本文件，删除 update 文件夹
 	// 3. 启动 Magpie.exe 然后退出
 
-	MoveFileEx(updaterExePath.c_str(), L"Updater.exe", MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH);
+	std::filesystem::path localUpdaterPath = AppFolderManager::Get().GetExeDir() / L"Updater.exe";
+	MoveFileEx(
+		updaterExePath.c_str(),
+		localUpdaterPath.c_str(),
+		MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH
+	);
 
-	if (!Win32Helper::LaunchExe(
-		AppFolderManager::Get().GetWorkingDir() / L"Updater.exe",
+	// 第一个参数: 旧版本号
+	// 第二个参数：update 文件夹路径
+	std::wstring parameters = StrHelper::Concat(
 		MAGPIE_VERSION.ToString<wchar_t>(),
-		true, true
-	)) {
+		L" \"", AppFolderManager::Get().GetWorkingDir().native(), L"\\", updateDir.native(), L"\""
+	);
+	if (!Win32Helper::LaunchExe(localUpdaterPath, parameters, true, true)) {
 		Logger::Get().Error("启动 Updater.exe 失败");
 		_Status(UpdateStatus::ErrorWhileDownloading);
 		co_return;

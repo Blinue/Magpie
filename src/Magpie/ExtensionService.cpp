@@ -95,6 +95,10 @@ bool ExtensionService::AddExtension(std::string_view extId, std::string_view upd
 	return true;
 }
 
+std::string ExtensionService::GenerateImportedExtId() noexcept {
+	return "_i0";
+}
+
 static std::wstring GetExtDllPath(std::string_view extId) noexcept {
 	std::wstring extIdUtf16 = StrHelper::UTF8ToUTF16(extId);
 	// 使用绝对路径以避免歧义
@@ -104,7 +108,27 @@ static std::wstring GetExtDllPath(std::string_view extId) noexcept {
 		L"\\", extIdUtf16, L"\\", extIdUtf16, L".dll");
 }
 
+static bool IsValidId(std::string_view id) noexcept {
+	if (id.empty()) {
+		return false;
+	}
+
+	// 只允许字母、数字、"-" 和 "_"
+	const char* VALID_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_";
+	if (id.find_first_not_of(VALID_CHARS) != std::string_view::npos) {
+		return false;
+	}
+
+	// 以下划线开头的 ID 保留内部使用
+	return !id.starts_with("_");
+}
+
 bool ExtensionService::_LoadExtension(std::string_view extId) noexcept {
+	if (!IsValidId(extId)) {
+		Logger::Get().Error(StrHelper::Concat("插件 ID \"", extId, "\" 不合法"));
+		return false;
+	}
+
 	std::wstring extDllPath = GetExtDllPath(extId);
 
 	// LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR 可以加载同一个文件夹中的依赖 dll
@@ -150,7 +174,7 @@ HRESULT ExtensionService::_HostApiRegisterExtension(const MagpieExtensionDesc* d
 		for (uint32_t i = 0; i < desc->imageEncoderCount; ++i) {
 			const MagpieImageEncoderDesc& encoderDesc = desc->imageEncoderDescs[i];
 
-			if (IsNullOrEmptyString(encoderDesc.id) ||
+			if (!IsValidId(encoderDesc.id) ||
 				IsNullOrEmptyString(encoderDesc.displayName) ||
 				IsNullOrEmptyString(encoderDesc.fileExtension)
 			) {
@@ -161,7 +185,7 @@ HRESULT ExtensionService::_HostApiRegisterExtension(const MagpieExtensionDesc* d
 				for (uint32_t j = 0; j < encoderDesc.optionCount; ++j) {
 					const MagpieImageEncoderOptionDesc& optionDesc = encoderDesc.optionDescs[j];
 
-					if (IsNullOrEmptyString(optionDesc.id) ||
+					if (!IsValidId(optionDesc.id) ||
 						IsNullOrEmptyString(optionDesc.displayName) ||
 						optionDesc.type < MagpieOptionTypeBool ||
 						optionDesc.type > MagpieOptionTypeSelection

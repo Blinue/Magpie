@@ -17,6 +17,8 @@ namespace winrt::Magpie::implementation {
 								 wil::notify_property_changed_base<ExtensionsViewModel> {
 		ExtensionsViewModel();
 
+		winrt::fire_and_forget ImportDll() noexcept;
+
 		bool HasExtension() const noexcept;
 
 		IVector<IInspectable> Extensions() const noexcept {

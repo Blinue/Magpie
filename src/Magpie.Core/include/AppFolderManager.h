@@ -24,21 +24,21 @@ public:
 
 	std::filesystem::path GetAppDir() const noexcept;
 
-	const wchar_t* GetLogsDir() const noexcept;
-
-	const wchar_t* GetSourcesDir() const noexcept;
-
-	const wchar_t* GetCacheDir() const noexcept;
-
-	const wchar_t* GetConfigDir() const noexcept;
-
-	const wchar_t* GetExtDir() const noexcept;
-
 	std::filesystem::path GetBuiltInShaderEffectsDir() const noexcept;
 
 	std::filesystem::path GetD3D12Dir() const noexcept;
 
-	std::filesystem::path GetUpdateDir() const noexcept;
+	wil::zwstring_view GetLogsDir() const noexcept;
+
+	wil::zwstring_view GetSourcesDir() const noexcept;
+
+	wil::zwstring_view GetCacheDir() const noexcept;
+
+	wil::zwstring_view GetConfigDir() const noexcept;
+
+	wil::zwstring_view GetExtDir() const noexcept;
+
+	wil::zwstring_view GetTempDir() const noexcept;
 
 private:
 	AppFolderManager() = default;

@@ -304,7 +304,8 @@ void HomeViewModel::IsDeveloperMode(bool value) {
 
 void HomeViewModel::LocateMagpieLogs() noexcept {
 	const auto& appFolderManager = AppFolderManager::Get();
-	Win32Helper::OpenFolder((appFolderManager.GetWorkingDir() / appFolderManager.GetLogsDir()).c_str());
+	Win32Helper::OpenFolder((appFolderManager.GetWorkingDir() /
+		std::wstring_view(appFolderManager.GetLogsDir())).c_str());
 }
 
 static fire_and_forget LocateTempLogs(const wchar_t* logName) noexcept {

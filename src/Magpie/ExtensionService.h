@@ -17,6 +17,8 @@ public:
 
 	bool AddExtension(std::string_view extId, std::string_view updateUrl) noexcept;
 
+	std::string GenerateImportedExtId() noexcept;
+
 private:
 	ExtensionService() = default;
 

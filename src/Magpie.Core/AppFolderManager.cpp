@@ -58,26 +58,6 @@ std::filesystem::path AppFolderManager::GetAppDir() const noexcept {
 	return _exeDir / APP_DIR;
 }
 
-const wchar_t* AppFolderManager::GetLogsDir() const noexcept {
-	return L"logs";
-}
-
-const wchar_t* AppFolderManager::GetSourcesDir() const noexcept {
-	return L"sources";
-}
-
-const wchar_t* AppFolderManager::GetCacheDir() const noexcept {
-	return L"cache";
-}
-
-const wchar_t* AppFolderManager::GetConfigDir() const noexcept {
-	return L"config";
-}
-
-const wchar_t* AppFolderManager::GetExtDir() const noexcept {
-	return L"ext";
-}
-
 std::filesystem::path AppFolderManager::GetBuiltInShaderEffectsDir() const noexcept {
 	return _exeDir / APP_DIR L"\\effects\\shaders";
 }
@@ -86,9 +66,28 @@ std::filesystem::path AppFolderManager::GetD3D12Dir() const noexcept {
 	return _exeDir / APP_DIR L"\\D3D12";
 }
 
-std::filesystem::path AppFolderManager::GetUpdateDir() const noexcept {
-	// 位于根目录中，非打包应用更新时才会使用
-	return _exeDir / CommonSharedConstants::UPDATE_DIR;
+wil::zwstring_view AppFolderManager::GetLogsDir() const noexcept {
+	return L"logs";
+}
+
+wil::zwstring_view AppFolderManager::GetSourcesDir() const noexcept {
+	return L"sources";
+}
+
+wil::zwstring_view AppFolderManager::GetCacheDir() const noexcept {
+	return L"cache";
+}
+
+wil::zwstring_view AppFolderManager::GetConfigDir() const noexcept {
+	return L"config";
+}
+
+wil::zwstring_view AppFolderManager::GetExtDir() const noexcept {
+	return L"ext";
+}
+
+wil::zwstring_view AppFolderManager::GetTempDir() const noexcept {
+	return L"temp";
 }
 
 }

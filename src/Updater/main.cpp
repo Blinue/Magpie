@@ -137,11 +137,6 @@ int APIENTRY wWinMain(
 	_In_ wchar_t* lpCmdLine,
 	_In_ int /*nCmdShow*/)
 {
-	if (!lpCmdLine || lpCmdLine[0] == 0) {
-		// 参数为空则什么事都不做，以防止用户手动启动 Updater.exe
-		return 0;
-	}
-
 	InitializeLogger();
 
 	Logger::Get().Info("程序启动");
@@ -152,15 +147,42 @@ int APIENTRY wWinMain(
 		return 1;
 	}
 
-	Version oldVersion;
-	if (!oldVersion.Parse(StrHelper::UTF16ToUTF8(lpCmdLine))) {
-		Logger::Get().Critical(StrHelper::Concat(
-			"解析版本号失败: ", StrHelper::UTF16ToUTF8(lpCmdLine)));
-		return 1;
+	if (!lpCmdLine || lpCmdLine[0] == L'\0') {
+		// 参数为空则什么事都不做，以防止用户手动启动 Updater.exe
+		Logger::Get().Info("参数为空");
+		return 0;
 	}
 
-	Logger::Get().Info(StrHelper::Concat("旧版本号: ", oldVersion.ToString<char>()));
+	Version oldVersion;
+	std::wstring updateDir;
+	{
+		int argCount = 0;
+		wil::unique_hlocal_ptr<LPWSTR> argv(CommandLineToArgvW(lpCmdLine, &argCount));
 
+		if (argCount == 0) {
+			Logger::Get().Info("参数为空");
+			return 0;
+		}
+
+		if (!oldVersion.Parse(StrHelper::UTF16ToUTF8(argv.get()[0]))) {
+			Logger::Get().Critical(StrHelper::Concat(
+				"解析版本号失败: ", StrHelper::UTF16ToUTF8(lpCmdLine)));
+			return 1;
+		}
+
+		if (argCount >= 2) {
+			updateDir = argv.get()[1];
+		} else {
+			// 旧版本没有第二个参数，这时 update 文件夹在当前目录
+			updateDir = CommonSharedConstants::UPDATE_DIR;
+		}
+	}
+
+	Logger::Get().Info(StrHelper::Concat(
+		"旧版本号: ", oldVersion.ToString<char>(),
+		"\n更新文件夹路径: ", StrHelper::UTF16ToUTF8(updateDir)
+	));
+	
 	std::optional<PackageFiles> oldFiles = PackageFiles::Get(oldVersion);
 	if (!oldFiles) {
 		Logger::Get().Critical(StrHelper::Concat("未找到版本 ", oldVersion.ToString<char>()));
@@ -168,7 +190,7 @@ int APIENTRY wWinMain(
 	}
 
 	// 检查 Updater.exe 所处环境
-	if (!FileExists(L"Magpie.exe") || !FileExists(L"update\\Magpie.exe")) {
+	if (!FileExists(L"Magpie.exe") || !FileExists(StrHelper::Concat(updateDir, L"\\Magpie.exe").c_str())) {
 		Logger::Get().Critical("未找到 Magpie.exe 或 update\\Magpie.exe");
 		return 1;
 	}
@@ -200,10 +222,10 @@ int APIENTRY wWinMain(
 	}
 
 	// 移动新版本
-	MoveFolder(CommonSharedConstants::UPDATE_DIR, L".");
+	MoveFolder(updateDir, L".");
 	
 	// 删除 update 文件夹
-	HRESULT hr = wil::RemoveDirectoryRecursiveNoThrow(CommonSharedConstants::UPDATE_DIR);
+	HRESULT hr = wil::RemoveDirectoryRecursiveNoThrow(updateDir.c_str());
 	if (SUCCEEDED(hr)) {
 		Logger::Get().Info("已删除 update 文件夹");
 	} else {
