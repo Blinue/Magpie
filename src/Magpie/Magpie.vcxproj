@@ -34,6 +34,7 @@
     <ProjectPriFileName>resources.pri</ProjectPriFileName>
     <!-- 跳过 CreateWinMD，这一步似乎是多余的，而且 clang-cl 不支持生成 winmd -->
     <GenerateBuildCompilePassWinMD>false</GenerateBuildCompilePassWinMD>
+	<!-- 注意 d3d10warp.dll 应放在根目录，OS 加载它时不遵循 D3D12SDKPath -->
     <Microsoft_Direct3D_D3D12_D3D12SDKPath>app\D3D12\</Microsoft_Direct3D_D3D12_D3D12SDKPath>
     <Microsoft_Direct3D_D3D12_SkipDebugLayerCopy Condition="'$(Configuration)' == 'Release'">true</Microsoft_Direct3D_D3D12_SkipDebugLayerCopy>
     <Microsoft_Direct3D_DXC_CopyLocation>app\</Microsoft_Direct3D_DXC_CopyLocation>
@@ -831,14 +832,6 @@
       <Link>
         <WindowsMetadataFile />
       </Link>
-    </ItemGroup>
-  </Target>
-  <!-- 将 d3d10warp.dll 和 d3d10warp.pdb 移动到 app\D3D12 文件夹-->
-  <Target Name="MoveWarpDll" BeforeTargets="PrepareForBuild">
-    <ItemGroup>
-      <Content Condition="'%(Filename)' == 'd3d10warp'">
-        <Link>app\D3D12\%(FileName)%(Extension)</Link>
-      </Content>
     </ItemGroup>
   </Target>
   <ImportGroup Label="ExtensionTargets">
