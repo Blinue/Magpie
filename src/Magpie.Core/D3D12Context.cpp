@@ -37,10 +37,10 @@ bool D3D12Context::Initialize(
 
 #ifdef _DEBUG
 	// 调试层汇报错误或警告时中断
-	if (winrt::com_ptr<ID3D12InfoQueue> infoQueue = _device.try_as<ID3D12InfoQueue>()) {
-		infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, TRUE);
-		infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, TRUE);
-		infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, TRUE);
+	if (_infoQueue) {
+		_infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, TRUE);
+		_infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, TRUE);
+		_infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, TRUE);
 	}
 #endif
 
@@ -76,6 +76,7 @@ bool D3D12Context::Initialize(
 		return false;
 	}
 
+	_isInitialized = true;
 	return true;
 }
 
@@ -255,7 +256,7 @@ HRESULT D3D12Context::EndFrame() noexcept {
 }
 
 #ifdef _DEBUG
-void D3D12Context::PushDebugLayerWarnings(std::span<const D3D12_MESSAGE_ID> msgIds) noexcept {
+void D3D12Context::PushDebugLayerWarningFilter(std::span<const D3D12_MESSAGE_ID> msgIds) noexcept {
 	if (!_infoQueue) {
 		return;
 	}
@@ -271,9 +272,16 @@ void D3D12Context::PushDebugLayerWarnings(std::span<const D3D12_MESSAGE_ID> msgI
 	_infoQueue->AddStorageFilterEntries(&infoQueueFilter);
 }
 
-void D3D12Context::PopDebugLayerWarnings() noexcept {
+void D3D12Context::PopDebugLayerFilter() noexcept {
 	if (_infoQueue) {
 		_infoQueue->PopStorageFilter();
+	}
+}
+
+void D3D12Context::DisableDebugLayerBreak() noexcept {
+	if (_infoQueue) {
+		_infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, FALSE);
+		_infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, FALSE);
 	}
 }
 #endif
@@ -337,34 +345,6 @@ bool D3D12Context::_InitializeDeviceResources(
 	}
 
 	return true;
-}
-
-// 和 D3D12SDKLayers.dll 不同，OS 加载 d3d10warp.dll 时不遵循 D3D12SDKPath。
-// 这个函数确保加载匹配的 d3d10warp.dll。
-static void FixD3D10WarpDll(IDXGIAdapter1* warpAdapter) noexcept {
-	assert(!GetModuleHandle(L"d3d10warp.dll"));
-
-	HMODULE hD3D12Core = GetModuleHandle(L"D3D12Core.dll");
-	if (!hD3D12Core) {
-		// 如果 D3D12Core.dll 尚未加载则加载它
-		D3D12CreateDevice(warpAdapter, D3D_FEATURE_LEVEL_11_0, winrt::guid_of<ID3D12Device>(), nullptr);
-
-		hD3D12Core = GetModuleHandle(L"D3D12Core.dll");
-		if (!hD3D12Core) {
-			// 可能 OS 不支持 Agility SDK
-			return;
-		}
-	}
-
-	// 检查是否加载了随程序部署的 D3D12Core.dll
-	std::wstring d3d12CorePath;
-	wil::GetModuleFileNameW(hD3D12Core, d3d12CorePath);
-	if (d3d12CorePath.starts_with(AppFolderManager::Get().GetExeDir().native())) {
-		// 加载随程序部署的 d3d10warp.dll
-		std::filesystem::path warpDllPath =
-			AppFolderManager::Get().GetD3D12Dir() / L"d3d10warp.dll";
-		LoadLibrary(warpDllPath.c_str());
-	}
 }
 
 bool D3D12Context::_CreateAdapterAndDevice(const GraphicsCardId& graphicsCardId) noexcept {
@@ -456,11 +436,6 @@ bool D3D12Context::_CreateAdapterAndDevice(const GraphicsCardId& graphicsCardId)
 		Logger::Get().ComError("EnumWarpAdapter 失败", hr);
 		return false;
 	}
-
-	[[maybe_unused]] static Ignore _ = [](IDXGIAdapter1* warpAdapter) {
-		FixD3D10WarpDll(warpAdapter);
-		return Ignore();
-	}(adapter.get());
 	
 	DXGI_ADAPTER_DESC1 desc;
 	hr = adapter->GetDesc1(&desc);

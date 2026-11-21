@@ -26,7 +26,16 @@ static uint32_t RTV_HEAP_CAPACITY = 1024;
 Renderer::Renderer() noexcept {}
 
 Renderer::~Renderer() noexcept {
-	if (_d3d12Context.GetCommandQueue()) {
+	if (!_d3d12Context.IsInitialized()) {
+		return;
+	}
+
+	if (_state == ComponentState::DeviceLost) {
+		// 设备丢失后已无法等待 GPU 完成，但调试层仍可能汇报命令未执行完成，可以无视
+#ifdef _DEBUG
+		_d3d12Context.DisableDebugLayerBreak();
+#endif
+	} else {
 		_d3d12Context.WaitForGpu();
 	}
 }
@@ -219,8 +228,8 @@ ScalingError Renderer::Initialize(
 	{
 #ifdef _DEBUG
 		// D3D12MA 使用了已废弃的 ID3D12Device::CheckFeatureSupport
-		_d3d12Context.PushDebugLayerWarnings(std::array{ D3D12_MESSAGE_ID_DEPRECATED_API });
-		auto se = wil::scope_exit([&] { _d3d12Context.PopDebugLayerWarnings(); });
+		_d3d12Context.PushDebugLayerWarningFilter(std::array{ D3D12_MESSAGE_ID_DEPRECATED_API });
+		auto se = wil::scope_exit([&] { _d3d12Context.PopDebugLayerFilter(); });
 #endif
 
 		if (!_gpuResourceManager.Initialize(
@@ -302,8 +311,10 @@ ComponentState Renderer::Render(
 		return _state;
 	}
 
-	_state = _frameProducer.GetState();
-	if (_state != ComponentState::NoError) {
+	ComponentState state = _frameProducer.GetState();
+	if (state != ComponentState::NoError) {
+		Logger::Get().Error("FrameProducer 发生错误");
+		_SetErrorState(state);
 		return _state;
 	}
 
@@ -827,13 +838,24 @@ bool Renderer::_CheckResult(HRESULT hr, std::string_view errorMsg) noexcept {
 	}
 
 	if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET) {
-		_state = ComponentState::DeviceLost;
+		_SetErrorState(ComponentState::DeviceLost);
 	} else {
-		_state = ComponentState::Error;
+		_SetErrorState(ComponentState::Error);
 	}
 
 	Logger::Get().ComError(errorMsg, hr);
 	return false;
+}
+
+void Renderer::_SetErrorState(ComponentState value) noexcept {
+	assert(_state == ComponentState::NoError && value != ComponentState::NoError);
+	_state = value;
+
+	if (value == ComponentState::DeviceLost) {
+		Logger::Get().Error("渲染器设备丢失");
+	} else if (value == ComponentState::Error) {
+		Logger::Get().Error("渲染器发生错误");
+	}
 }
 
 HRESULT Renderer::_CreateCopyFramePSO(bool isSrgb, winrt::com_ptr<ID3D12PipelineState>& result) noexcept {

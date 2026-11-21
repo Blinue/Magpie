@@ -81,7 +81,7 @@ bool SwapChainPresenter::Initialize(
 
 	// IDXGIFactory2::CreateSwapChainForHwnd 可能使用已废弃的 ID3D12Device::CheckFeatureSupport
 #ifdef _DEBUG
-	d3d12Context.PushDebugLayerWarnings(std::array{ D3D12_MESSAGE_ID_DEPRECATED_API });
+	d3d12Context.PushDebugLayerWarningFilter(std::array{ D3D12_MESSAGE_ID_DEPRECATED_API });
 #endif
 
 	HRESULT hr = dxgiFactory->CreateSwapChainForHwnd(
@@ -94,7 +94,7 @@ bool SwapChainPresenter::Initialize(
 	);
 
 #ifdef _DEBUG
-	d3d12Context.PopDebugLayerWarnings();
+	d3d12Context.PopDebugLayerFilter();
 #endif
 
 	if (FAILED(hr)) {
@@ -363,7 +363,7 @@ HRESULT SwapChainPresenter::_RecreateBuffers() noexcept {
 
 	// IDXGISwapChain::ResizeBuffers 可能使用已废弃的 ID3D12Device::CheckFeatureSupport
 #ifdef _DEBUG
-	_d3d12Context->PushDebugLayerWarnings(std::array{ D3D12_MESSAGE_ID_DEPRECATED_API });
+	_d3d12Context->PushDebugLayerWarningFilter(std::array{ D3D12_MESSAGE_ID_DEPRECATED_API });
 #endif
 
 	// 不要更改最大帧延迟，一来调整大小期间不会有帧排队，二来交换链不大支持中途改变
@@ -376,7 +376,7 @@ HRESULT SwapChainPresenter::_RecreateBuffers() noexcept {
 	);
 
 #ifdef _DEBUG
-	_d3d12Context->PopDebugLayerWarnings();
+	_d3d12Context->PopDebugLayerFilter();
 #endif
 
 	if (FAILED(hr)) {

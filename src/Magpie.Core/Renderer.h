@@ -83,6 +83,8 @@ private:
 
 	bool _CheckResult(HRESULT hr, std::string_view errorMsg) noexcept;
 
+	void _SetErrorState(ComponentState value) noexcept;
+
 	HRESULT _CreateCopyFramePSO(bool isSrgb, winrt::com_ptr<ID3D12PipelineState>& result) noexcept;
 
 	// 不使用 Initializing 状态
