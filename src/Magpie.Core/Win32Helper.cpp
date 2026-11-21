@@ -327,7 +327,7 @@ bool Win32Helper::ReadFile(const wchar_t* fileName, std::vector<uint8_t>& result
 bool Win32Helper::WriteFile(const wchar_t* fileName, std::span<const uint8_t> data) noexcept {
 	Logger::Get().Info(StrHelper::Concat("写入文件: ", StrHelper::UTF16ToUTF8(fileName)));
 
-	CREATEFILE2_EXTENDED_PARAMETERS extendedParams{
+	CREATEFILE2_EXTENDED_PARAMETERS extendedParams = {
 		.dwSize = sizeof(CREATEFILE2_EXTENDED_PARAMETERS),
 		.dwFileAttributes = FILE_ATTRIBUTE_NORMAL
 	};

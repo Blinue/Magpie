@@ -4,7 +4,7 @@
   <PropertyGroup Label="Globals">
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{62503530-b84b-4cc2-80b6-3f89618172b7}</ProjectGuid>
-    <OutDir>$(OutBaseDir)</OutDir>
+    <OutDir>$(OutBaseDir)\app\effects\</OutDir>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
@@ -16,7 +16,7 @@
   </ImportGroup>
   <ItemDefinitionGroup>
     <CopyFileToFolders>
-      <DestinationFolders>$(OutDir)\effects</DestinationFolders>
+      <DestinationFolders>$(OutDir)\shaders\</DestinationFolders>
       <DestinationFileName>%(RelativeDir)%(Filename)%(Extension)</DestinationFileName>
     </CopyFileToFolders>
   </ItemDefinitionGroup>

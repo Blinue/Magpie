@@ -8,18 +8,16 @@
     <ClangTargetMicroArch></ClangTargetMicroArch>
     <!-- 编译为打包应用 (暂不支持) -->
     <IsPackaged>false</IsPackaged>
-    <!-- 窗口模式缩放时把用于调整窗口尺寸的辅助窗口标示出来 -->
-    <DebugBorder>false</DebugBorder>
-    <!-- 在性能分析器上显示调试信息 -->
-    <DebugInfoOnOverlay>false</DebugInfoOnOverlay>
-    <!-- 使用 composition swapchain 呈现 -->
-    <UseCompSwapchain>false</UseCompSwapchain>
     <!-- 禁止生成 PDB -->
     <DisablePDB>false</DisablePDB>
     <!-- 执行静态代码分析 -->
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <!-- 使 Microsoft C++ Code Analysis 生成 SARIF，这会阻止输出到命令行 -->
     <PREFastSarif>false</PREFastSarif>
+    <!-- 启用调试信息 -->
+    <DebugInfo>false</DebugInfo>
+    <!-- 使用 composition swapchain 呈现 -->
+    <UseCompSwapchain>false</UseCompSwapchain>
 	
     <OutBaseDir></OutBaseDir>
     <MajorVersion></MajorVersion>

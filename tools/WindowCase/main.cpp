@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "CursorWindow.h"
 #include "KirikiriWindow.h"
 #include "HungWindow.h"
 #include "TopmostWindow.h"
@@ -12,7 +13,7 @@ int APIENTRY wWinMain(
 	_In_ int /*nCmdShow*/
 ) {
 	// 模拟 TVP(KIRIKIRI) 2 引擎窗口
-	KirikiriWindow window;
+	// KirikiriWindow window;
 	
 	// 模拟挂起的窗口
 	// HungWindow window;
@@ -25,6 +26,9 @@ int APIENTRY wWinMain(
 
 	// 模拟隐藏光标的窗口
 	// HideCursorWindow window;
+
+	// 模拟各种光标的窗口
+	CursorWindow window;
 
 	if (!window.Create()) {
 		return false;

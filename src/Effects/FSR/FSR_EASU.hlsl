@@ -2,7 +2,7 @@
 // 移植自 https://github.com/GPUOpen-Effects/FidelityFX-FSR/blob/a21ffb8f6c13233ba336352bdff293894c706575/ffx-fsr/ffx_fsr1.h
 
 //!MAGPIE EFFECT
-//!VERSION 4
+//!VERSION 5
 //!CAPABILITY FP16
 
 #include "../StubDefs.hlsli"

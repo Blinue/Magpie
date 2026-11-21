@@ -4,6 +4,7 @@
 #include "HomeViewModel.g.cpp"
 #endif
 #include "App.h"
+#include "AppFolderManager.h"
 #include "AppSettings.h"
 #include "CommonSharedConstants.h"
 #include "LocalizationService.h"
@@ -302,15 +303,8 @@ void HomeViewModel::IsDeveloperMode(bool value) {
 }
 
 void HomeViewModel::LocateMagpieLogs() noexcept {
-	std::wstring workingDir;
-	HRESULT hr = wil::GetCurrentDirectoryW(workingDir);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("wil::GetCurrentDirectoryW 失败", hr);
-		return;
-	}
-
-	Win32Helper::OpenFolder(
-		StrHelper::Concat(workingDir, L"\\", CommonSharedConstants::LOGS_DIR));
+	const auto& appFolderManager = AppFolderManager::Get();
+	Win32Helper::OpenFolder((appFolderManager.GetWorkingDir() / appFolderManager.GetLogsDir()).c_str());
 }
 
 static fire_and_forget LocateTempLogs(const wchar_t* logName) noexcept {
@@ -371,6 +365,21 @@ void HomeViewModel::IsBenchmarkMode(bool value) {
 
 	settings.IsBenchmarkMode(value);
 	RaisePropertyChanged(L"IsBenchmarkMode");
+}
+
+bool HomeViewModel::UseWarp() const noexcept {
+	return AppSettings::Get().UseWarp();
+}
+
+void HomeViewModel::UseWarp(bool value) {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.UseWarp() == value) {
+		return;
+	}
+
+	settings.UseWarp(value);
+	RaisePropertyChanged(L"UseWarp");
 }
 
 bool HomeViewModel::IsTopmostDisabled() const noexcept {
@@ -463,6 +472,21 @@ void HomeViewModel::IsFP16Disabled(bool value) {
 	RaisePropertyChanged(L"IsFP16Disabled");
 }
 
+bool HomeViewModel::IsResourceAliasingDisabled() const noexcept {
+	return AppSettings::Get().IsResourceAliasingDisabled();
+}
+
+void HomeViewModel::IsResourceAliasingDisabled(bool value) {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.IsResourceAliasingDisabled() == value) {
+		return;
+	}
+
+	settings.IsResourceAliasingDisabled(value);
+	RaisePropertyChanged(L"IsResourceAliasingDisabled");
+}
+
 int HomeViewModel::DuplicateFrameDetectionMode() const noexcept {
 	return (int)AppSettings::Get().DuplicateFrameDetectionMode();
 }
@@ -480,33 +504,36 @@ void HomeViewModel::DuplicateFrameDetectionMode(int value) {
 	}
 
 	settings.DuplicateFrameDetectionMode(mode);
-
 	RaisePropertyChanged(L"DuplicateFrameDetectionMode");
-	RaisePropertyChanged(L"IsDynamicDection");
+}
 
-	if (mode != ::Magpie::DuplicateFrameDetectionMode::Dynamic) {
-		settings.IsStatisticsForDynamicDetectionEnabled(false);
-		RaisePropertyChanged(L"IsStatisticsForDynamicDetectionEnabled");
+int HomeViewModel::HighestShaderModel() const noexcept {
+	::Magpie::HighestShaderModel value = AppSettings::Get().HighestShaderModel();
+
+	// 和 UI 相反，HighestShaderModel 中 SM 从低到高排序
+	if (value == ::Magpie::HighestShaderModel::NotLimited) {
+		return 0;
+	} else {
+		return (int)::Magpie::HighestShaderModel::COUNT - (int)value;
 	}
 }
 
-bool HomeViewModel::IsDynamicDection() const noexcept {
-	return AppSettings::Get().DuplicateFrameDetectionMode() == ::Magpie::DuplicateFrameDetectionMode::Dynamic;
-}
-
-bool HomeViewModel::IsStatisticsForDynamicDetectionEnabled() const noexcept {
-	return AppSettings::Get().IsStatisticsForDynamicDetectionEnabled();
-}
-
-void HomeViewModel::IsStatisticsForDynamicDetectionEnabled(bool value) {
-	AppSettings& settings = AppSettings::Get();
-
-	if (settings.IsStatisticsForDynamicDetectionEnabled() == value) {
+void HomeViewModel::HighestShaderModel(int value) {
+	if (value < 0) {
 		return;
 	}
 
-	settings.IsStatisticsForDynamicDetectionEnabled(value);
-	RaisePropertyChanged(L"IsStatisticsForDynamicDetectionEnabled");
+	assert(value < (int)::Magpie::HighestShaderModel::COUNT);
+	auto version = value == 0 ? ::Magpie::HighestShaderModel::NotLimited :
+		::Magpie::HighestShaderModel((int)::Magpie::HighestShaderModel::COUNT - value);
+
+	AppSettings& settings = AppSettings::Get();
+	if (settings.HighestShaderModel() == version) {
+		return;
+	}
+
+	settings.HighestShaderModel(version);
+	RaisePropertyChanged(L"HighestShaderModel");
 }
 
 void HomeViewModel::_ScalingService_IsTimerOnChanged(bool value, bool) {
