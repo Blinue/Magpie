@@ -37,10 +37,10 @@ bool D3D12Context::Initialize(
 
 #ifdef _DEBUG
 	// 调试层汇报错误或警告时中断
-	if (winrt::com_ptr<ID3D12InfoQueue> infoQueue = _device.try_as<ID3D12InfoQueue>()) {
-		infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, TRUE);
-		infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, TRUE);
-		infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, TRUE);
+	if (_infoQueue) {
+		_infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, TRUE);
+		_infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, TRUE);
+		_infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, TRUE);
 	}
 #endif
 
@@ -76,6 +76,7 @@ bool D3D12Context::Initialize(
 		return false;
 	}
 
+	_isInitialized = true;
 	return true;
 }
 
@@ -255,7 +256,7 @@ HRESULT D3D12Context::EndFrame() noexcept {
 }
 
 #ifdef _DEBUG
-void D3D12Context::PushDebugLayerWarnings(std::span<const D3D12_MESSAGE_ID> msgIds) noexcept {
+void D3D12Context::PushDebugLayerWarningFilter(std::span<const D3D12_MESSAGE_ID> msgIds) noexcept {
 	if (!_infoQueue) {
 		return;
 	}
@@ -271,9 +272,16 @@ void D3D12Context::PushDebugLayerWarnings(std::span<const D3D12_MESSAGE_ID> msgI
 	_infoQueue->AddStorageFilterEntries(&infoQueueFilter);
 }
 
-void D3D12Context::PopDebugLayerWarnings() noexcept {
+void D3D12Context::PopDebugLayerFilter() noexcept {
 	if (_infoQueue) {
 		_infoQueue->PopStorageFilter();
+	}
+}
+
+void D3D12Context::DisableDebugLayerBreak() noexcept {
+	if (_infoQueue) {
+		_infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, FALSE);
+		_infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, FALSE);
 	}
 }
 #endif

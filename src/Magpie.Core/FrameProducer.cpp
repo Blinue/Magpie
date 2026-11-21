@@ -552,6 +552,10 @@ HRESULT FrameProducer::_Render() noexcept {
 }
 
 void FrameProducer::_MonitorThreadProc() noexcept {
+#ifdef _DEBUG
+	SetThreadDescription(GetCurrentThread(), L"Magpie-缩放生产者监控线程");
+#endif
+
 	wil::unique_event_nothrow newFrameEvent;
 	uint64_t producerFenceValue = 1;
 
@@ -575,10 +579,12 @@ void FrameProducer::_MonitorThreadProc() noexcept {
 	}
 	
 	while (true) {
-		// 有新帧可用时返回 WAIT_OBJECT_0，需退出时返回 WAIT_OBJECT_0 + 1
-		HANDLE events[] = { newFrameEvent.get(), _monitorThreadExitEvent.get() };
-		
-		if (WaitForMultipleObjects((DWORD)std::size(events), events, FALSE, INFINITE) != WAIT_OBJECT_0) {
+		// 需退出时返回 WAIT_OBJECT_0，有新帧可用时返回 WAIT_OBJECT_0 + 1。必须先检查
+		// _monitorThreadExitEvent，设备丢失时两个事件都会激活。
+		HANDLE events[] = { _monitorThreadExitEvent.get(), newFrameEvent.get(),  };
+		if (WaitForMultipleObjects((DWORD)std::size(events), events, FALSE, INFINITE)
+			!= WAIT_OBJECT_0 + 1)
+		{
 			return;
 		}
 

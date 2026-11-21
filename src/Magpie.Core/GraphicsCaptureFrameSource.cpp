@@ -729,7 +729,6 @@ bool GraphicsCaptureFrameSource::_CreateCaptureDevice(HMONITOR hMonSrc) noexcept
 		&featureLevel,
 		d3dDC.put()
 	);
-
 	if (FAILED(hr)) {
 		Logger::Get().ComError("D3D11CreateDevice 失败", hr);
 		return false;

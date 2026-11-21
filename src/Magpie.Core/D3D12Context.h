@@ -32,6 +32,10 @@ public:
 		bool disableFrameTracking = false
 	) noexcept;
 
+	bool IsInitialized() const noexcept {
+		return _isInitialized;
+	}
+
 	DescriptorHeap& GetDescriptorHeap(bool rtv = false) const noexcept {
 		return rtv ? *_rtvDescriptorHeap : *_csuDescriptorHeap;
 	}
@@ -108,9 +112,11 @@ public:
 	HRESULT EndFrame() noexcept;
 
 #ifdef _DEBUG
-	void PushDebugLayerWarnings(std::span<const D3D12_MESSAGE_ID> msgIds) noexcept;
+	void PushDebugLayerWarningFilter(std::span<const D3D12_MESSAGE_ID> msgIds) noexcept;
 
-	void PopDebugLayerWarnings() noexcept;
+	void PopDebugLayerFilter() noexcept;
+
+	void DisableDebugLayerBreak() noexcept;
 #endif
 
 private:
@@ -159,6 +165,7 @@ private:
 	D3D_SHADER_MODEL _shaderModel = D3D_SHADER_MODEL_5_1;
 	D3D_ROOT_SIGNATURE_VERSION _rootSignatureVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
 
+	bool _isInitialized = false;
 	bool _isNative16BitSupported = false;
 };
 
