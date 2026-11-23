@@ -180,6 +180,9 @@
     <ClInclude Include="EffectsMemPoolBuilder.h">
       <Filter>Render</Filter>
     </ClInclude>
+    <ClInclude Include="include\RapidJsonInsituMemStream.h">
+      <Filter>Include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />

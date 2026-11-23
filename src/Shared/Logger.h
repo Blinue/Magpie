@@ -12,7 +12,7 @@
 namespace Magpie {
 
 // std::source_location 中的函数名包含整个签名过于冗长，我们只需记录函数名，
-// 因此创建自己的 SourceLocation
+// 因此创建自己的 SourceLocation。
 struct SourceLocation {
 	[[nodiscard]] static consteval SourceLocation Current(
 		std::uint_least32_t line = __builtin_LINE(),
@@ -30,15 +30,15 @@ struct SourceLocation {
 		const char* function
 	) noexcept : _line(line), _file(file), _function(function) {}
 
-	[[nodiscard]] constexpr std::uint_least32_t Line() const noexcept {
+	[[nodiscard]] constexpr std::uint_least32_t GetLine() const noexcept {
 		return _line;
 	}
 
-	[[nodiscard]] constexpr const char* FileName() const noexcept {
+	[[nodiscard]] constexpr const char* GetFileName() const noexcept {
 		return _file;
 	}
 
-	constexpr const char* FunctionName() const noexcept {
+	constexpr const char* GetFunctionName() const noexcept {
 		return _function;
 	}
 

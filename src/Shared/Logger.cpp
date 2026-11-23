@@ -5,7 +5,12 @@
 
 namespace Magpie {
 
-bool Logger::Initialize(spdlog::level::level_enum logLevel, std::wstring logFileName, int logArchiveAboveSize, int logMaxArchiveFiles) noexcept {
+bool Logger::Initialize(
+	spdlog::level::level_enum logLevel,
+	std::wstring logFileName,
+	int logArchiveAboveSize,
+	int logMaxArchiveFiles
+) noexcept {
 	try {
 		_logger = spdlog::rotating_logger_mt(".", std::move(logFileName), logArchiveAboveSize, logMaxArchiveFiles);
 		_logger->set_level(logLevel);
@@ -133,7 +138,7 @@ void Logger::_Log(spdlog::level::level_enum logLevel, std::string_view msg, cons
 
 	if (_logger) {
 		_logger->log(
-			spdlog::source_loc{ location.FileName(), (int)location.Line(), location.FunctionName() },
+			spdlog::source_loc{ location.GetFileName(), (int)location.GetLine(), location.GetFunctionName() },
 			logLevel,
 			msg
 		);
