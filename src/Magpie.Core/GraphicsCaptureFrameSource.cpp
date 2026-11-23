@@ -766,6 +766,16 @@ bool GraphicsCaptureFrameSource::_CreateCaptureDevice(HMONITOR hMonSrc) noexcept
 		infoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, TRUE);
 		infoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, TRUE);
 		infoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_WARNING, TRUE);
+
+		// 设备丢失时不要中断
+		D3D11_MESSAGE_ID msgId = D3D11_MESSAGE_ID_RESOURCE_MAP_DEVICEREMOVED_RETURN;
+		D3D11_INFO_QUEUE_FILTER infoQueueFilter = {
+			.DenyList = {
+				.NumIDs = 1,
+				.pIDList = &msgId
+			}
+		};
+		infoQueue->AddStorageFilterEntries(&infoQueueFilter);
 	}
 #endif
 	
