@@ -8,6 +8,7 @@
 #include "Logger.h"
 #include "MainWindow.h"
 #include "StrHelper.h"
+#include "RapidJsonInsituMemStream.h"
 #include "Version.h"
 #include "Win32Helper.h"
 #include <bcrypt.h>
@@ -60,16 +61,14 @@ fire_and_forget UpdateService::CheckForUpdatesAsync(bool isAutoUpdate) {
 
 	_Status(UpdateStatus::Checking);
 
-	rapidjson::Document doc;
-
+	// 由于使用原位解析，缓冲区必须在 rapidjson::Document 使用完毕后释放
+	IBuffer buffer{ nullptr };
 	try {
 		HttpClient httpClient;
-		IBuffer buffer = co_await httpClient.GetBufferAsync(
+		buffer = co_await httpClient.GetBufferAsync(
 			Uri(AppSettings::Get().IsCheckForPreviewUpdates()
 			? L"https://raw.githubusercontent.com/Blinue/Magpie/dev/version.json"
 			: L"https://raw.githubusercontent.com/Blinue/Magpie/main/version.json"));
-
-		doc.Parse((const char*)buffer.data(), buffer.Length());
 	} catch (const hresult_error& e) {
 		Logger::Get().ComError(
 			StrHelper::Concat("检查更新失败: ", StrHelper::UTF16ToUTF8(e.message())),
@@ -86,6 +85,18 @@ fire_and_forget UpdateService::CheckForUpdatesAsync(bool isAutoUpdate) {
 		co_return;
 	}
 
+	rapidjson::Document doc;
+	{
+		RapidJsonInsituMemStream memStream((char*)buffer.data(), buffer.Length());
+		doc.ParseStream<rapidjson::kParseInsituFlag>(memStream);
+	}
+
+	if (doc.HasParseError()) {
+		Logger::Get().Error(fmt::format("解析 json 失败\n\t错误码: {}", (int)doc.GetParseError()));
+		_Status(UpdateStatus::ErrorWhileChecking);
+		co_return;
+	}
+	
 	if (!doc.IsObject()) {
 		Logger::Get().Error("根元素不是对象");
 		_Status(UpdateStatus::ErrorWhileChecking);

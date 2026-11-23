@@ -43,6 +43,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\AppXReader.h" />
+    <ClInclude Include="include\RapidJsonInsituMemStream.h" />
     <ClInclude Include="include\ScreenshotFilenameTemplateHelper.h" />
     <ClInclude Include="KeepScreenOnHelper.h" />
     <ClInclude Include="BackendDescriptorStore.h" />

@@ -147,6 +147,9 @@
       <Filter>Include</Filter>
     </ClInclude>
     <ClInclude Include="LruMemoryCache.h" />
+    <ClInclude Include="include\RapidJsonInsituMemStream.h">
+      <Filter>Include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScalingRuntime.cpp" />
