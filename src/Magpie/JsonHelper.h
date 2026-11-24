@@ -3,6 +3,7 @@
 
 namespace Magpie {
 
+// 只在值存在时才修改 result
 struct JsonHelper {
 	static bool ReadBool(
 		const rapidjson::GenericObject<true, rapidjson::Value>& obj,
@@ -93,6 +94,13 @@ struct JsonHelper {
 		const rapidjson::GenericObject<true, rapidjson::Value>& obj,
 		const char* name,
 		float& result,
+		bool required = false
+	) noexcept;
+
+	static bool ReadString(
+		const rapidjson::GenericObject<true, rapidjson::Value>& obj,
+		const char* name,
+		wil::zstring_view& result,
 		bool required = false
 	) noexcept;
 

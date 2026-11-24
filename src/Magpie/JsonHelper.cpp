@@ -10,16 +10,16 @@ bool JsonHelper::ReadBool(
 	bool& result,
 	bool required
 ) noexcept {
-	auto node = obj.FindMember(name);
-	if (node == obj.MemberEnd()) {
+	auto it = obj.FindMember(name);
+	if (it == obj.MemberEnd()) {
 		return !required;
 	}
 
-	if (!node->value.IsBool()) {
+	if (!it->value.IsBool()) {
 		return false;
 	}
 
-	result = node->value.GetBool();
+	result = it->value.GetBool();
 	return true;
 }
 
@@ -29,16 +29,16 @@ bool JsonHelper::ReadUInt(
 	uint32_t& result,
 	bool required
 ) noexcept {
-	auto node = obj.FindMember(name);
-	if (node == obj.MemberEnd()) {
+	auto it = obj.FindMember(name);
+	if (it == obj.MemberEnd()) {
 		return !required;
 	}
 
-	if (!node->value.IsUint()) {
+	if (!it->value.IsUint()) {
 		return false;
 	}
 
-	result = node->value.GetUint();
+	result = it->value.GetUint();
 	return true;
 }
 
@@ -66,16 +66,16 @@ bool JsonHelper::ReadInt(
 	int& result,
 	bool required
 ) noexcept {
-	auto node = obj.FindMember(name);
-	if (node == obj.MemberEnd()) {
+	auto it = obj.FindMember(name);
+	if (it == obj.MemberEnd()) {
 		return !required;
 	}
 
-	if (!node->value.IsInt()) {
+	if (!it->value.IsInt()) {
 		return false;
 	}
 
-	result = node->value.GetInt();
+	result = it->value.GetInt();
 	return true;
 }
 
@@ -85,16 +85,16 @@ bool JsonHelper::ReadInt64(
 	int64_t& result,
 	bool required
 ) noexcept {
-	auto node = obj.FindMember(name);
-	if (node == obj.MemberEnd()) {
+	auto it = obj.FindMember(name);
+	if (it == obj.MemberEnd()) {
 		return !required;
 	}
 
-	if (!node->value.IsInt64()) {
+	if (!it->value.IsInt64()) {
 		return false;
 	}
 
-	result = node->value.GetInt64();
+	result = it->value.GetInt64();
 	return true;
 }
 
@@ -104,16 +104,35 @@ bool JsonHelper::ReadFloat(
 	float& result,
 	bool required
 ) noexcept {
-	auto node = obj.FindMember(name);
-	if (node == obj.MemberEnd()) {
+	auto it = obj.FindMember(name);
+	if (it == obj.MemberEnd()) {
 		return !required;
 	}
 
-	if (!node->value.IsNumber()) {
+	if (!it->value.IsNumber()) {
 		return false;
 	}
 
-	result = node->value.GetFloat();
+	result = it->value.GetFloat();
+	return true;
+}
+
+bool JsonHelper::ReadString(
+	const rapidjson::GenericObject<true, rapidjson::Value>& obj,
+	const char* name,
+	wil::zstring_view& result,
+	bool required
+) noexcept {
+	auto it = obj.FindMember(name);
+	if (it == obj.MemberEnd()) {
+		return !required;
+	}
+
+	if (!it->value.IsString()) {
+		return false;
+	}
+
+	result = { it->value.GetString(), it->value.GetStringLength() };
 	return true;
 }
 
@@ -123,16 +142,16 @@ bool JsonHelper::ReadString(
 	std::string& result,
 	bool required
 ) noexcept {
-	auto node = obj.FindMember(name);
-	if (node == obj.MemberEnd()) {
+	auto it = obj.FindMember(name);
+	if (it == obj.MemberEnd()) {
 		return !required;
 	}
 
-	if (!node->value.IsString()) {
+	if (!it->value.IsString()) {
 		return false;
 	}
 
-	result = node->value.GetString();
+	result.assign(it->value.GetString(), it->value.GetStringLength());
 	return true;
 }
 
@@ -142,12 +161,17 @@ bool JsonHelper::ReadString(
 	std::wstring& result,
 	bool required
 ) noexcept {
-	std::string temp;
-	if (!ReadString(obj, name, temp, required)) {
+	auto it = obj.FindMember(name);
+	if (it == obj.MemberEnd()) {
+		return !required;
+	}
+
+	if (!it->value.IsString()) {
 		return false;
 	}
 
-	result = StrHelper::UTF8ToUTF16(temp);
+	result = StrHelper::UTF8ToUTF16(
+		std::string_view(it->value.GetString(), it->value.GetStringLength()));
 	return true;
 }
 

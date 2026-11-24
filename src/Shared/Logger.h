@@ -30,7 +30,7 @@ struct SourceLocation {
 		const char* function
 	) noexcept : _line(line), _file(file), _function(function) {}
 
-	[[nodiscard]] constexpr std::uint_least32_t GetLine() const noexcept {
+	[[nodiscard]] constexpr int GetLine() const noexcept {
 		return _line;
 	}
 
