@@ -138,7 +138,7 @@ void Logger::_Log(spdlog::level::level_enum logLevel, std::string_view msg, cons
 
 	if (_logger) {
 		_logger->log(
-			spdlog::source_loc{ location.GetFileName(), (int)location.GetLine(), location.GetFunctionName() },
+			spdlog::source_loc{ location.GetFileName(), location.GetLine(), location.GetFunctionName() },
 			logLevel,
 			msg
 		);

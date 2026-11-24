@@ -105,20 +105,15 @@ fire_and_forget UpdateService::CheckForUpdatesAsync(bool isAutoUpdate) {
 
 	auto rootObj = const_cast<const rapidjson::Document&>(doc).GetObj();
 
-	auto versionNode = rootObj.FindMember("version");
-	if (versionNode == rootObj.end()) {
-		Logger::Get().Error("找不到 version 成员");
-		_Status(UpdateStatus::ErrorWhileChecking);
-		co_return;
-	}
-	if (!versionNode->value.IsString()) {
-		Logger::Get().Error("version 成员不是字符串");
+	wil::zstring_view versionStr;
+	if (!JsonHelper::ReadString(rootObj, "version", versionStr, true)) {
+		Logger::Get().Error("解析 version 失败");
 		_Status(UpdateStatus::ErrorWhileChecking);
 		co_return;
 	}
 
 	Version remoteVersion;
-	if(!remoteVersion.Parse(versionNode->value.GetString())) {
+	if(!remoteVersion.Parse(versionStr)) {
 		Logger::Get().Error("解析版本号失败");
 		_Status(UpdateStatus::ErrorWhileChecking);
 		co_return;
@@ -135,18 +130,18 @@ fire_and_forget UpdateService::CheckForUpdatesAsync(bool isAutoUpdate) {
 		co_return;
 	}
 
-	auto binaryNode = rootObj.FindMember("binary");
-	if (binaryNode == rootObj.end()) {
+	auto it = rootObj.FindMember("binary");
+	if (it == rootObj.end()) {
 		Logger::Get().Error("找不到 binary 成员");
 		_Status(UpdateStatus::ErrorWhileChecking);
 		co_return;
 	}
-	if (!binaryNode->value.IsObject()) {
+	if (!it->value.IsObject()) {
 		Logger::Get().Error("binary 成员不是对象");
 		_Status(UpdateStatus::ErrorWhileChecking);
 		co_return;
 	}
-	auto binaryObj = binaryNode->value.GetObj();
+	auto binaryObj = it->value.GetObj();
 	const char* platform =
 #ifdef _M_X64
 	"x64";
@@ -155,19 +150,19 @@ fire_and_forget UpdateService::CheckForUpdatesAsync(bool isAutoUpdate) {
 #else
 	static_assert(false, "不支持的架构")
 #endif
-	auto platformNode = binaryObj.FindMember(platform);
-	if (platformNode == binaryObj.end()) {
+	it = binaryObj.FindMember(platform);
+	if (it == binaryObj.end()) {
 		Logger::Get().Error(StrHelper::Concat("找不到 ", platform, "成员"));
 		// 还不支持此架构
 		_Status(UpdateStatus::NoUpdate);
 		co_return;
 	}
-	if (!platformNode->value.IsObject()) {
+	if (!it->value.IsObject()) {
 		Logger::Get().Error(StrHelper::Concat(platform, " 成员不是对象"));
 		_Status(UpdateStatus::ErrorWhileChecking);
 		co_return;
 	}
-	auto platformObj = platformNode->value.GetObj();
+	auto platformObj = it->value.GetObj();
 
 	if (!JsonHelper::ReadString(platformObj, "url", _binaryUrl, true) || _binaryUrl.empty()) {
 		Logger::Get().Error("解析 url 失败");
