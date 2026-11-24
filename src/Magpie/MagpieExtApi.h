@@ -6,6 +6,8 @@
 extern "C" {
 #endif
 
+typedef void* MagpieExtContext;
+
 enum MagpieLogLevel {
 	MagpieLogLevelInfo,
 	MagpieLogLevelWarn,
@@ -93,10 +95,10 @@ struct MagpieImageEncoderDesc {
 	const char* id;
 	// 必需
 	const char* displayName;
-	const char* description;
 	// 必需
 	const char* fileExtension;
-
+	const char* description;
+	
 	const MagpieImageEncoderOptionDesc* optionDescs;
 	uint32_t optionCount;
 
@@ -104,6 +106,7 @@ struct MagpieImageEncoderDesc {
 	// SDR - 色域: sRGB    传递函数: sRGB
 	// WCG - 色域: BT.2100 传递函数: 伽马 2.4
 	// HDR - 色域: BT.2100 传递函数: PQ
+	// 白点始终是 D65。
 	HRESULT (*encode)(
 		const MagpieOptionValue* optionValues,
 		uint32_t optionValueCount,
@@ -145,9 +148,18 @@ struct MagpieExtensionDesc {
 };
 
 struct MagpieHostApi {
-	HRESULT (*log)(MagpieLogSourceLocation sourceLocation, MagpieLogLevel level, const char* message);
-	const char* (*getLanguage)(void);
-	HRESULT (*registerExtension)(const MagpieExtensionDesc* desc);
+	// 记录日志。message 不得为空或空字符串。
+	HRESULT (*log)(
+		MagpieExtContext context,
+		MagpieLogSourceLocation sourceLocation,
+		MagpieLogLevel level,
+		const char* message
+	);
+	// 获取应用显示语言。language 不得为空。函数返回时 language 指向语言字符串，该字符串在插
+	// 件的生命周期内始终有效。
+	HRESULT (*getLanguage)(MagpieExtContext context, const char** language);
+	// 注册插件功能。
+	HRESULT (*registerExtension)(MagpieExtContext context, const MagpieExtensionDesc* desc);
 };
 
 #define MAGPIE_EXT_ENTRY MagpieExtEntry

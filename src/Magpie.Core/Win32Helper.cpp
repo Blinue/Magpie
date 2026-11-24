@@ -411,7 +411,7 @@ bool Win32Helper::DirExists(const wchar_t* fileName) noexcept {
 	return (attrs != INVALID_FILE_ATTRIBUTES) && (attrs & FILE_ATTRIBUTE_DIRECTORY);
 }
 
-bool Win32Helper::CreateDir(const std::wstring& path, bool recursive) noexcept {
+bool Win32Helper::CreateDir(wil::zwstring_view path, bool recursive) noexcept {
 	assert(!path.empty() && path.find(L'/') == std::wstring::npos);
 	
 	// DirExists 检查很重要，CreateDirectory 可能会由于权限问题失败，此时错误码是 ERROR_ACCESS_DENIED
@@ -455,6 +455,45 @@ bool Win32Helper::CreateDir(const std::wstring& path, bool recursive) noexcept {
 		Logger::Get().Win32Error("CreateDirectory 失败");
 		return false;
 	}
+}
+
+bool Win32Helper::MoveDir(wil::zwstring_view srcDir, wil::zwstring_view destDir, bool allowCopy) noexcept {
+	WIN32_FIND_DATA findData{};
+	wil::unique_hfind hFind(FindFirstFileEx(StrHelper::Concat(srcDir, L"\\*").c_str(),
+		FindExInfoBasic, &findData, FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH));
+	if (!hFind) {
+		Logger::Get().Win32Error("FindFirstFileEx 失败");
+		return false;
+	}
+
+	DWORD moveFileFlgs = MOVEFILE_REPLACE_EXISTING | (allowCopy ? MOVEFILE_COPY_ALLOWED : 0);
+
+	do {
+		if (wil::path_is_dot_or_dotdot(findData.cFileName)) {
+			continue;
+		}
+
+		std::wstring curPath = StrHelper::Concat(srcDir, L"\\", findData.cFileName);
+		std::wstring destPath = StrHelper::Concat(destDir, L"\\", findData.cFileName);
+		if (FileExists(curPath.c_str())) {
+			if (!MoveFileEx(curPath.c_str(), destPath.c_str(), moveFileFlgs)) {
+				Logger::Get().Win32Error(StrHelper::Concat(
+					"移动到 ", StrHelper::UTF16ToUTF8(destPath), " 失败"));
+				return false;
+			}
+			continue;
+		}
+
+		if (CreateDir(destPath)) {
+			MoveDir(curPath, destPath);
+		} else {
+			Logger::Get().Win32Error(StrHelper::Concat(
+				"创建文件夹 ", StrHelper::UTF16ToUTF8(destPath), " 失败"));
+			return false;
+		}
+	} while (FindNextFile(hFind.get(), &findData));
+
+	return true;
 }
 
 const Win32Helper::OSVersion& Win32Helper::GetOSVersion() noexcept {

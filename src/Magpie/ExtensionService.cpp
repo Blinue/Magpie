@@ -6,46 +6,16 @@
 #include "StrHelper.h"
 #include "Logger.h"
 #include "AppFolderManager.h"
+#include "ExtensionHelper.h"
+#include "Win32Helper.h"
+#include "JsonHelper.h"
 
 namespace Magpie {
 
-using ExtEntryFn = void(MagpieHostApi*);
-
-static std::string CurExtId;
+using ExtEntryFn = void(MagpieHostApi*, MagpieExtContext);
 
 static bool IsNullOrEmptyString(const char* str) noexcept {
 	return !str || str[0] == '\0';
-}
-
-static HRESULT HostApiLog(MagpieLogSourceLocation sourceLocation, MagpieLogLevel level, const char* message) noexcept {
-	if (!message || level < MagpieLogLevelInfo || level > MagpieLogLevelError) {
-		return E_INVALIDARG;
-	}
-
-	if (sourceLocation.fileName == nullptr || sourceLocation.fileName[0] == '\0') {
-		sourceLocation.fileName = "未知";
-	}
-
-	if (sourceLocation.funcName == nullptr || sourceLocation.funcName[0] == '\0') {
-		sourceLocation.funcName = "未知";
-	}
-
-	SourceLocation sl(sourceLocation.line, sourceLocation.fileName, sourceLocation.funcName);
-
-	if (level == MagpieLogLevelInfo) {
-		Logger::Get().Info(message, sl);
-	} else if (level == MagpieLogLevelWarn) {
-		Logger::Get().Warn(message, sl);
-	} else {
-		Logger::Get().Error(message, sl);
-	}
-
-	return S_OK;
-}
-
-static const char* HotApiGetLanguage() noexcept {
-	static std::string result = StrHelper::UTF16ToUTF8(LocalizationService::Get().GetLanguage());
-	return result.c_str();
 }
 
 void ExtensionService::Initialize() noexcept {
@@ -54,9 +24,35 @@ void ExtensionService::Initialize() noexcept {
 			continue;
 		}
 
-		if (!_LoadExtension(extSetting.extId)) {
-			Logger::Get().Error(StrHelper::Concat("加载插件 ", extSetting.extId, " 失败"));
+		assert(ExtensionHelper::IsValidId(extSetting.extId));
+		Logger::Get().Info(StrHelper::Concat("正在加载插件 ", extSetting.extId));
+
+		std::wstring indexPath = StrHelper::Concat(
+			AppFolderManager::Get().GetWorkingDir().native(),
+			L"\\", AppFolderManager::Get().GetExtDir(),
+			L"\\", StrHelper::UTF8ToUTF16(extSetting.extId),
+			L"\\magpie-ext.json"
+		);
+		std::string indexJson;
+		if (!Win32Helper::ReadTextFile(indexPath.c_str(), indexJson) || indexJson.empty()) {
+			Logger::Get().Error("读取 magpie-ext.json 失败");
+			continue;
 		}
+
+		rapidjson::Document doc;
+		doc.ParseInsitu(indexJson.data());
+
+		if (doc.HasParseError()) {
+			Logger::Get().Error(fmt::format("解析 json 失败\n\t错误码: {}", (int)doc.GetParseError()));
+			continue;
+		}
+
+		if (!doc.IsObject()) {
+			Logger::Get().Error("根元素不是对象");
+			continue;
+		}
+
+		_LoadExtension(extSetting.extId, const_cast<const rapidjson::Document&>(doc).GetObj());
 	}
 }
 
@@ -77,17 +73,17 @@ void ExtensionService::Uninitialize() noexcept {
 	});
 }
 
-bool ExtensionService::AddExtension(std::string_view extId, std::string_view updateUrl) noexcept {
+bool ExtensionService::AddExtension(
+	std::string_view extId,
+	const rapidjson::GenericObject<true, rapidjson::Value>& indexRootObj
+) noexcept {
 	assert(!_extDatas.contains(extId));
+	assert(ExtensionHelper::IsValidId(extId));
 
-	if (!_LoadExtension(extId)) {
-		Logger::Get().Error(StrHelper::Concat("加载插件 ", extId, " 失败"));
-		return false;
-	}
+	_LoadExtension(extId, indexRootObj);
 
 	AppSettings::Get().ExtensionSettings().push_back(ExtensionSetting{
 		.extId = std::string(extId),
-		.updateUrl = std::string(updateUrl),
 		.isEnabled = true
 	});
 
@@ -95,78 +91,129 @@ bool ExtensionService::AddExtension(std::string_view extId, std::string_view upd
 	return true;
 }
 
-std::string ExtensionService::GenerateImportedExtId() noexcept {
-	return "_i0";
-}
-
-static std::wstring GetExtDllPath(std::string_view extId) noexcept {
-	std::wstring extIdUtf16 = StrHelper::UTF8ToUTF16(extId);
-	// 使用绝对路径以避免歧义
-	return StrHelper::Concat(
-		AppFolderManager::Get().GetWorkingDir().native(),
-		L"\\", AppFolderManager::Get().GetExtDir(),
-		L"\\", extIdUtf16, L"\\", extIdUtf16, L".dll");
-}
-
-static bool IsValidId(std::string_view id) noexcept {
-	if (id.empty()) {
-		return false;
-	}
-
-	// 只允许字母、数字、"-" 和 "_"
-	const char* VALID_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_";
-	if (id.find_first_not_of(VALID_CHARS) != std::string_view::npos) {
-		return false;
-	}
-
-	// 以下划线开头的 ID 保留内部使用
-	return !id.starts_with("_");
-}
-
-bool ExtensionService::_LoadExtension(std::string_view extId) noexcept {
-	if (!IsValidId(extId)) {
-		Logger::Get().Error(StrHelper::Concat("插件 ID \"", extId, "\" 不合法"));
-		return false;
-	}
-
-	std::wstring extDllPath = GetExtDllPath(extId);
-
-	// LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR 可以加载同一个文件夹中的依赖 dll
-	wil::unique_hmodule hDll(LoadLibraryEx(extDllPath.c_str(), NULL,
-		LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_SEARCH_DEFAULT_DIRS));
-	if (!hDll) {
-		Logger::Get().Win32Error(StrHelper::Concat("加载 ", extId, ".dll 失败"));
-		return false;
-	}
-
-	ExtEntryFn* extEntry = (ExtEntryFn*)GetProcAddress(hDll.get(), "MagpieExtEntry");
-	if (!extEntry) {
-		Logger::Get().Error(StrHelper::Concat("插件 ", extId, " 中未找到入口函数"));
-		return false;
-	}
-
-	CurExtId = extId;
-
-	MagpieHostApi hostApi = {
-		.log = &HostApiLog,
-		.getLanguage = &HotApiGetLanguage,
-		.registerExtension = &ExtensionService::_HostApiRegisterExtension
-	};
-	extEntry(&hostApi);
-
+const ExtensionInfo* ExtensionService::GetExtensionInfo(std::string_view extId) const noexcept {
 	auto it = _extDatas.find(extId);
 	if (it == _extDatas.end()) {
-		Logger::Get().Error(StrHelper::Concat("插件 ", extId, " 注册失败"));
-		return false;
+		return nullptr;
 	}
 
-	it->second.hDll = std::move(hDll);
-	it->second.loadNo = _nextLoadNo++;
-	return true;
+	return &it->second.info;
 }
 
-HRESULT ExtensionService::_HostApiRegisterExtension(const MagpieExtensionDesc* desc) {
+void ExtensionService::_LoadExtension(
+	std::string_view extId,
+	const rapidjson::GenericObject<true, rapidjson::Value>& indexRootObj
+) noexcept {
+	assert(ExtensionHelper::IsValidId(extId));
+
+	_ExtContextData& contextData = *_extDatas.emplace(extId, _ExtensionData{
+		.loadNo = _nextLoadNo++
+	}).first;
+
+	bool hasDll = false;
+	JsonHelper::ReadBool(indexRootObj, "has_dll", hasDll);
+
+	if (hasDll) {
+		std::wstring extIdUtf16 = StrHelper::UTF8ToUTF16(extId);
+		// 使用绝对路径以避免歧义
+		std::wstring dllPath = StrHelper::Concat(
+			AppFolderManager::Get().GetWorkingDir().native(),
+			L"\\", AppFolderManager::Get().GetExtDir(),
+			L"\\", extIdUtf16,
+			L"\\", extIdUtf16, L".dll"
+		);
+
+		// LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR 可以加载同一个文件夹中的依赖 dll
+		contextData.second.hDll.reset(LoadLibraryEx(dllPath.c_str(), NULL,
+			LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_SEARCH_DEFAULT_DIRS));
+		if (!contextData.second.hDll) {
+			Logger::Get().Win32Error(StrHelper::Concat("加载 ", extId, ".dll 失败"));
+			contextData.second.hasError = true;
+			return;
+		}
+
+		ExtEntryFn* extEntry = (ExtEntryFn*)GetProcAddress(
+			contextData.second.hDll.get(), STRINGIFY(MAGPIE_EXT_ENTRY));
+		if (!extEntry) {
+			Logger::Get().Error(StrHelper::Concat("插件 ", extId, " 中未找到入口函数"));
+			contextData.second.hasError = true;
+			return;
+		}
+
+		MagpieHostApi hostApi = {
+			.log = &ExtensionService::_HostApiLog,
+			.getLanguage = &ExtensionService::_HotApiGetLanguage,
+			.registerExtension = &ExtensionService::_HostApiRegisterExtension
+		};
+		extEntry(&hostApi, &contextData);
+
+		if (contextData.second.hasError) {
+			Logger::Get().Error(StrHelper::Concat("插件 ", extId, " 注册失败"));
+			return;
+		}
+	}
+}
+
+HRESULT ExtensionService::_HostApiLog(
+	MagpieExtContext context,
+	MagpieLogSourceLocation sourceLocation,
+	MagpieLogLevel level,
+	const char* message
+) {
+	if (!context) {
+		return E_INVALIDARG;
+	}
+	_ExtContextData* contextData = (_ExtContextData*)context;
+
+	size_t msgLen = message ? StrHelper::StrLen(message) : 0;
+	if (msgLen == 0 || level < MagpieLogLevelInfo || level > MagpieLogLevelError) {
+		return E_INVALIDARG;
+	}
+
+	if (sourceLocation.fileName == nullptr || sourceLocation.fileName[0] == '\0') {
+		sourceLocation.fileName = "未知";
+	}
+
+	if (sourceLocation.funcName == nullptr || sourceLocation.funcName[0] == '\0') {
+		sourceLocation.funcName = "未知";
+	}
+
+	std::string logMsg = StrHelper::Concat(
+		"[", contextData->first, "]", std::string_view(message, msgLen));
+	SourceLocation sl(sourceLocation.line, sourceLocation.fileName, sourceLocation.funcName);
+
+	if (level == MagpieLogLevelInfo) {
+		Logger::Get().Info(logMsg, sl);
+	} else if (level == MagpieLogLevelWarn) {
+		Logger::Get().Warn(logMsg, sl);
+	} else {
+		Logger::Get().Error(logMsg, sl);
+	}
+
+	return S_OK;
+}
+
+HRESULT ExtensionService::_HotApiGetLanguage(MagpieExtContext context, const char** language) noexcept {
+	if (!context || !language) {
+		return E_INVALIDARG;
+	}
+
+	static std::string result = StrHelper::UTF16ToUTF8(LocalizationService::Get().GetLanguage());
+	*language = result.c_str();
+	return S_OK;
+}
+
+HRESULT ExtensionService::_HostApiRegisterExtension(
+	MagpieExtContext context,
+	const MagpieExtensionDesc* desc
+) {
+	if (!context) {
+		return E_INVALIDARG;
+	}
+	auto& [extId, extData] = *(_ExtContextData*)context;
+
 	if (IsNullOrEmptyString(desc->displayName)) {
+		extData.hasError = true;
 		return E_INVALIDARG;
 	}
 
@@ -174,10 +221,11 @@ HRESULT ExtensionService::_HostApiRegisterExtension(const MagpieExtensionDesc* d
 		for (uint32_t i = 0; i < desc->imageEncoderCount; ++i) {
 			const MagpieImageEncoderDesc& encoderDesc = desc->imageEncoderDescs[i];
 
-			if (!IsValidId(encoderDesc.id) ||
+			if (!ExtensionHelper::IsValidId(encoderDesc.id) ||
 				IsNullOrEmptyString(encoderDesc.displayName) ||
 				IsNullOrEmptyString(encoderDesc.fileExtension)
 			) {
+				extData.hasError = true;
 				return E_INVALIDARG;
 			}
 
@@ -185,11 +233,12 @@ HRESULT ExtensionService::_HostApiRegisterExtension(const MagpieExtensionDesc* d
 				for (uint32_t j = 0; j < encoderDesc.optionCount; ++j) {
 					const MagpieImageEncoderOptionDesc& optionDesc = encoderDesc.optionDescs[j];
 
-					if (!IsValidId(optionDesc.id) ||
+					if (!ExtensionHelper::IsValidId(optionDesc.id) ||
 						IsNullOrEmptyString(optionDesc.displayName) ||
 						optionDesc.type < MagpieOptionTypeBool ||
 						optionDesc.type > MagpieOptionTypeSelection
 					) {
+						extData.hasError = true;
 						return E_INVALIDARG;
 					}
 
@@ -201,6 +250,7 @@ HRESULT ExtensionService::_HostApiRegisterExtension(const MagpieExtensionDesc* d
 							intOption.defaultValue > intOption.maxValue ||
 							intOption.step == 0
 						) {
+							extData.hasError = true;
 							return E_INVALIDARG;
 						}
 						break;
@@ -212,6 +262,7 @@ HRESULT ExtensionService::_HostApiRegisterExtension(const MagpieExtensionDesc* d
 							floatOption.defaultValue > floatOption.maxValue ||
 							floatOption.step < FLOAT_EPSILON<float>
 						) {
+							extData.hasError = true;
 							return E_INVALIDARG;
 						}
 						break;
@@ -220,6 +271,7 @@ HRESULT ExtensionService::_HostApiRegisterExtension(const MagpieExtensionDesc* d
 					{
 						const MagpieSelectionOptionDesc& selectionOption = optionDesc.selectionOption;
 						if (selectionOption.defaultValue >= selectionOption.itemCount) {
+							extData.hasError = true;
 							return E_INVALIDARG;
 						}
 						break;
@@ -232,7 +284,6 @@ HRESULT ExtensionService::_HostApiRegisterExtension(const MagpieExtensionDesc* d
 		}
 	}
 
-	_ExtensionData& extData = ExtensionService::Get()._extDatas[CurExtId];
 	extData.info.displayName = desc->displayName;
 	extData.info.author = desc->author ? desc->author : "";
 	extData.info.homePageUrl = desc->homePageUrl ? desc->homePageUrl : "";
@@ -309,7 +360,7 @@ HRESULT ExtensionService::_HostApiRegisterExtension(const MagpieExtensionDesc* d
 			}
 
 			const std::string& imageEncoderId = extData.info.imageEncoderIds.emplace_back(
-				StrHelper::Concat(CurExtId, "/", apiEncoderDesc.id));
+				StrHelper::Concat(extId, "/", apiEncoderDesc.id));
 			
 			ImageEncoderFactory::Get().RegisterImageEncoder(
 				imageEncoderId,

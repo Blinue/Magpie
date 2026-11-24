@@ -40,11 +40,15 @@ public:
 
 	wil::zwstring_view GetTempDir() const noexcept;
 
+	// 线程安全。已确保返回的文件夹存在且为空。
+	std::filesystem::path GetUniqueTempDir() noexcept;
+
 private:
 	AppFolderManager() = default;
 
 	std::filesystem::path _exeDir;
 	std::filesystem::path _workingDir;
+	std::atomic<uint32_t> _uniqueTempId;
 	bool _isPortableMode = false;
 };
 

@@ -156,9 +156,12 @@ bool App::Initialize(const wchar_t* arguments) {
 	ScalingService::Get().Initialize();
 	UpdateService::Get().Initialize();
 	ImageEncoderFactory::Get().Initialize();
-	ExtensionService::Get().Initialize();
 	ThemeHelper::Initialize();
-
+	// 尽可能晚的加载第三方 dll
+	_dispatcher.TryEnqueue([] {
+		ExtensionService::Get().Initialize();
+	});
+	
 	_themeChangedRevoker = AppSettings::Get().ThemeChanged(
 		auto_revoke, std::bind_front(&App::_AppSettings_ThemeChanged, this));
 	_AppSettings_ThemeChanged(AppSettings::Get().Theme());

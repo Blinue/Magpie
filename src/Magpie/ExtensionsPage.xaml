@@ -20,9 +20,9 @@
 					<MenuFlyout Placement="Bottom"
 					            ShouldConstrainToRootBounds="False">
 						<MenuFlyoutItem Click="{x:Bind ViewModel.ImportDll}"
-						                Text="导入扩展 dll">
+						                Text="导入扩展">
 							<MenuFlyoutItem.Icon>
-								<FontIcon Glyph="&#xE8F1;" />
+								<FontIcon Glyph="&#xF012;" />
 							</MenuFlyoutItem.Icon>
 						</MenuFlyoutItem>
 						<MenuFlyoutItem Text="导入着色器效果">

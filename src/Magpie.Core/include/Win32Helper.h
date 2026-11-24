@@ -76,7 +76,10 @@ struct Win32Helper {
 	static bool DirExists(const wchar_t* fileName) noexcept;
 
 	// 相比 wil::CreateDirectoryDeepNoThrow 支持相对路径而且更快
-	static bool CreateDir(const std::wstring& path, bool recursive = false) noexcept;
+	static bool CreateDir(wil::zwstring_view path, bool recursive = false) noexcept;
+
+	// destDir 必须已经存在
+	static bool MoveDir(wil::zwstring_view srcDir, wil::zwstring_view destDir, bool allowCopy = false) noexcept;
 
 	struct OSVersion : Version {
 		constexpr OSVersion() {}

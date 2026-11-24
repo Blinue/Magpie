@@ -90,4 +90,27 @@ wil::zwstring_view AppFolderManager::GetTempDir() const noexcept {
 	return L"temp";
 }
 
+std::filesystem::path AppFolderManager::GetUniqueTempDir() noexcept {
+	uint32_t uniqueId = _uniqueTempId.fetch_add(1, std::memory_order_relaxed);
+	std::filesystem::path uniqueTempDir = fmt::format(L"{}\\{}", GetTempDir(), uniqueId);
+
+	if (Win32Helper::DirExists(uniqueTempDir.c_str())) {
+		HRESULT hr = wil::RemoveDirectoryRecursiveNoThrow(
+			uniqueTempDir.c_str(), wil::RemoveDirectoryOptions::KeepRootDirectory);
+		if (FAILED(hr)) {
+			Logger::Get().ComError(StrHelper::Concat(
+				"清空文件夹 ", StrHelper::UTF16ToUTF8(uniqueTempDir.native()), " 失败"), hr);
+			uniqueTempDir.clear();
+		}
+	} else {
+		if (!Win32Helper::CreateDir(uniqueTempDir.c_str(), true)) {
+			Logger::Get().Error(StrHelper::Concat(
+				"创建文件夹 ", StrHelper::UTF16ToUTF8(uniqueTempDir.native()), " 失败"));
+			uniqueTempDir.clear();
+		}
+	}
+
+	return uniqueTempDir;
+}
+
 }

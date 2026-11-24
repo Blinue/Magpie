@@ -169,6 +169,7 @@ struct StrHelper {
 
 	template <typename CHAR_T>
 	static constexpr size_t StrLen(const CHAR_T* str) noexcept {
+		assert(str);
 		// std::char_traits 相比 std::strlen 支持更多字符类型，也可以在编译时计算
 		// 字符串常量的长度。
 		return std::char_traits<CHAR_T>::length(str);

@@ -20,7 +20,6 @@ enum class AppTheme {
 
 struct ExtensionSetting {
 	std::string extId;
-	std::string updateUrl;
 	bool isEnabled = false;
 };
 

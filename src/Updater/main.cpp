@@ -70,6 +70,27 @@ static bool FileExists(const wchar_t* fileName) noexcept {
 	return (attrs != INVALID_FILE_ATTRIBUTES) && !(attrs & FILE_ATTRIBUTE_DIRECTORY);
 }
 
+static bool DirExists(const wchar_t* fileName) noexcept {
+	DWORD attrs = GetFileAttributes(fileName);
+	return (attrs != INVALID_FILE_ATTRIBUTES) && (attrs & FILE_ATTRIBUTE_DIRECTORY);
+}
+
+static bool CreateDir(wil::zwstring_view path) noexcept {
+	assert(!path.empty() && path.find(L'/') == std::wstring::npos);
+
+	// DirExists 检查很重要，CreateDirectory 可能会由于权限问题失败，此时错误码是 ERROR_ACCESS_DENIED
+	if (DirExists(path.c_str())) {
+		return true;
+	}
+
+	if (CreateDirectory(path.c_str(), nullptr) || GetLastError() == ERROR_ALREADY_EXISTS) {
+		return true;
+	} else {
+		Logger::Get().Win32Error("CreateDirectory 失败");
+		return false;
+	}
+}
+
 static bool WaitForMagpieToExit() noexcept {
 	{
 		wil::unique_mutex_nothrow hSingleInstanceMutex;
@@ -94,9 +115,9 @@ static bool WaitForMagpieToExit() noexcept {
 	return false;
 }
 
-static void MoveFolder(const std::wstring& src, const std::wstring& dest) noexcept {
+static void MoveDir(wil::zwstring_view srcDir, wil::zwstring_view destDir) noexcept {
 	WIN32_FIND_DATA findData{};
-	wil::unique_hfind hFind(FindFirstFileEx((std::wstring(src) + L"\\*").c_str(),
+	wil::unique_hfind hFind(FindFirstFileEx(StrHelper::Concat(srcDir, L"\\*").c_str(),
 		FindExInfoBasic, &findData, FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH));
 	if (!hFind) {
 		Logger::Get().Win32Error("FindFirstFileEx 失败");
@@ -108,21 +129,19 @@ static void MoveFolder(const std::wstring& src, const std::wstring& dest) noexce
 			continue;
 		}
 		
-		std::wstring curPath = src + L"\\" + findData.cFileName;
-		std::wstring destPath = dest + L"\\" + findData.cFileName;
+		std::wstring curPath = StrHelper::Concat(srcDir, L"\\", findData.cFileName);
+		std::wstring destPath = StrHelper::Concat(destDir, L"\\", findData.cFileName);
 		if (FileExists(curPath.c_str())) {
-			if (MoveFileEx(curPath.c_str(), destPath.c_str(),
-				MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
-			{
+			if (MoveFileEx(curPath.c_str(), destPath.c_str(), MOVEFILE_REPLACE_EXISTING)) {
 				Logger::Get().Info(StrHelper::Concat("已移动 ", StrHelper::UTF16ToUTF8(destPath)));
 			} else {
 				Logger::Get().Win32Error(StrHelper::Concat(
 					"移动 ", StrHelper::UTF16ToUTF8(destPath), " 失败"));
 			}
 		} else {
-			if (CreateDirectory(destPath.c_str(), nullptr) || GetLastError() == ERROR_ALREADY_EXISTS) {
+			if (CreateDir(destPath)) {
 				Logger::Get().Info(StrHelper::Concat("已创建文件夹 ", StrHelper::UTF16ToUTF8(destPath)));
-				MoveFolder(curPath, destPath);
+				MoveDir(curPath, destPath);
 			} else {
 				Logger::Get().Win32Error(StrHelper::Concat(
 					"创建文件夹 ", StrHelper::UTF16ToUTF8(destPath), " 失败"));
@@ -222,7 +241,7 @@ int APIENTRY wWinMain(
 	}
 
 	// 移动新版本
-	MoveFolder(updateDir, L".");
+	MoveDir(updateDir, L".");
 	
 	// 删除 update 文件夹
 	HRESULT hr = wil::RemoveDirectoryRecursiveNoThrow(updateDir.c_str());

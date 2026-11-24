@@ -690,8 +690,6 @@ rapidjson::StringBuffer AppSettings::_WriteConfigJson() const noexcept {
 		writer.StartObject();
 		writer.Key("id");
 		writer.String(extSetting.extId.c_str());
-		writer.Key("updateUrl");
-		writer.String(extSetting.updateUrl.c_str());
 		writer.Key("enabled");
 		writer.Bool(extSetting.isEnabled);
 		writer.EndObject();
@@ -1004,7 +1002,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 			auto enocderParamObj = enocderParamNode.GetObj();
 
 			// 格式为 extId/encoderId/optionId
-			std::string optionFullId;
+			wil::zstring_view optionFullId;
 			if (!JsonHelper::ReadString(enocderParamObj, "id", optionFullId, true)) {
 				continue;
 			}
@@ -1033,15 +1031,14 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 
 			auto extObj = extNode.GetObj();
 
-			std::string extId;
+			wil::zstring_view extId;
 			if (!JsonHelper::ReadString(extObj, "id", extId, true)) {
 				continue;
 			}
 
 			ExtensionSetting& extSetting = _extensionSettings.emplace_back();
-			extSetting.extId = std::move(extId);
+			extSetting.extId = extId;
 
-			JsonHelper::ReadString(extObj, "updateUrl", extSetting.updateUrl);
 			JsonHelper::ReadBool(extObj, "enabled", extSetting.isEnabled);
 		}
 	}
