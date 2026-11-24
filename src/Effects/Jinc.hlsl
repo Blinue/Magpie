@@ -10,11 +10,10 @@
 // B = 0.825 to get rid of dithering. Increase B to get a fine sharpness, though dithering returns.
 
 //!MAGPIE EFFECT
-//!VERSION 4
-//!USE MulAdd
+//!VERSION 5
+//!CAPABILITY AdvancedColor
 
 #include "StubDefs.hlsli"
-
 
 //!PARAMETER
 //!LABEL Window Sinc Param
@@ -50,7 +49,6 @@ Texture2D OUTPUT;
 //!FILTER POINT
 SamplerState sam;
 
-
 //!PASS 1
 //!IN INPUT
 //!OUT OUTPUT
@@ -61,7 +59,6 @@ SamplerState sam;
 
 #define min4(a, b, c, d) min(min(a, b), min(c, d))
 #define max4(a, b, c, d) max(max(a, b), max(c, d))
-
 
 float d(float2 pt1, float2 pt2) {
 	float2 v = pt2 - pt1;
@@ -108,9 +105,9 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 		[unroll]
 		for (uint j = 0; j <= 2; j += 2) {
 			float2 tpos = (tc + uint2(i, j)) * inputPt;
-			const float4 sr = INPUT.GatherRed(sam, tpos);
-			const float4 sg = INPUT.GatherGreen(sam, tpos);
-			const float4 sb = INPUT.GatherBlue(sam, tpos);
+			float4 sr = INPUT.GatherRed(sam, tpos);
+			float4 sg = INPUT.GatherGreen(sam, tpos);
+			float4 sb = INPUT.GatherBlue(sam, tpos);
 
 			// w z
 			// x y
@@ -128,11 +125,9 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 	color *= rcp(dot(mul(weights, float4(1, 1, 1, 1)), 1));
 
 	// 抗振铃
-	// Get min/max samples
 	float3 min_sample = min4(src[1][1], src[2][1], src[1][2], src[2][2]);
 	float3 max_sample = max4(src[1][1], src[2][1], src[1][2], src[2][2]);
 	color = lerp(color, clamp(color, min_sample, max_sample), ARStrength);
-
-	// final sum and weight normalization
+	
 	OUTPUT[gxy] = float4(color, 1);
 }

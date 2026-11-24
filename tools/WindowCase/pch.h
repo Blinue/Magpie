@@ -21,5 +21,9 @@
 #include <string_view>
 #include <vector>
 
+// WIL
+#include <wil/resource.h>
+#include <wil/win32_helpers.h>
+
 using namespace std::string_literals;
 using namespace std::string_view_literals;

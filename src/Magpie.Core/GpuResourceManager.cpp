@@ -1,0 +1,222 @@
+#include "pch.h"
+#include "GpuResourceManager.h"
+#include "DescriptorHeap.h"
+#include "DirectXHelper.h"
+#include "Logger.h"
+
+namespace Magpie {
+
+GpuResourceManager::~GpuResourceManager() noexcept {
+#ifdef _DEBUG
+	for (const _RetiredDescriptor res : _producerRetiredDescriptors) {
+		(res.isRtv ? _rtvDescriptorHeap : _csuDescriptorHeap)->Free(res.offset, res.count);
+	}
+	for (const _RetiredDescriptor res : _consumerRetiredDescriptors) {
+		(res.isRtv ? _rtvDescriptorHeap : _csuDescriptorHeap)->Free(res.offset, res.count);
+	}
+#endif
+}
+
+bool GpuResourceManager::Initialize(
+	ID3D12Device5* device,
+	IDXGIAdapter4* dxgiAdapter,
+	DescriptorHeap& csuDescriptorHeap,
+	DescriptorHeap& rtvDescriptorHeap
+) noexcept {
+	_device = device;
+	_csuDescriptorHeap = &csuDescriptorHeap;
+	_rtvDescriptorHeap = &rtvDescriptorHeap;
+
+	D3D12MA::ALLOCATOR_DESC allocatorDesc = {
+		.Flags = D3D12MA::ALLOCATOR_FLAGS(D3D12MA_RECOMMENDED_ALLOCATOR_FLAGS |
+			// 我们创建的缓冲区不多，不需要担心浪费空间
+			D3D12MA::ALLOCATOR_FLAG_DONT_PREFER_SMALL_BUFFERS_COMMITTED),
+		.pDevice = device,
+		.pAdapter = dxgiAdapter
+	};
+
+	HRESULT hr = D3D12MA::CreateAllocator(&allocatorDesc, _allocator.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("D3D12MA::CreateAllocator 失败", hr);
+		return false;
+	}
+
+	return true;
+}
+
+HRESULT GpuResourceManager::CreateResource(
+	D3D12_HEAP_TYPE heapType,
+	const D3D12_RESOURCE_DESC& resDesc,
+	D3D12_RESOURCE_STATES initialResourceState,
+	D3D12MA::Allocation** allocation
+) const noexcept {
+	D3D12MA::CALLOCATION_DESC allocDesc(heapType);
+
+	HRESULT hr = _allocator->CreateResource(&allocDesc, &resDesc,
+		initialResourceState, nullptr, allocation, IID_NULL, nullptr);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("D3D12MA::Allocator::CreateResource 失败", hr);
+		return hr;
+	}
+
+	return S_OK;
+}
+
+HRESULT GpuResourceManager::CreateBuffer(
+	D3D12_HEAP_TYPE heapType,
+	UINT64 bufferSize,
+	D3D12_RESOURCE_FLAGS flags,
+	D3D12_RESOURCE_STATES initialResourceState,
+	D3D12MA::Allocation** allocation
+) const noexcept {
+	return CreateResource(
+		heapType,
+		CD3DX12_RESOURCE_DESC::Buffer(bufferSize, flags),
+		initialResourceState,
+		allocation
+	);
+}
+
+HRESULT GpuResourceManager::CreateTexture(
+	D3D12_HEAP_TYPE heapType,
+	DXGI_FORMAT format,
+	SizeU size,
+	D3D12_RESOURCE_FLAGS flags,
+	D3D12_RESOURCE_STATES initialResourceState,
+	D3D12MA::Allocation** allocation
+) const noexcept {
+	return CreateResource(
+		heapType,
+		CD3DX12_RESOURCE_DESC::Tex2D(format, size.width, size.height, 1, 1, 1, 0, flags),
+		initialResourceState,
+		allocation
+	);
+}
+
+HRESULT GpuResourceManager::CreateTextures(
+	D3D12_HEAP_TYPE heapType,
+	DXGI_FORMAT format,
+	SizeU size,
+	D3D12_RESOURCE_FLAGS flags,
+	D3D12_RESOURCE_STATES initialResourceState,
+	D3D12MA::Allocation** allocation,
+	std::span<ID3D12Resource**> resources
+) const noexcept {
+	uint64_t slotCount = resources.size();
+
+	CD3DX12_RESOURCE_DESC texDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+		format, size.width, size.height, 1, 1, 1, 0, flags);
+
+	D3D12_RESOURCE_ALLOCATION_INFO texAllocInfo = _device->GetResourceAllocationInfo(0, 1, &texDesc);
+	
+	uint64_t texPitch = DirectXHelper::Align(texAllocInfo.SizeInBytes, texAllocInfo.Alignment);
+
+	D3D12MA::CALLOCATION_DESC allocDesc(
+		heapType,
+		D3D12MA::ALLOCATION_FLAG_NONE,
+		nullptr,
+		D3D12MA_RECOMMENDED_HEAP_FLAGS | D3D12_HEAP_FLAG_ALLOW_ONLY_NON_RT_DS_TEXTURES
+	);
+
+	// Allocator::AllocateMemory 要求 SizeInBytes 是 64KiB 的整数倍
+	D3D12_RESOURCE_ALLOCATION_INFO blockAllocInfo = {
+		.SizeInBytes = DirectXHelper::Align(
+			texPitch * (slotCount - 1) + texAllocInfo.SizeInBytes,
+			64ull << 10
+		),
+		.Alignment = texAllocInfo.Alignment
+	};
+
+	HRESULT hr = _allocator->AllocateMemory(&allocDesc, &blockAllocInfo, allocation);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("D3D12MA::Allocator::AllocateMemory 失败", hr);
+		return hr;
+	}
+
+	for (uint64_t i = 0; i < slotCount; ++i) {
+		hr = _allocator->CreateAliasingResource(
+			*allocation,
+			texPitch * i,
+			&texDesc,
+			initialResourceState,
+			nullptr,
+			IID_PPV_ARGS(resources[i])
+		);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("D3D12MA::Allocator::CreateAliasingResource 失败", hr);
+			return hr;
+		}
+	}
+
+	return S_OK;
+}
+
+void GpuResourceManager::RetireResource(winrt::com_ptr<IUnknown> resource, bool isConsumer) noexcept {
+	if (isConsumer) {
+		_consumerRetiredResources.emplace_back(std::move(resource), _curConsumerFrameFenceValue);
+	} else {
+		_producerRetiredResources.emplace_back(std::move(resource), _curProducerFrameFenceValue);
+	}
+}
+
+void GpuResourceManager::RetireDescriptors(
+	uint32_t offset,
+	uint32_t count,
+	bool isRtv,
+	bool isConsumer
+) noexcept {
+	assert(offset != UINT_MAX);
+
+	if (isConsumer) {
+		_consumerRetiredDescriptors.emplace_back(offset, count, isRtv, _curConsumerFrameFenceValue);
+	} else {
+		_producerRetiredDescriptors.emplace_back(offset, count, isRtv, _curProducerFrameFenceValue);
+	}
+}
+
+void GpuResourceManager::OnFrameBegan(uint64_t frameFenceValue, bool isConsumer) noexcept {
+	if (isConsumer) {
+		assert(frameFenceValue > _curConsumerFrameFenceValue);
+		_curConsumerFrameFenceValue = frameFenceValue;
+	} else {
+		assert(frameFenceValue > _curProducerFrameFenceValue);
+		_curProducerFrameFenceValue = frameFenceValue;
+	}
+}
+
+void GpuResourceManager::OnFrameCompleted(uint64_t completedFenceValue, bool isConsumer) noexcept {
+	SmallVectorImpl<_RetiredResource>& retiredResources =
+		isConsumer ? _consumerRetiredResources : _producerRetiredResources;
+	SmallVectorImpl<_RetiredDescriptor>& retiredDescriptors =
+		isConsumer ? _consumerRetiredDescriptors : _producerRetiredDescriptors;
+
+	// retiredResources 和 retiredDescriptors 中 fenceValue 按升序排列
+	auto it = std::upper_bound(
+		retiredResources.begin(),
+		retiredResources.end(),
+		completedFenceValue,
+		[](uint64_t completedFenceValue, const _RetiredResource& res) {
+			return completedFenceValue < res.fenceValue;
+		}
+	);
+	if (it != retiredResources.begin()) {
+		retiredResources.erase(retiredResources.begin(), it);
+	}
+
+	auto it1 = std::upper_bound(
+		retiredDescriptors.begin(),
+		retiredDescriptors.end(),
+		completedFenceValue,
+		[](uint64_t completedFenceValue, const _RetiredDescriptor& res) {
+			return completedFenceValue < res.fenceValue;
+		}
+	);
+	if (it1 != retiredDescriptors.begin()) {
+		for (auto it2 = retiredDescriptors.begin(); it2 < it1; ++it2) {
+			(it2->isRtv ? _rtvDescriptorHeap : _csuDescriptorHeap)->Free(it2->offset, it2->count);
+		}
+		retiredDescriptors.erase(retiredDescriptors.begin(), it1);
+	}
+}
+
+}

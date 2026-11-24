@@ -20,7 +20,7 @@ enum class MultiMonitorUsage {
 
 enum class CursorInterpolationMode {
 	NearestNeighbor,
-	Bilinear,
+	Bicubic,
 	COUNT
 };
 
@@ -108,6 +108,25 @@ struct OverlayOptions {
 	std::string takeScreenshotShortcut;
 };
 
+// 从低到高排序以便于保存为设置。添加新 SM 时也要修改 HomePage.xaml、D3D12Context.cpp
+// 和 Renderer.cpp。
+enum class HighestShaderModel {
+	NotLimited,
+	SM_5_1,
+	SM_6_0,
+	SM_6_1,
+	SM_6_2,
+	SM_6_3,
+	SM_6_4,
+	SM_6_5,
+	SM_6_6,
+	SM_6_7,
+	SM_6_8,
+	SM_6_9,
+	SM_6_10,
+	COUNT
+};
+
 enum class ScalingError {
 	NoError,
 
@@ -165,16 +184,16 @@ enum class ScalingFlags {
 	DisableDirectFlip = 1 << 10,
 	DisableFontCache = 1 << 11,
 	AllowScalingMaximized = 1 << 12,
-	EnableStatisticsForDynamicDetection = 1 << 13,
+	UseWarp = 1 << 13,
 	// 只影响缩放行为，Magpie.Core 不负责启动 TouchHelper.exe
 	TouchSupportEnabled = 1 << 14,
 	InlineParams = 1 << 15,
 	DisableFP16 = 1 << 16,
 	BenchmarkMode = 1 << 17,
 	DeveloperMode = 1 << 18,
-	DisableTopmost = 1 << 19
+	DisableTopmost = 1 << 19,
+	DisableResourceAliasing = 1 << 20
 };
-// NOLINTNEXTLINE(clang-analyzer-optin.core.EnumCastOutOfRange)
 DEFINE_ENUM_FLAG_OPERATORS(ScalingFlags)
 
 struct ScalingOptions {
@@ -191,14 +210,15 @@ struct ScalingOptions {
 	DEFINE_FLAG_ACCESSOR(IsDirectFlipDisabled, ScalingFlags::DisableDirectFlip, flags)
 	DEFINE_FLAG_ACCESSOR(IsFontCacheDisabled, ScalingFlags::DisableFontCache, flags)
 	DEFINE_FLAG_ACCESSOR(IsAllowScalingMaximized, ScalingFlags::AllowScalingMaximized, flags)
-	DEFINE_FLAG_ACCESSOR(IsStatisticsForDynamicDetectionEnabled, ScalingFlags::EnableStatisticsForDynamicDetection, flags)
+	DEFINE_FLAG_ACCESSOR(UseWarp, ScalingFlags::UseWarp, flags)
 	DEFINE_FLAG_ACCESSOR(IsTouchSupportEnabled, ScalingFlags::TouchSupportEnabled, flags)
 	DEFINE_FLAG_ACCESSOR(IsInlineParams, ScalingFlags::InlineParams, flags)
 	DEFINE_FLAG_ACCESSOR(IsFP16Disabled, ScalingFlags::DisableFP16, flags)
 	DEFINE_FLAG_ACCESSOR(IsBenchmarkMode, ScalingFlags::BenchmarkMode, flags)
 	DEFINE_FLAG_ACCESSOR(IsDeveloperMode, ScalingFlags::DeveloperMode, flags)
 	DEFINE_FLAG_ACCESSOR(IsTopmostDisabled, ScalingFlags::DisableTopmost, flags)
-
+	DEFINE_FLAG_ACCESSOR(IsResourceAliasingDisabled, ScalingFlags::DisableResourceAliasing, flags)
+	
 	std::vector<EffectOption> effects;
 	ScalingFlags flags = ScalingFlags::AdjustCursorSpeed;
 	Cropping cropping{};
@@ -209,12 +229,15 @@ struct ScalingOptions {
 	CaptureMethod captureMethod = CaptureMethod::GraphicsCapture;
 	MultiMonitorUsage multiMonitorUsage = MultiMonitorUsage::Closest;
 	OutputAlignment outputAlignment = OutputAlignment::Center;
-	CursorInterpolationMode cursorInterpolationMode = CursorInterpolationMode::NearestNeighbor;
+	CursorInterpolationMode cursorInterpolationMode = CursorInterpolationMode::Bicubic;
 	std::optional<float> autoHideCursorDelay;
 	DuplicateFrameDetectionMode duplicateFrameDetectionMode = DuplicateFrameDetectionMode::Dynamic;
+	// 取值范围 1~3
+	uint32_t maxProducerInFlightFrames = 2;
 	ToolbarState fullscreenInitialToolbarState = ToolbarState::AutoHide;
 	ToolbarState windowedInitialToolbarState = ToolbarState::AutoHide;
 	float initialWindowedScaleFactor = 0.0f;
+	HighestShaderModel highestShaderModel = HighestShaderModel::NotLimited;
 	std::filesystem::path screenshotsDir;
 	std::string screenshotFilenameTemplate;
 

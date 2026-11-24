@@ -2,8 +2,8 @@
 // 移植自 https://github.com/libretro/common-shaders/blob/master/windowed/shaders/lanczos6.cg
 
 //!MAGPIE EFFECT
-//!VERSION 4
-
+//!VERSION 5
+//!CAPABILITY AdvancedColor
 
 //!PARAMETER
 //!LABEL Anti-ringing Strength
@@ -22,7 +22,6 @@ Texture2D OUTPUT;
 //!SAMPLER
 //!FILTER POINT
 SamplerState sam;
-
 
 //!PASS 1
 //!STYLE PS
