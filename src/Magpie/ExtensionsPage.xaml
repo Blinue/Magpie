@@ -7,73 +7,74 @@
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       mc:Ignorable="d">
 	<local:PageFrame x:Uid="Home_ExtensionsFrame">
-		<local:PageFrame.HeaderAction>
-			<Button x:Uid="Profile_MoreOptions"
-			        Width="{StaticResource PageFrameHeaderButtonHeight}"
-			        Height="{StaticResource PageFrameHeaderButtonHeight}"
-			        Padding="0"
-			        Content="&#xE712;"
-			        FontFamily="{ThemeResource SymbolThemeFontFamily}"
-			        FontSize="{StaticResource PageFrameHeaderIconFontSize}"
-			        Style="{StaticResource SubtleButtonStyle}">
-				<Button.Flyout>
-					<MenuFlyout Placement="Bottom"
-					            ShouldConstrainToRootBounds="False">
-						<MenuFlyoutItem Click="{x:Bind ViewModel.ImportDll}"
-						                Text="导入扩展">
-							<MenuFlyoutItem.Icon>
-								<FontIcon Glyph="&#xF012;" />
-							</MenuFlyoutItem.Icon>
-						</MenuFlyoutItem>
-						<MenuFlyoutItem Text="导入着色器效果">
-							<MenuFlyoutItem.Icon>
-								<FontIcon Glyph="&#xF000;" />
-							</MenuFlyoutItem.Icon>
-						</MenuFlyoutItem>
-					</MenuFlyout>
-				</Button.Flyout>
-			</Button>
-		</local:PageFrame.HeaderAction>
-		<local:SimpleStackPanel Margin="0,4,0,0"
-		                        ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
-		                        Orientation="Vertical"
-		                        Spacing="{StaticResource SettingsGroupSpacing}">
-			<local:SettingsGroup Header="已安装">
-				<ListView Grid.Row="1"
-				          Margin="0,12,0,0"
-				          ItemsSource="{x:Bind ViewModel.Extensions, Mode=OneTime}"
-				          SelectionMode="None"
-				          TabNavigation="Local">
-					<ListView.ItemContainerTransitions>
-						<TransitionCollection>
-							<ContentThemeTransition />
-							<RepositionThemeTransition IsStaggeringEnabled="False" />
-						</TransitionCollection>
-					</ListView.ItemContainerTransitions>
-					<ListView.Resources>
-						<Style TargetType="ListViewItem">
-							<Setter Property="Margin" Value="0,0,0,2" />
-							<Setter Property="Padding" Value="0" />
-							<Setter Property="MinHeight" Value="0" />
-							<Setter Property="HorizontalContentAlignment" Value="Stretch" />
-							<Setter Property="IsTabStop" Value="False" />
-						</Style>
-					</ListView.Resources>
-					<ListView.ItemTemplate>
-						<DataTemplate x:DataType="local:ExtensionItem">
-							<local:SettingsExpander Description="{x:Bind Description, Mode=OneWay}"
-							                        Header="{x:Bind Name, Mode=OneWay}">
-								<ToggleSwitch IsOn="{x:Bind IsEnabled, Mode=TwoWay}" />
-							</local:SettingsExpander>
-						</DataTemplate>
-					</ListView.ItemTemplate>
-				</ListView>
-			</local:SettingsGroup>
-			<local:SettingsGroup Header="仓库">
-				<local:SettingsCard Header="test1" />
-				<local:SettingsCard Header="test2" />
-				<local:SettingsCard Header="test3" />
-			</local:SettingsGroup>
-		</local:SimpleStackPanel>
+		<Grid Padding="0,4,0,0">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="*" />
+			</Grid.RowDefinitions>
+			<local:SimpleStackPanel Grid.Row="0"
+			                        Orientation="Horizontal"
+			                        Spacing="8">
+				<Button Click="{x:Bind ViewModel.ImportExtension}"
+				        Style="{StaticResource AccentButtonStyle}">
+					<local:SimpleStackPanel Orientation="Horizontal"
+					                        Spacing="8">
+						<FontIcon Glyph="&#xE710;"
+						          Style="{StaticResource ButtonFontIconStyle}" />
+						<TextBlock Text="导入" />
+					</local:SimpleStackPanel>
+				</Button>
+				<Button>
+					<local:SimpleStackPanel Orientation="Horizontal"
+					                        Spacing="8">
+						<FontIcon Glyph="&#xF000;"
+						          Style="{StaticResource ButtonFontIconStyle}" />
+						<TextBlock Text="导入着色器效果" />
+					</local:SimpleStackPanel>
+				</Button>
+			</local:SimpleStackPanel>
+			<local:SimpleStackPanel Grid.Row="1"
+			                        Margin="0,12,0,0"
+			                        HorizontalAlignment="Center"
+			                        VerticalAlignment="Center"
+			                        Spacing="16"
+			                        Visibility="{x:Bind ViewModel.HasExtension, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}">
+				<FontIcon FontSize="80"
+				          Glyph="&#xEA86;" />
+				<TextBlock HorizontalAlignment="Center"
+				           Text="尚未安装扩展"
+				           TextWrapping="WrapWholeWords" />
+			</local:SimpleStackPanel>
+			<ListView Grid.Row="1"
+			          Margin="0,12,0,0"
+			          ItemsSource="{x:Bind ViewModel.Extensions, Mode=OneTime}"
+			          SelectionMode="None"
+			          TabNavigation="Local"
+			          Visibility="{x:Bind ViewModel.HasExtension, Mode=OneWay}">
+				<ListView.ItemContainerTransitions>
+					<TransitionCollection>
+						<ContentThemeTransition />
+						<RepositionThemeTransition IsStaggeringEnabled="False" />
+					</TransitionCollection>
+				</ListView.ItemContainerTransitions>
+				<ListView.Resources>
+					<Style TargetType="ListViewItem">
+						<Setter Property="Margin" Value="0,0,0,2" />
+						<Setter Property="Padding" Value="0" />
+						<Setter Property="MinHeight" Value="0" />
+						<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+						<Setter Property="IsTabStop" Value="False" />
+					</Style>
+				</ListView.Resources>
+				<ListView.ItemTemplate>
+					<DataTemplate x:DataType="local:ExtensionItem">
+						<local:SettingsExpander Description="{x:Bind Description, Mode=OneTime}"
+						                        Header="{x:Bind Name, Mode=OneTime}">
+							<ToggleSwitch IsOn="{x:Bind IsEnabled, Mode=TwoWay}" />
+						</local:SettingsExpander>
+					</DataTemplate>
+				</ListView.ItemTemplate>
+			</ListView>
+		</Grid>
 	</local:PageFrame>
 </Page>

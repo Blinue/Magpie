@@ -6,6 +6,8 @@
 #if __has_include("ExtensionsViewModel.g.cpp")
 #include "ExtensionsViewModel.g.cpp"
 #endif
+#include "App.h"
+#include "AppSettings.h"
 #include "AppFolderManager.h"
 #include "ExtensionHelper.h"
 #include "ExtensionService.h"
@@ -14,7 +16,6 @@
 #include "Logger.h"
 #include "StrHelper.h"
 #include "Win32Helper.h"
-#include "App.h"
 #include <rapidjson/document.h>
 #include <zip/zip.h>
 
@@ -23,25 +24,40 @@ using namespace Magpie;
 namespace winrt::Magpie::implementation {
 
 hstring ExtensionItem::Name() const noexcept {
-    return hstring();
+    return hstring(StrHelper::UTF8ToUTF16(_data->name));
 }
 
 hstring ExtensionItem::Description() const noexcept {
-	return hstring();
+	return hstring(StrHelper::UTF8ToUTF16(_data->description));
 }
 
 bool ExtensionItem::IsEnabled() const noexcept {
-	return false;
+	return AppSettings::Get().ExtensionSettings()[_data->idx].isEnabled;
 }
 
-void ExtensionItem::IsEnabled(bool /*value*/) noexcept {
+void ExtensionItem::IsEnabled(bool value) noexcept {
+	ExtensionService::Get().SetExtensionEnabled(_extId, value);
+	RaisePropertyChanged(L"IsEnabled");
 }
 
 ExtensionsViewModel::ExtensionsViewModel() {
+	const SmallVectorImpl<ExtensionSetting>& extSettings = AppSettings::Get().ExtensionSettings();
+	uint32_t extCount = (uint32_t)extSettings.size();
 
+	std::vector<IInspectable> effects;
+	effects.reserve(extCount);
+	for (uint32_t i = 0; i < extCount; ++i) {
+		const std::string& extId = extSettings[i].extId;
+		if (const Extension* extension = ExtensionService::Get().GetExtension(extId)) {
+			effects.push_back(*make_self<ExtensionItem>(extId, extension));
+		} else {
+			assert(false);
+		}
+	}
+	_extensions = single_threaded_observable_vector(std::move(effects));
 }
 
-winrt::fire_and_forget ExtensionsViewModel::ImportDll() noexcept {
+winrt::fire_and_forget ExtensionsViewModel::ImportExtension() noexcept {
 	co_await winrt::resume_background();
 
 	com_ptr<IFileOpenDialog> pickExtDialog =
@@ -115,7 +131,7 @@ winrt::fire_and_forget ExtensionsViewModel::ImportDll() noexcept {
 
 	co_await App::Get().Dispatcher();
 
-	if (ExtensionService::Get().GetExtensionInfo(extId)) {
+	if (ExtensionService::Get().GetExtension(extId)) {
 		Logger::Get().Error(StrHelper::Concat("已存在 id 为 ", extId, " 的插件"));
 		co_return;
 	}
@@ -146,10 +162,12 @@ winrt::fire_and_forget ExtensionsViewModel::ImportDll() noexcept {
 	}
 
 	ExtensionService::Get().AddExtension(extId, rootObj);
+
+	RaisePropertyChanged(L"HasExtension");
 }
 
 bool ExtensionsViewModel::HasExtension() const noexcept {
-	return false;
+	return !AppSettings::Get().ExtensionSettings().empty();
 }
 
 }

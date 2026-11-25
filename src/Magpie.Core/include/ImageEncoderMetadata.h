@@ -7,7 +7,7 @@ namespace Magpie {
 
 struct ImageEncoderOptionDesc {
 	std::string id;
-	std::string displayName;
+	std::string name;
 	std::string description;
 
 	std::variant<
@@ -20,7 +20,7 @@ struct ImageEncoderOptionDesc {
 };
 
 struct ImageEncoderMetadata {
-	std::string displayName;
+	std::string name;
 	std::string description;
 	std::string fileExtension;
 

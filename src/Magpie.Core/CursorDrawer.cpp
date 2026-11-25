@@ -64,7 +64,7 @@ CursorDrawer::~CursorDrawer() noexcept {
 #ifdef _DEBUG
 	if (_d3d12Context) {
 		auto& descriptorHeap = _d3d12Context->GetDescriptorHeap();
-		for (const auto& pair : _cursorInfos) {
+		for (const auto& pair : _cursorDatas) {
 			for (const _CursorFrame& frame : pair.second.frames) {
 				if (frame.textureSrvOffset != UINT_MAX) {
 					descriptorHeap.Free(frame.textureSrvOffset, 1);
@@ -162,10 +162,10 @@ void CursorDrawer::PrepareForDraw(HCURSOR hCursor, POINT cursorPos, bool& needRe
 	}
 
 	// 不要保存指针，_ResolveCursor 后可能失效
-	const _CursorInfoKey oldCursorKey = _curCursorInfoKeyValue ?
-		_curCursorInfoKeyValue->first : _CursorInfoKey{};
+	const _CursorKey oldCursorKey = _curCursorDataKeyValue ?
+		_curCursorDataKeyValue->first : _CursorKey{};
 	const uint32_t oldFrameSeqIdx = _curFrameSeqIdx;
-	_curCursorInfoKeyValue = nullptr;
+	_curCursorDataKeyValue = nullptr;
 	_curFrameSeqIdx = 0;
 
 	if (hCursor && _isCursorVisible) {
@@ -181,40 +181,40 @@ void CursorDrawer::PrepareForDraw(HCURSOR hCursor, POINT cursorPos, bool& needRe
 		}
 
 		while (hCursor) {
-			_curCursorInfoKeyValue = _ResolveCursor(hCursor, cursorPos);
+			_curCursorDataKeyValue = _ResolveCursor(hCursor, cursorPos);
 
-			if (_curCursorInfoKeyValue) {
-				const _CursorInfo& curCursorInfo = _curCursorInfoKeyValue->second;
+			if (_curCursorDataKeyValue) {
+				const _CursorData& curCursorData = _curCursorDataKeyValue->second;
 
-				if (curCursorInfo.IsAnimated()) {
+				if (curCursorData.IsAnimated()) {
 					auto now = std::chrono::steady_clock::now();
 
-					if (oldCursorKey == _curCursorInfoKeyValue->first) {
+					if (oldCursorKey == _curCursorDataKeyValue->first) {
 						_curFrameSeqIdx = oldFrameSeqIdx;
 
 						// 计算新帧序号
 						while (now >= _curFrameSeqEndTime) {
 							_curFrameSeqIdx = (_curFrameSeqIdx + 1) %
-								(uint32_t)curCursorInfo.frameSequence.size();
-							_curFrameSeqEndTime += curCursorInfo.frameSequence[_curFrameSeqIdx].second;
+								(uint32_t)curCursorData.frameSequence.size();
+							_curFrameSeqEndTime += curCursorData.frameSequence[_curFrameSeqIdx].second;
 						}
 					} else {
-						_curFrameSeqEndTime = now + curCursorInfo.frameSequence[0].second;
+						_curFrameSeqEndTime = now + curCursorData.frameSequence[0].second;
 					}
 				}
 
 				const _CursorFrame& curCursorFrame =
-					curCursorInfo.frames[curCursorInfo.GetFrameIdx(_curFrameSeqIdx)];
+					curCursorData.frames[curCursorData.GetFrameIdx(_curFrameSeqIdx)];
 				// 检查光标是否在视口内。hCursor 不为 NULL 说明光标已在缩放窗口内，因此这个检查很少失败
 				RECT cursorRect = {
 					.left = cursorPos.x - (LONG)curCursorFrame.hotspot.x,
 					.top = cursorPos.y - (LONG)curCursorFrame.hotspot.y
 				};
-				cursorRect.right = cursorRect.left + (LONG)curCursorInfo.size.width;
-				cursorRect.bottom = cursorRect.top + (LONG)curCursorInfo.size.height;
+				cursorRect.right = cursorRect.left + (LONG)curCursorData.size.width;
+				cursorRect.bottom = cursorRect.top + (LONG)curCursorData.size.height;
 				
 				if (!Win32Helper::IsRectOverlap(cursorRect, _destRect)) {
-					_curCursorInfoKeyValue = nullptr;
+					_curCursorDataKeyValue = nullptr;
 				}
 
 				break;
@@ -234,11 +234,11 @@ void CursorDrawer::PrepareForDraw(HCURSOR hCursor, POINT cursorPos, bool& needRe
 
 	// 光标形状或位置变化时总是需要重新绘制；有时即使不变也需要重新绘制，比如色域
 	// 或 _cursorBaseSize 变化后。
-	_CursorInfoKey newCursorKey = _curCursorInfoKeyValue ?
-		_curCursorInfoKeyValue->first : _CursorInfoKey{};
+	_CursorKey newCursorKey = _curCursorDataKeyValue ?
+		_curCursorDataKeyValue->first : _CursorKey{};
 	needRedraw = newCursorKey != oldCursorKey;
 
-	if (_curCursorInfoKeyValue) {
+	if (_curCursorDataKeyValue) {
 		needRedraw |= _curFrameSeqIdx != oldFrameSeqIdx;
 		needRedraw |= cursorPos != _curCursorPos;
 	}
@@ -254,21 +254,21 @@ HRESULT CursorDrawer::Draw(
 	ID3D12Resource* backBuffer,
 	bool isOverlayVisible
 ) noexcept {
-	if (!_curCursorInfoKeyValue) {
+	if (!_curCursorDataKeyValue) {
 		return S_OK;
 	}
 
-	_CursorInfo& cursorInfo = _curCursorInfoKeyValue->second;
-	const uint32_t cursorFrameIdx = cursorInfo.GetFrameIdx(_curFrameSeqIdx);
-	_CursorFrame& cursorFrame = cursorInfo.frames[cursorFrameIdx];
+	_CursorData& cursorData = _curCursorDataKeyValue->second;
+	const uint32_t cursorFrameIdx = cursorData.GetFrameIdx(_curFrameSeqIdx);
+	_CursorFrame& cursorFrame = cursorData.frames[cursorFrameIdx];
 
-	cursorInfo.lastUseFenceValue = frameFenceValue;
+	cursorData.lastUseFenceValue = frameFenceValue;
 
-	// 清理旧 _CursorInfo，不会导致 cursorInfo 失效
-	_EvictOldCursorInfos(completedFenceValue);
+	// 清理旧 _CursorData，不会导致 cursorData 失效
+	_EvictOldCursorDatas(completedFenceValue);
 
 	if (!cursorFrame.textureAllocation) {
-		HRESULT hr = _InitializeCursorTexture(graphicsContext , cursorInfo, cursorFrameIdx);
+		HRESULT hr = _InitializeCursorTexture(graphicsContext , cursorData, cursorFrameIdx);
 		if (FAILED(hr)) {
 			Logger::Get().ComError("_InitializeCursorTexture 失败", hr);
 			return hr;
@@ -281,8 +281,8 @@ HRESULT CursorDrawer::Draw(
 		.left = _curCursorPos.x - (LONG)cursorFrame.hotspot.x,
 		.top = _curCursorPos.y - (LONG)cursorFrame.hotspot.y
 	};
-	cursorRect.right = cursorRect.left + (LONG)cursorInfo.size.width;
-	cursorRect.bottom = cursorRect.top + (LONG)cursorInfo.size.height;
+	cursorRect.right = cursorRect.left + (LONG)cursorData.size.width;
+	cursorRect.bottom = cursorRect.top + (LONG)cursorData.size.height;
 
 	if (cursorFrame.type == _CursorType::Color) {
 		if (!_colorPSO) {
@@ -326,8 +326,8 @@ HRESULT CursorDrawer::Draw(
 		float constants[] = {
 			(cursorRect.left - _destRect.left) * 2 / (float)viewportSize.cx - 1.0f,	// left
 			1.0f - (cursorRect.top - _destRect.top) * 2 / (float)viewportSize.cy,	// top
-			cursorInfo.size.width * 2 / (float)viewportSize.cx,	// width
-			cursorInfo.size.height * 2 / (float)-viewportSize.cy	// height
+			cursorData.size.width * 2 / (float)viewportSize.cx,	// width
+			cursorData.size.height * 2 / (float)-viewportSize.cy	// height
 		};
 		graphicsContext.SetRoot32BitConstants(0, (UINT)std::size(constants), constants);
 	}
@@ -339,8 +339,8 @@ HRESULT CursorDrawer::Draw(
 		DirectXHelper::Constant32 constants[] = {
 			{.uintVal = cursorFrame.resSize.width},
 			{.uintVal = cursorFrame.resSize.height},
-			{.uintVal = cursorInfo.size.width},
-			{.uintVal = cursorInfo.size.height},
+			{.uintVal = cursorData.size.width},
+			{.uintVal = cursorData.size.height},
 			{.uintVal = isOverlayVisible ? 0u : uint32_t(cursorRect.left - _destRect.left)},
 			{.uintVal = isOverlayVisible ? 0u : uint32_t(cursorRect.top - _destRect.top)},
 			// 原始帧需要伽马校正，从渲染目标复制的临时纹理不需要。WCG/HDR 下这个参数有不同的意义
@@ -352,8 +352,8 @@ HRESULT CursorDrawer::Draw(
 
 		if (isOverlayVisible) {
 			// 需要从渲染目标复制光标下区域到临时纹理
-			if (_tempOriginTextureSize.width < cursorInfo.size.width ||
-				_tempOriginTextureSize.height < cursorInfo.size.height
+			if (_tempOriginTextureSize.width < cursorData.size.width ||
+				_tempOriginTextureSize.height < cursorData.size.height
 			) {
 				if (_tempOriginTextureAllocation) {
 					auto& gpuResourceManager = _d3d12Context->GetGpuResourceManager();
@@ -363,8 +363,8 @@ HRESULT CursorDrawer::Draw(
 				}
 
 				// 对齐到 32 的倍数
-				_tempOriginTextureSize.width = (cursorInfo.size.width + 31) & ~31;
-				_tempOriginTextureSize.height = (cursorInfo.size.height + 31) & ~31;
+				_tempOriginTextureSize.width = (cursorData.size.width + 31) & ~31;
+				_tempOriginTextureSize.height = (cursorData.size.height + 31) & ~31;
 
 				ID3D12Device5* device = _d3d12Context->GetDevice();
 				auto& gpuResourceManager = _d3d12Context->GetGpuResourceManager();
@@ -423,8 +423,8 @@ HRESULT CursorDrawer::Draw(
 				uint32_t destTop = uint32_t(std::max(0l,
 					viewportRect.top - cursorRect.top + _rendererRect.top));
 
-				assert(destLeft + srcBox.right - srcBox.left <= cursorInfo.size.width);
-				assert(destTop + srcBox.bottom - srcBox.top <= cursorInfo.size.height);
+				assert(destLeft + srcBox.right - srcBox.left <= cursorData.size.width);
+				assert(destTop + srcBox.bottom - srcBox.top <= cursorData.size.height);
 
 				graphicsContext.CopyTextureRegion(
 					_tempOriginTextureAllocation->GetResource(), destLeft, destTop, backBuffer, &srcBox);
@@ -466,7 +466,7 @@ void CursorDrawer::OnResized(const RECT& rendererRect, const RECT& destRect) noe
 
 	// 光标缩放和源窗口相同则清空已解析的光标，此时已和 GPU 同步
 	if (ScalingWindow::Get().Options().cursorScaleFactor < FLOAT_EPSILON<float>) {
-		_RetireCursorInfos(true);
+		_RetireCursorDatas(true);
 	}
 }
 
@@ -492,7 +492,7 @@ void CursorDrawer::OnColorInfoChanged(const ColorInfo& colorInfo) noexcept {
 		_maskedColorPSO = nullptr;
 	}
 
-	_RetireCursorInfos(true);
+	_RetireCursorDatas(true);
 }
 
 static bool GetCursorSizeFromBmps(HBITMAP hColorBmp, HBITMAP hMaskBmp, SizeU& size) noexcept {
@@ -534,7 +534,7 @@ static bool GetCursorSizeUnderDpi96(HCURSOR hCursor, SizeU& cursorSize) noexcept
 	return true;
 }
 
-std::pair<const CursorDrawer::_CursorInfoKey, CursorDrawer::_CursorInfo>* CursorDrawer::_ResolveCursor(
+std::pair<const CursorDrawer::_CursorKey, CursorDrawer::_CursorData>* CursorDrawer::_ResolveCursor(
 	HCURSOR hCursor,
 	POINT cursorPos
 ) noexcept {
@@ -549,18 +549,18 @@ std::pair<const CursorDrawer::_CursorInfoKey, CursorDrawer::_CursorInfo>* Cursor
 		Logger::Get().ComError("GetDpiForMonitor 失败", hr);
 	}
 	
-	auto it = _cursorInfos.find(_CursorInfoKey{ hCursor, monitorDpi });
-	if (it != _cursorInfos.end()) {
+	auto it = _cursorDatas.find(_CursorKey{ hCursor, monitorDpi });
+	if (it != _cursorDatas.end()) {
 		return &*it;
 	}
 
 	// 检查此光标是否不随 DPI 缩放
-	it = _cursorInfos.find(_CursorInfoKey{ hCursor, 0 });
-	if (it != _cursorInfos.end()) {
+	it = _cursorDatas.find(_CursorKey{ hCursor, 0 });
+	if (it != _cursorDatas.end()) {
 		return &*it;
 	}
 
-	_CursorInfo cursorInfo{};
+	_CursorData cursorInfo{};
 	bool isCursorDpiAware = true;
 
 	ICONINFOEX cursorIconInfoEx = { .cbSize = sizeof(cursorIconInfoEx) };
@@ -672,7 +672,7 @@ std::pair<const CursorDrawer::_CursorInfoKey, CursorDrawer::_CursorInfo>* Cursor
 		}
 	}
 
-	return &*_cursorInfos.emplace(_CursorInfoKey{ hCursor, isCursorDpiAware ? monitorDpi : 0 },
+	return &*_cursorDatas.emplace(_CursorKey{ hCursor, isCursorDpiAware ? monitorDpi : 0 },
 		std::move(cursorInfo)).first;
 }
 
@@ -979,14 +979,14 @@ bool CursorDrawer::_ResolveCursorFramePixels(
 
 HRESULT CursorDrawer::_InitializeCursorTexture(
 	GraphicsContext& graphicsContext,
-	_CursorInfo& cursorInfo,
+	_CursorData& cursorData,
 	uint32_t cursorFrameIdx
 ) noexcept {
 	ID3D12Device5* device = _d3d12Context->GetDevice();
 	auto& gpuResourceManager = _d3d12Context->GetGpuResourceManager();
 	auto& descriptorHeap = _d3d12Context->GetDescriptorHeap();
 
-	_CursorFrame& curCursorFrame = cursorInfo.frames[cursorFrameIdx];
+	_CursorFrame& curCursorFrame = cursorData.frames[cursorFrameIdx];
 
 	DXGI_FORMAT textureFormat = curCursorFrame.type == _CursorType::Color ?
 		DXGI_FORMAT_R16G16B16A16_FLOAT : (curCursorFrame.type == _CursorType::Monochrome ?
@@ -1083,8 +1083,8 @@ HRESULT CursorDrawer::_InitializeCursorTexture(
 	// * 需要缩小时始终使用 CatmullRom
 	// * 需要放大时是否使用 CatmullRom 取决于 cursorInterpolationMode
 	if (curCursorFrame.type == _CursorType::Color &&
-		(cursorInfo.size.width < curCursorFrame.resSize.width ||
-		(cursorInfo.size.width > curCursorFrame.resSize.width &&
+		(cursorData.size.width < curCursorFrame.resSize.width ||
+		(cursorData.size.width > curCursorFrame.resSize.width &&
 			ScalingWindow::Get().Options().cursorInterpolationMode == CursorInterpolationMode::Bicubic))
 	) {
 		uint32_t resTextureSrvOffset;
@@ -1095,7 +1095,7 @@ HRESULT CursorDrawer::_InitializeCursorTexture(
 		hr = gpuResourceManager.CreateTexture(
 			D3D12_HEAP_TYPE_DEFAULT,
 			textureFormat,
-			cursorInfo.size,
+			cursorData.size,
 			D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET,
 			D3D12_RESOURCE_STATE_RENDER_TARGET,
 			curCursorFrame.textureAllocation.put()
@@ -1169,7 +1169,7 @@ HRESULT CursorDrawer::_InitializeCursorTexture(
 		graphicsContext.SetRootDescriptorTable(1, resTextureSrvOffset);
 
 		graphicsContext.RSSetViewportAndScissorRect(CD3DX12_RECT(
-			0, 0, (LONG)cursorInfo.size.width, (LONG)cursorInfo.size.height));
+			0, 0, (LONG)cursorData.size.width, (LONG)cursorData.size.height));
 
 		uint32_t oldRtvOffset = graphicsContext.OMGetRenderTarget();
 		graphicsContext.OMSetRenderTarget(textureRtvOffset);
@@ -1514,11 +1514,11 @@ HRESULT CursorDrawer::_CreateCursorResizerPSO() noexcept {
 	return S_OK;
 }
 
-void CursorDrawer::_RetireCursorInfos(bool isGpuWaited) noexcept {
+void CursorDrawer::_RetireCursorDatas(bool isGpuWaited) noexcept {
 	auto& descriptorHeap = _d3d12Context->GetDescriptorHeap();
 	auto& gpuResourceManager = _d3d12Context->GetGpuResourceManager();
 
-	for (auto& pair : _cursorInfos) {
+	for (auto& pair : _cursorDatas) {
 		for (_CursorFrame& frame : pair.second.frames) {
 			if (isGpuWaited) {
 				if (frame.textureSrvOffset != UINT_MAX) {
@@ -1534,19 +1534,19 @@ void CursorDrawer::_RetireCursorInfos(bool isGpuWaited) noexcept {
 	}
 
 	_lastRawCursorHandle = NULL;
-	_curCursorInfoKeyValue = nullptr;
-	_cursorInfos.clear();
+	_curCursorDataKeyValue = nullptr;
+	_cursorDatas.clear();
 }
 
 // 清理使用频率较低的 CursorInfo
-void CursorDrawer::_EvictOldCursorInfos(uint64_t completedFenceValue) noexcept {
+void CursorDrawer::_EvictOldCursorDatas(uint64_t completedFenceValue) noexcept {
 	static constexpr uint32_t MAX_CURSOR_INFO_COUNT = 63;
-	if (_cursorInfos.size() <= MAX_CURSOR_INFO_COUNT) {
+	if (_cursorDatas.size() <= MAX_CURSOR_INFO_COUNT) {
 		return;
 	}
 
-	std::vector<const std::pair<const _CursorInfoKey, _CursorInfo>*> cursorInfos;
-	for (const auto& pair : _cursorInfos) {
+	std::vector<const std::pair<const _CursorKey, _CursorData>*> cursorInfos;
+	for (const auto& pair : _cursorDatas) {
 		cursorInfos.push_back(&pair);
 	}
 
@@ -1559,7 +1559,7 @@ void CursorDrawer::_EvictOldCursorInfos(uint64_t completedFenceValue) noexcept {
 	// 最多删除一半成员
 	uint32_t removeCount = 0;
 	for (uint32_t i = 0; i < (MAX_CURSOR_INFO_COUNT + 1) / 2; ++i) {
-		const _CursorInfo& curCursorInfo = cursorInfos[i]->second;
+		const _CursorData& curCursorInfo = cursorInfos[i]->second;
 
 		if (curCursorInfo.lastUseFenceValue > completedFenceValue) {
 			break;
@@ -1570,13 +1570,13 @@ void CursorDrawer::_EvictOldCursorInfos(uint64_t completedFenceValue) noexcept {
 				csuDescriptorHeap.Free(frame.textureSrvOffset, 1);
 			}
 		}
-		_cursorInfos.erase(cursorInfos[i]->first);
+		_cursorDatas.erase(cursorInfos[i]->first);
 
 		++removeCount;
 	}
 
-	Logger::Get().Info(fmt::format("已清理 {} 个 _cursorInfos 成员，剩余 {}",
-		removeCount, _cursorInfos.size()).c_str());
+	Logger::Get().Info(fmt::format("已清理 {} 个 _cursorDatas 成员，剩余 {}",
+		removeCount, _cursorDatas.size()).c_str());
 }
 
 void CursorDrawer::_OnCursorsRegChanged(wil::RegistryChangeKind) noexcept {
@@ -1589,7 +1589,7 @@ void CursorDrawer::_OnCursorsRegChanged(wil::RegistryChangeKind) noexcept {
 		[this, cursorBaseSize(GetCursorBaseSize()), oldRunId]() {
 			if (ScalingWindow::RunId() == oldRunId) {
 				_cursorBaseSize = cursorBaseSize;
-				_RetireCursorInfos(false);
+				_RetireCursorDatas(false);
 			}
 		}
 	);

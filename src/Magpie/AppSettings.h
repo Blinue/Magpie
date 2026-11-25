@@ -4,13 +4,12 @@
 #include "Shortcut.h"
 #include "Singleton.h"
 #include "OptionDesc.h"
+#include "ScalingMode.h"
 #include <rapidjson/document.h>
 #include <rapidjson/stringbuffer.h>
 #include <winrt/Magpie.h>
 
 namespace Magpie {
-
-struct ScalingMode;
 
 enum class AppTheme {
 	Light,
@@ -221,7 +220,7 @@ public:
 		SaveAsync();
 	}
 
-	std::vector<ScalingMode>& ScalingModes() noexcept {
+	SmallVectorImpl<ScalingMode>& ScalingModes() noexcept {
 		return _scalingModes;
 	}
 
@@ -318,7 +317,7 @@ private:
 
 	std::array<Shortcut, (size_t)winrt::Magpie::ShortcutAction::COUNT_OR_NONE> _shortcuts;
 
-	std::vector<ScalingMode> _scalingModes;
+	SmallVector<ScalingMode, 0> _scalingModes;
 
 	Profile _defaultProfile;
 	SmallVector<Profile, 0> _profiles;

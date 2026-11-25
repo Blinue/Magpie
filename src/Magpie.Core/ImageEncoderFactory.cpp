@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "ImageEncoderFactory.h"
 #include "PngImageEncoder.h"
+#include "Logger.h"
+#include "StrHelper.h"
 
 namespace Magpie {
 
@@ -19,6 +21,17 @@ void ImageEncoderFactory::RegisterImageEncoder(
 ) noexcept {
 	assert(!_encoders.contains(id));
 	_encoders.emplace(id, std::make_pair(std::move(metadata), std::move(encodeFn)));
+	Logger::Get().Info(StrHelper::Concat("已注册图像编码器 ", id));
+}
+
+bool ImageEncoderFactory::UnregisterImageEncoder(std::string_view id) noexcept {
+	size_t count = _encoders.erase(id);
+	if (count > 0) {
+		Logger::Get().Info(StrHelper::Concat("已取消注册图像编码器 ", id));
+		return true;
+	} else {
+		return false;
+	}
 }
 
 const ImageEncoderMetadata* ImageEncoderFactory::GetEncoderMetadata(std::string_view id) const noexcept {

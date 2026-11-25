@@ -65,7 +65,7 @@ private:
 	IVector<IInspectable> _newScalingModeCopyFromList{ nullptr };
 	int _newScalingModeCopyFrom = 0;
 
-	bool _addingScalingModes = false;
+	bool _isAdding = false;
 };
 
 }

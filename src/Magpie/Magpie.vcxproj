@@ -156,7 +156,7 @@
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="ExtensionHelper.h" />
-    <ClInclude Include="ExtensionInfo.h" />
+    <ClInclude Include="Extension.h" />
     <ClInclude Include="ExtensionsPage.h">
       <DependentUpon>ExtensionsPage.xaml</DependentUpon>
       <SubType>Code</SubType>

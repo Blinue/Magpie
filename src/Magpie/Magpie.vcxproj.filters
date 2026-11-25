@@ -82,6 +82,7 @@
     <ClCompile Include="ExtensionService.cpp">
       <Filter>Services</Filter>
     </ClCompile>
+    <ClCompile Include="ExtensionHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -161,9 +162,10 @@
       <Filter>Services</Filter>
     </ClInclude>
     <ClInclude Include="MagpieExtApi.h" />
-    <ClInclude Include="ExtensionInfo.h">
+    <ClInclude Include="Extension.h">
       <Filter>Models</Filter>
     </ClInclude>
+    <ClInclude Include="ExtensionHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Pages">

@@ -169,10 +169,10 @@ bool ScalingModesViewModel::HasScalingMode() const noexcept {
 }
 
 fire_and_forget ScalingModesViewModel::_AddScalingModes(bool isInitialExpanded) {
-	if (_addingScalingModes) {
+	if (_isAdding) {
 		co_return;
 	}
-	_addingScalingModes = true;
+	_isAdding = true;
 
 	ScalingModesService& scalingModesService = ScalingModesService::Get();
 	uint32_t total = scalingModesService.GetScalingModeCount();
@@ -213,7 +213,7 @@ fire_and_forget ScalingModesViewModel::_AddScalingModes(bool isInitialExpanded) 
 		}
 	}
 
-	_addingScalingModes = false;
+	_isAdding = false;
 }
 
 void ScalingModesViewModel::_ScalingModesService_Added(EffectAddedWay way) {

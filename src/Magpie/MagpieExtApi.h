@@ -77,7 +77,7 @@ struct MagpieImageEncoderOptionDesc {
 	// 必需
 	const char* id;
 	// 必需
-	const char* displayName;
+	const char* name;
 	const char* description;
 
 	MagpieOptionType type;
@@ -94,7 +94,7 @@ struct MagpieImageEncoderDesc {
 	// 必需
 	const char* id;
 	// 必需
-	const char* displayName;
+	const char* name;
 	// 必需
 	const char* fileExtension;
 	const char* description;
@@ -124,7 +124,7 @@ struct MagpieEffectDesc {
 	// 必需
 	const char* id;
 	// 必需
-	const char* displayName;
+	const char* name;
 	const char* description;
 
 	// 0 表示可以自由缩放
@@ -135,12 +135,6 @@ struct MagpieEffectDesc {
 };
 
 struct MagpieExtensionDesc {
-	// 必需
-	const char* displayName;
-	const char* author;
-	const char* homePageUrl;
-	const char* description;
-
 	const MagpieImageEncoderDesc* imageEncoderDescs;
 	uint32_t imageEncoderCount;
 	const MagpieEffectDesc* effectDescs;
@@ -155,14 +149,15 @@ struct MagpieHostApi {
 		MagpieLogLevel level,
 		const char* message
 	);
-	// 获取应用显示语言。language 不得为空。函数返回时 language 指向语言字符串，该字符串在插
-	// 件的生命周期内始终有效。
+	// 获取应用显示语言。language 不得为空。返回时 language 指向 BCP 47 标记，该字符串
+	// 在插件的生命周期内始终有效。检查 BCP 47 标记时应忽略大小写。
 	HRESULT (*getLanguage)(MagpieExtContext context, const char** language);
 	// 注册插件功能。
 	HRESULT (*registerExtension)(MagpieExtContext context, const MagpieExtensionDesc* desc);
 };
 
 #define MAGPIE_EXT_ENTRY MagpieExtEntry
+typedef void MagpieExtEntryFn(MagpieHostApi*, MagpieExtContext);
 
 #ifdef __cplusplus
 }

@@ -19,18 +19,21 @@ static bool IsNullOrEmptyString(const char* str) noexcept {
 }
 
 void ExtensionService::Initialize() noexcept {
-	for (const ExtensionSetting& extSetting : AppSettings::Get().ExtensionSettings()) {
-		if (!extSetting.isEnabled) {
-			continue;
-		}
+	SmallVectorImpl<ExtensionSetting>& extSettings = AppSettings::Get().ExtensionSettings();
+	uint32_t extCount = (uint32_t)extSettings.size();
 
-		assert(ExtensionHelper::IsValidId(extSetting.extId));
-		Logger::Get().Info(StrHelper::Concat("正在加载插件 ", extSetting.extId));
+	for (uint32_t i = 0; i < extCount; ++i) {
+		const auto& [extId, isEnabled] = extSettings[i];
+
+		assert(ExtensionHelper::IsValidId(extId));
+		assert(!_extDatas.contains(extId));
+
+		Logger::Get().Info(StrHelper::Concat("正在加载插件 ", extId));
 
 		std::wstring indexPath = StrHelper::Concat(
 			AppFolderManager::Get().GetWorkingDir().native(),
 			L"\\", AppFolderManager::Get().GetExtDir(),
-			L"\\", StrHelper::UTF8ToUTF16(extSetting.extId),
+			L"\\", StrHelper::UTF8ToUTF16(extId),
 			L"\\magpie-ext.json"
 		);
 		std::string indexJson;
@@ -52,7 +55,12 @@ void ExtensionService::Initialize() noexcept {
 			continue;
 		}
 
-		_LoadExtension(extSetting.extId, const_cast<const rapidjson::Document&>(doc).GetObj());
+		_LoadExtension(
+			extId,
+			const_cast<const rapidjson::Document&>(doc).GetObj(),
+			i,
+			isEnabled
+		);
 	}
 }
 
@@ -77,12 +85,11 @@ bool ExtensionService::AddExtension(
 	std::string_view extId,
 	const rapidjson::GenericObject<true, rapidjson::Value>& indexRootObj
 ) noexcept {
-	assert(!_extDatas.contains(extId));
-	assert(ExtensionHelper::IsValidId(extId));
+	SmallVectorImpl<ExtensionSetting>& extSettings = AppSettings::Get().ExtensionSettings();
 
-	_LoadExtension(extId, indexRootObj);
+	_LoadExtension(extId, indexRootObj, (uint32_t)extSettings.size(), true);
 
-	AppSettings::Get().ExtensionSettings().push_back(ExtensionSetting{
+	extSettings.push_back(ExtensionSetting{
 		.extId = std::string(extId),
 		.isEnabled = true
 	});
@@ -91,66 +98,117 @@ bool ExtensionService::AddExtension(
 	return true;
 }
 
-const ExtensionInfo* ExtensionService::GetExtensionInfo(std::string_view extId) const noexcept {
+const Extension* ExtensionService::GetExtension(std::string_view extId) const noexcept {
 	auto it = _extDatas.find(extId);
 	if (it == _extDatas.end()) {
 		return nullptr;
 	}
 
-	return &it->second.info;
+	return &it->second;
+}
+
+bool ExtensionService::SetExtensionEnabled(std::string_view extId, bool enabled) noexcept {
+	auto it = _extDatas.find(extId);
+	if (it == _extDatas.end()) {
+		return false;
+	}
+
+	bool& isEnabled = AppSettings::Get().ExtensionSettings()[it->second.idx].isEnabled;
+
+	if (isEnabled != enabled) {
+		_SetExtensionEnabledImpl(*it, enabled);
+
+		isEnabled = enabled;
+		AppSettings::Get().SaveAsync();
+	}
+
+	return true;
+}
+
+void ExtensionService::_SetExtensionEnabledImpl(_ExtContextData& contextData, bool enabled) noexcept {
+	if (enabled) {
+		if (contextData.second.hasDll) {
+			_LoadExtensionDll(contextData);
+		}
+	} else {
+		for (const std::string& id : contextData.second.imageEncoderFullIds) {
+			if (!ImageEncoderFactory::Get().UnregisterImageEncoder(id)) {
+				Logger::Get().Error(StrHelper::Concat("取消注册图像编码器 ", id, " 失败"));
+			}
+		}
+
+		contextData.second.imageEncoderFullIds.clear();
+		contextData.second.effectFullIds.clear();
+		contextData.second.hDll.reset();
+	}
 }
 
 void ExtensionService::_LoadExtension(
 	std::string_view extId,
-	const rapidjson::GenericObject<true, rapidjson::Value>& indexRootObj
+	const rapidjson::GenericObject<true, rapidjson::Value>& indexRootObj,
+	uint32_t idx,
+	bool enabled
 ) noexcept {
 	assert(ExtensionHelper::IsValidId(extId));
+	assert(!_extDatas.contains(extId));
 
-	_ExtContextData& contextData = *_extDatas.emplace(extId, _ExtensionData{
-		.loadNo = _nextLoadNo++
-	}).first;
+	_ExtContextData& contextData = *_extDatas.emplace(extId, _ExtensionData{}).first;
+	contextData.second.idx = idx;
 
-	bool hasDll = false;
-	JsonHelper::ReadBool(indexRootObj, "has_dll", hasDll);
+	JsonHelper::ReadString(indexRootObj, "name", contextData.second.name);
+	// 未提供名字时显示 ID
+	if (contextData.second.name.empty()) {
+		contextData.second.name = StrHelper::Concat("{", extId, "}");
+	}
 
-	if (hasDll) {
-		std::wstring extIdUtf16 = StrHelper::UTF8ToUTF16(extId);
-		// 使用绝对路径以避免歧义
-		std::wstring dllPath = StrHelper::Concat(
-			AppFolderManager::Get().GetWorkingDir().native(),
-			L"\\", AppFolderManager::Get().GetExtDir(),
-			L"\\", extIdUtf16,
-			L"\\", extIdUtf16, L".dll"
-		);
+	JsonHelper::ReadString(indexRootObj, "description", contextData.second.description);
+	JsonHelper::ReadBool(indexRootObj, "has_dll", contextData.second.hasDll);
 
-		// LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR 可以加载同一个文件夹中的依赖 dll
-		contextData.second.hDll.reset(LoadLibraryEx(dllPath.c_str(), NULL,
-			LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_SEARCH_DEFAULT_DIRS));
-		if (!contextData.second.hDll) {
-			Logger::Get().Win32Error(StrHelper::Concat("加载 ", extId, ".dll 失败"));
-			contextData.second.hasError = true;
-			return;
-		}
+	if (enabled) {
+		_SetExtensionEnabledImpl(contextData, true);
+	}
+}
 
-		ExtEntryFn* extEntry = (ExtEntryFn*)GetProcAddress(
-			contextData.second.hDll.get(), STRINGIFY(MAGPIE_EXT_ENTRY));
-		if (!extEntry) {
-			Logger::Get().Error(StrHelper::Concat("插件 ", extId, " 中未找到入口函数"));
-			contextData.second.hasError = true;
-			return;
-		}
+void ExtensionService::_LoadExtensionDll(_ExtContextData& contextData) noexcept {
+	assert(contextData.second.hasDll);
 
-		MagpieHostApi hostApi = {
-			.log = &ExtensionService::_HostApiLog,
-			.getLanguage = &ExtensionService::_HotApiGetLanguage,
-			.registerExtension = &ExtensionService::_HostApiRegisterExtension
-		};
-		extEntry(&hostApi, &contextData);
+	contextData.second.loadNo = _nextLoadNo++;
 
-		if (contextData.second.hasError) {
-			Logger::Get().Error(StrHelper::Concat("插件 ", extId, " 注册失败"));
-			return;
-		}
+	std::wstring extIdUtf16 = StrHelper::UTF8ToUTF16(contextData.first);
+	// 使用绝对路径以避免歧义
+	std::wstring dllPath = StrHelper::Concat(
+		AppFolderManager::Get().GetWorkingDir().native(),
+		L"\\", AppFolderManager::Get().GetExtDir(),
+		L"\\", extIdUtf16,
+		L"\\", extIdUtf16, L".dll"
+	);
+
+	// LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR 可以加载同一个文件夹中的依赖 dll
+	contextData.second.hDll.reset(LoadLibraryEx(dllPath.c_str(), NULL,
+		LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_SEARCH_DEFAULT_DIRS));
+	if (!contextData.second.hDll) {
+		Logger::Get().Win32Error(StrHelper::Concat("加载 ", contextData.first, ".dll 失败"));
+		contextData.second.hasError = true;
+		return;
+	}
+
+	ExtEntryFn* extEntry = (ExtEntryFn*)GetProcAddress(
+		contextData.second.hDll.get(), STRINGIFY(MAGPIE_EXT_ENTRY));
+	if (!extEntry) {
+		Logger::Get().Error(StrHelper::Concat("插件 ", contextData.first, " 中未找到入口函数"));
+		contextData.second.hasError = true;
+		return;
+	}
+
+	MagpieHostApi hostApi = {
+		.log = &ExtensionService::_HostApiLog,
+		.getLanguage = &ExtensionService::_HotApiGetLanguage,
+		.registerExtension = &ExtensionService::_HostApiRegisterExtension
+	};
+	extEntry(&hostApi, &contextData);
+
+	if (contextData.second.hasError) {
+		Logger::Get().Error(StrHelper::Concat("插件 ", contextData.first, " 注册失败"));
 	}
 }
 
@@ -212,17 +270,12 @@ HRESULT ExtensionService::_HostApiRegisterExtension(
 	}
 	auto& [extId, extData] = *(_ExtContextData*)context;
 
-	if (IsNullOrEmptyString(desc->displayName)) {
-		extData.hasError = true;
-		return E_INVALIDARG;
-	}
-
 	if (desc->imageEncoderDescs) {
 		for (uint32_t i = 0; i < desc->imageEncoderCount; ++i) {
 			const MagpieImageEncoderDesc& encoderDesc = desc->imageEncoderDescs[i];
 
 			if (!ExtensionHelper::IsValidId(encoderDesc.id) ||
-				IsNullOrEmptyString(encoderDesc.displayName) ||
+				IsNullOrEmptyString(encoderDesc.name) ||
 				IsNullOrEmptyString(encoderDesc.fileExtension)
 			) {
 				extData.hasError = true;
@@ -234,7 +287,7 @@ HRESULT ExtensionService::_HostApiRegisterExtension(
 					const MagpieImageEncoderOptionDesc& optionDesc = encoderDesc.optionDescs[j];
 
 					if (!ExtensionHelper::IsValidId(optionDesc.id) ||
-						IsNullOrEmptyString(optionDesc.displayName) ||
+						IsNullOrEmptyString(optionDesc.name) ||
 						optionDesc.type < MagpieOptionTypeBool ||
 						optionDesc.type > MagpieOptionTypeSelection
 					) {
@@ -284,17 +337,12 @@ HRESULT ExtensionService::_HostApiRegisterExtension(
 		}
 	}
 
-	extData.info.displayName = desc->displayName;
-	extData.info.author = desc->author ? desc->author : "";
-	extData.info.homePageUrl = desc->homePageUrl ? desc->homePageUrl : "";
-	extData.info.description = desc->description ? desc->description : "";
-
 	if (desc->imageEncoderDescs) {
 		for (uint32_t i = 0; i < desc->imageEncoderCount; ++i) {
 			const MagpieImageEncoderDesc& apiEncoderDesc = desc->imageEncoderDescs[i];
 
 			ImageEncoderMetadata metadata = {
-				.displayName = apiEncoderDesc.displayName,
+				.name = apiEncoderDesc.name,
 				.description = apiEncoderDesc.description ? apiEncoderDesc.description : "",
 				.fileExtension = apiEncoderDesc.fileExtension
 			};
@@ -306,7 +354,7 @@ HRESULT ExtensionService::_HostApiRegisterExtension(
 					ImageEncoderOptionDesc& optionDesc = metadata.optionDescs[j];
 
 					optionDesc.id = apiOptionDesc.id;
-					optionDesc.displayName = apiOptionDesc.displayName;
+					optionDesc.name = apiOptionDesc.name;
 					optionDesc.description = apiOptionDesc.description ? apiOptionDesc.description : "";
 
 					switch (apiOptionDesc.type) {
@@ -359,7 +407,7 @@ HRESULT ExtensionService::_HostApiRegisterExtension(
 				}
 			}
 
-			const std::string& imageEncoderId = extData.info.imageEncoderIds.emplace_back(
+			const std::string& imageEncoderId = extData.imageEncoderFullIds.emplace_back(
 				StrHelper::Concat(extId, "/", apiEncoderDesc.id));
 			
 			ImageEncoderFactory::Get().RegisterImageEncoder(

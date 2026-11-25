@@ -21,13 +21,14 @@ public:
 
 	void Initialize() noexcept;
 
-	// id 为 {插件 id}/{编码器 id}，内置的编码器使用 "*" 作为插件 id。插件 id 必须
-	// 合法的文件名，因此不能包含 / 和 *。 
+	// id 为 {插件 id}/{编码器 id}，内置的编码器使用 "*" 作为插件 id，插件 id 不会包含 / 和 *
 	void RegisterImageEncoder(
 		std::string_view id,
 		ImageEncoderMetadata&& metadata,
 		std::function<EncodeFn> encodeFn
 	) noexcept;
+
+	bool UnregisterImageEncoder(std::string_view id) noexcept;
 
 	const ImageEncoderMetadata* GetEncoderMetadata(std::string_view id) const noexcept;;
 

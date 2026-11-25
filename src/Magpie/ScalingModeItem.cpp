@@ -74,8 +74,7 @@ void ScalingModeItem::_Index(uint32_t value) noexcept {
 }
 
 // 效果被删除后 ScalingModeItem 不会立刻析构，而且 WinUI 可能会更新绑定！我们要
-// 确保被删除后 ScalingModeItem 依然处于合法的状态，调用任何方法都不会崩溃。我知
-// 道老是检查显得啰嗦但别无他法。
+// 确保被删除后 ScalingModeItem 依然处于合法的状态，调用任何方法都不会崩溃。
 bool ScalingModeItem::_IsRemoved() const noexcept {
 	return _index == std::numeric_limits<uint32_t>::max();
 }

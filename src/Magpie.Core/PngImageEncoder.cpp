@@ -10,7 +10,7 @@ namespace Magpie {
 
 ImageEncoderMetadata PngImageEncoder::GetMetadata() noexcept {
 	return ImageEncoderMetadata{
-		.displayName = "PNG",
+		.name = "PNG",
 		.fileExtension = "png"
 	};
 }

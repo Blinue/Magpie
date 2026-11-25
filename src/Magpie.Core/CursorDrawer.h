@@ -78,15 +78,15 @@ private:
 		MaskedColor
 	};
 
-	struct _CursorInfoKey {
+	struct _CursorKey {
 		HCURSOR hCursor;
 		// DPI 为 0 表示此光标不随 DPI 缩放
 		uint32_t dpi;
 
-		bool operator==(const _CursorInfoKey&) const = default;
+		bool operator==(const _CursorKey&) const = default;
 
 		// 供 phmap 使用
-		friend size_t hash_value(const _CursorInfoKey& key) noexcept {
+		friend size_t hash_value(const _CursorKey& key) noexcept {
 			return phmap::HashState().combine(phmap::Hash<HCURSOR>()(key.hCursor), key.dpi);
 		}
 	};
@@ -102,7 +102,7 @@ private:
 		uint32_t textureSrvOffset = UINT_MAX;
 	};
 
-	struct _CursorInfo {
+	struct _CursorData {
 		SizeU size;
 		SmallVector<_CursorFrame, 1> frames;
 		// 序列表 (帧索引值数组)，使多帧可以复用同一个 _CursorFrame。为空表示顺序播放
@@ -118,7 +118,7 @@ private:
 		}
 	};
 
-	std::pair<const _CursorInfoKey, _CursorInfo>* _ResolveCursor(
+	std::pair<const _CursorKey, _CursorData>* _ResolveCursor(
 		HCURSOR hCursor,
 		POINT cursorPos
 	) noexcept;
@@ -146,7 +146,7 @@ private:
 
 	HRESULT _InitializeCursorTexture(
 		GraphicsContext& graphicsContext,
-		_CursorInfo& cursorInfo,
+		_CursorData& cursorData,
 		uint32_t cursorFrameIdx
 	) noexcept;
 
@@ -159,9 +159,9 @@ private:
 
 	HRESULT _CreateCursorResizerPSO() noexcept;
 
-	void _RetireCursorInfos(bool isGpuWaited) noexcept;
+	void _RetireCursorDatas(bool isGpuWaited) noexcept;
 
-	void _EvictOldCursorInfos(uint64_t completedFenceValue) noexcept;
+	void _EvictOldCursorDatas(uint64_t completedFenceValue) noexcept;
 
 	void _OnCursorsRegChanged(wil::RegistryChangeKind) noexcept;
 
@@ -177,7 +177,7 @@ private:
 	wil::unique_registry_watcher_nothrow _regWatcher;
 	DWORD _cursorBaseSize = 32;
 
-	phmap::flat_hash_map<_CursorInfoKey, _CursorInfo> _cursorInfos;
+	phmap::flat_hash_map<_CursorKey, _CursorData> _cursorDatas;
 
 	// 保存解析失败的光标以避免重复尝试
 	phmap::flat_hash_set<HCURSOR> _unresolvableCursors;
@@ -186,7 +186,7 @@ private:
 	HCURSOR _lastRawCursorHandle = NULL;
 	std::chrono::steady_clock::time_point _lastCursorActiveTime;
 	// 上次绘制的光标形状和位置
-	std::pair<const _CursorInfoKey, _CursorInfo>* _curCursorInfoKeyValue = nullptr;
+	std::pair<const _CursorKey, _CursorData>* _curCursorDataKeyValue = nullptr;
 	POINT _curCursorPos{ std::numeric_limits<LONG>::max(), std::numeric_limits<LONG>::max() };
 	// 这两个成员用于保存动态光标状态
 	uint32_t _curFrameSeqIdx = 0;

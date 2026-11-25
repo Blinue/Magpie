@@ -139,8 +139,8 @@ static bool CalcWindowCapturedFrameBounds(HWND hWnd, RECT& rect) noexcept {
 }
 
 static uint32_t CalcCaptureFrameCount() noexcept {
-	// maxProducerInFlightFrames(_slots)+1(_latestFrame)+1(_newFrame)+2(备用)
-	return ScalingWindow::Get().Options().maxProducerInFlightFrames + 4;
+	// maxProducerInFlightFrames(_slots) + 1(_latestFrame) + 1(_newFrame) + 1(备用)
+	return ScalingWindow::Get().Options().maxProducerInFlightFrames + 3;
 }
 
 bool GraphicsCaptureFrameSource::Initialize(
