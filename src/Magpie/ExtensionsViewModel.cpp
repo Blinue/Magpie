@@ -18,6 +18,7 @@
 #include "ImageEncoderFactory.h"
 #include "Win32Helper.h"
 #include "InfoGrid.h"
+#include "LocalizationService.h"
 #include <rapidjson/document.h>
 #include <zip/zip.h>
 
@@ -47,25 +48,31 @@ void ExtensionItem::IsEnabled(bool value) noexcept {
 Magpie::InfoGridData ExtensionItem::InfoData() const noexcept {
 	assert(!_extId.starts_with("_"));
 
+	LocalizationService& ls = LocalizationService::Get();
+
 	SmallVector<InfoGridData::RowData, 0> rows;
 	rows.reserve(6);
 
 	rows.emplace_back(hstring(L"ID"), winrt::to_hstring(_extId));
 
 	if (_data->version != Version{}) {
-		rows.emplace_back(hstring(L"版本"), hstring(_data->version.ToString<wchar_t>()));
+		hstring header = ls.GetLocalizedString(L"Extensions_Item_Version");
+		rows.emplace_back(header, hstring(_data->version.ToString<wchar_t>()));
 	}
 
 	if (!_data->author.empty()) {
-		rows.emplace_back(hstring(L"作者"), to_hstring(_data->author));
+		hstring header = ls.GetLocalizedString(L"Extensions_Item_Author");
+		rows.emplace_back(header, to_hstring(_data->author));
 	}
 
 	if (_data->homePage) {
 		HyperlinkButton hyperlinkButton;
 		hyperlinkButton.Padding({});
-		hyperlinkButton.Content(box_value(L"访问主页"));
+		hyperlinkButton.Content(box_value(ls.GetLocalizedString(L"Extensions_Item_VisitHomePage")));
 		hyperlinkButton.NavigateUri(_data->homePage);
-		rows.emplace_back(hstring(L"主页"), std::move(hyperlinkButton));
+
+		hstring header = ls.GetLocalizedString(L"Extensions_Item_HomePage");
+		rows.emplace_back(header, std::move(hyperlinkButton));
 	}
 
 	if (!_data->imageEncoderFullIds.empty()) {
@@ -84,7 +91,8 @@ Magpie::InfoGridData ExtensionItem::InfoData() const noexcept {
 			}
 		}
 
-		rows.emplace_back(hstring(L"图像编码器"), to_hstring(content));
+		hstring header = ls.GetLocalizedString(L"Extensions_Item_ImageEncoders");
+		rows.emplace_back(header, to_hstring(content));
 	}
 
 	if (!_data->effectFullIds.empty()) {
@@ -97,7 +105,8 @@ Magpie::InfoGridData ExtensionItem::InfoData() const noexcept {
 			content.append(effectId);
 		}
 
-		rows.emplace_back(hstring(L"效果"), to_hstring(content));
+		hstring header = ls.GetLocalizedString(L"Extensions_Item_Effects");
+		rows.emplace_back(header, to_hstring(content));
 	}
 
 	return make<InfoGridData>(std::move(rows));
@@ -195,7 +204,7 @@ winrt::fire_and_forget ExtensionsViewModel::ImportExtension() noexcept {
 	co_await App::Get().Dispatcher();
 
 	if (ExtensionService::Get().GetExtension(extId)) {
-		Logger::Get().Error(StrHelper::Concat("已存在 id 为 ", extId, " 的插件"));
+		Logger::Get().Error(StrHelper::Concat("已存在 ID 为 ", extId, " 的插件"));
 		co_return;
 	}
 

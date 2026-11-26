@@ -6,7 +6,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       mc:Ignorable="d">
-	<local:PageFrame x:Uid="Home_ExtensionsFrame">
+	<local:PageFrame x:Uid="Extensions_PageFrame">
 		<Grid Padding="0,4,0,0">
 			<Grid.RowDefinitions>
 				<RowDefinition Height="Auto" />
@@ -21,7 +21,7 @@
 					                        Spacing="8">
 						<FontIcon Glyph="&#xE710;"
 						          Style="{StaticResource ButtonFontIconStyle}" />
-						<TextBlock Text="导入" />
+						<TextBlock x:Uid="Extensions_Import" />
 					</local:SimpleStackPanel>
 				</Button>
 				<Button>
@@ -29,7 +29,7 @@
 					                        Spacing="8">
 						<FontIcon Glyph="&#xF000;"
 						          Style="{StaticResource ButtonFontIconStyle}" />
-						<TextBlock Text="导入着色器效果" />
+						<TextBlock x:Uid="Extensions_ImportEffect" />
 					</local:SimpleStackPanel>
 				</Button>
 			</local:SimpleStackPanel>
@@ -41,8 +41,8 @@
 			                        Visibility="{x:Bind ViewModel.HasExtension, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}">
 				<FontIcon FontSize="80"
 				          Glyph="&#xEA86;" />
-				<TextBlock HorizontalAlignment="Center"
-				           Text="尚未安装扩展"
+				<TextBlock x:Uid="Extensions_NoExtension"
+				           HorizontalAlignment="Center"
 				           TextWrapping="WrapWholeWords" />
 			</local:SimpleStackPanel>
 			<ListView Grid.Row="1"
@@ -70,7 +70,8 @@
 					<DataTemplate x:DataType="local:ExtensionItem">
 						<local:SettingsExpander Description="{x:Bind Description, Mode=OneTime}"
 						                        Header="{x:Bind Name, Mode=OneTime}">
-							<ToggleSwitch IsOn="{x:Bind IsEnabled, Mode=TwoWay}" />
+							<ToggleSwitch x:Uid="ToggleSwitch"
+							              IsOn="{x:Bind IsEnabled, Mode=TwoWay}" />
 							<local:SettingsExpander.Items>
 								<local:SettingsCard ContentAlignment="Left">
 									<local:InfoGrid Margin="0,6"
@@ -78,38 +79,58 @@
 									                Data="{x:Bind InfoData, Mode=OneWay}"
 									                RowSpacing="8" />
 								</local:SettingsCard>
-								<local:SettingsCard Description="发生 DLL 冲突时，更改加载顺序可能有所帮助"
-								                    Header="更改加载顺序"
+								<local:SettingsCard x:Uid="Extensions_Item_Management"
 								                    IsWrapEnabled="True">
 									<local:SimpleStackPanel Orientation="Horizontal"
-									                        Spacing="4">
+									                        Spacing="8">
 										<Button>
+											<Button.Flyout>
+												<Flyout>
+													<local:SimpleStackPanel MaxWidth="260"
+													                        Orientation="Vertical"
+													                        Spacing="16">
+														<TextBlock x:Uid="Extensions_Item_LoadOrderTip"
+														           TextWrapping="WrapWholeWords" />
+														<local:SimpleStackPanel HorizontalAlignment="Left"
+														                        Spacing="4">
+															<Button HorizontalAlignment="Stretch"
+															        HorizontalContentAlignment="Left">
+																<local:SimpleStackPanel Orientation="Horizontal"
+																                        Spacing="8">
+																	<FontIcon Glyph="&#xE898;"
+																	          Style="{StaticResource ButtonFontIconStyle}" />
+																	<TextBlock x:Uid="Extensions_Item_MoveToTop" />
+																</local:SimpleStackPanel>
+															</Button>
+															<Button HorizontalAlignment="Stretch"
+															        HorizontalContentAlignment="Left">
+																<local:SimpleStackPanel Orientation="Horizontal"
+																                        Spacing="8">
+																	<FontIcon Glyph="&#xE896;"
+																	          Style="{StaticResource ButtonFontIconStyle}" />
+																	<TextBlock x:Uid="Extensions_Item_MoveToBottom" />
+																</local:SimpleStackPanel>
+															</Button>
+														</local:SimpleStackPanel>
+													</local:SimpleStackPanel>
+												</Flyout>
+											</Button.Flyout>
 											<local:SimpleStackPanel Orientation="Horizontal"
 											                        Spacing="8">
-												<FontIcon Glyph="&#xE898;"
+												<FontIcon Glyph="&#xE90F;"
 												          Style="{StaticResource ButtonFontIconStyle}" />
-												<TextBlock Text="移到最前" />
+												<TextBlock x:Uid="Extensions_Item_ChangeLoadOrder" />
 											</local:SimpleStackPanel>
 										</Button>
 										<Button>
 											<local:SimpleStackPanel Orientation="Horizontal"
 											                        Spacing="8">
-												<FontIcon Glyph="&#xE896;"
+												<FontIcon Glyph="&#xE74D;"
 												          Style="{StaticResource ButtonFontIconStyle}" />
-												<TextBlock Text="移到最后" />
+												<TextBlock x:Uid="Extensions_Item_Delete" />
 											</local:SimpleStackPanel>
 										</Button>
 									</local:SimpleStackPanel>
-								</local:SettingsCard>
-								<local:SettingsCard Header="管理">
-									<Button>
-										<local:SimpleStackPanel Orientation="Horizontal"
-										                        Spacing="8">
-											<FontIcon Glyph="&#xE74D;"
-											          Style="{StaticResource ButtonFontIconStyle}" />
-											<TextBlock Text="删除" />
-										</local:SimpleStackPanel>
-									</Button>
 								</local:SettingsCard>
 							</local:SettingsExpander.Items>
 						</local:SettingsExpander>

@@ -1156,7 +1156,52 @@
   <data name="Root_Extensions.Content" xml:space="preserve">
     <value>Extensions</value>
   </data>
-  <data name="Home_ExtensionsFrame.Title" xml:space="preserve">
+  <data name="Extensions_PageFrame.Title" xml:space="preserve">
     <value>Extensions</value>
+  </data>
+  <data name="Extensions_Import.Text" xml:space="preserve">
+    <value>Import</value>
+  </data>
+  <data name="Extensions_ImportEffect.Text" xml:space="preserve">
+    <value>Import effect</value>
+  </data>
+  <data name="Extensions_NoExtension.Text" xml:space="preserve">
+    <value>No extension installed yet</value>
+  </data>
+  <data name="Extensions_Item_Version" xml:space="preserve">
+    <value>Version</value>
+  </data>
+  <data name="Extensions_Item_Author" xml:space="preserve">
+    <value>Author</value>
+  </data>
+  <data name="Extensions_Item_HomePage" xml:space="preserve">
+    <value>Home page</value>
+  </data>
+  <data name="Extensions_Item_VisitHomePage" xml:space="preserve">
+    <value>Visit home page</value>
+  </data>
+  <data name="Extensions_Item_ImageEncoders" xml:space="preserve">
+    <value>Image encoders</value>
+  </data>
+  <data name="Extensions_Item_Effects" xml:space="preserve">
+    <value>Effects</value>
+  </data>
+  <data name="Extensions_Item_Management.Header" xml:space="preserve">
+    <value>Management</value>
+  </data>
+  <data name="Extensions_Item_ChangeLoadOrder.Text" xml:space="preserve">
+    <value>Change load order</value>
+  </data>
+  <data name="Extensions_Item_LoadOrderTip.Text" xml:space="preserve">
+    <value>Changing the load order may help resolve DLL conflicts.</value>
+  </data>
+  <data name="Extensions_Item_MoveToTop.Text" xml:space="preserve">
+    <value>Move to top</value>
+  </data>
+  <data name="Extensions_Item_MoveToBottom.Text" xml:space="preserve">
+    <value>Move to bottom</value>
+  </data>
+  <data name="Extensions_Item_Delete.Text" xml:space="preserve">
+    <value>Delete</value>
   </data>
 </root>

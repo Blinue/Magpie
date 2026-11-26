@@ -1156,7 +1156,52 @@
   <data name="Root_Extensions.Content" xml:space="preserve">
     <value>扩展</value>
   </data>
-  <data name="Home_ExtensionsFrame.Title" xml:space="preserve">
+  <data name="Extensions_PageFrame.Title" xml:space="preserve">
     <value>扩展</value>
+  </data>
+  <data name="Extensions_Import.Text" xml:space="preserve">
+    <value>导入</value>
+  </data>
+  <data name="Extensions_ImportEffect.Text" xml:space="preserve">
+    <value>导入效果</value>
+  </data>
+  <data name="Extensions_NoExtension.Text" xml:space="preserve">
+    <value>尚未安装扩展</value>
+  </data>
+  <data name="Extensions_Item_Version" xml:space="preserve">
+    <value>版本</value>
+  </data>
+  <data name="Extensions_Item_Author" xml:space="preserve">
+    <value>作者</value>
+  </data>
+  <data name="Extensions_Item_HomePage" xml:space="preserve">
+    <value>主页</value>
+  </data>
+  <data name="Extensions_Item_VisitHomePage" xml:space="preserve">
+    <value>访问主页</value>
+  </data>
+  <data name="Extensions_Item_ImageEncoders" xml:space="preserve">
+    <value>图像编码器</value>
+  </data>
+  <data name="Extensions_Item_Effects" xml:space="preserve">
+    <value>效果</value>
+  </data>
+  <data name="Extensions_Item_Management.Header" xml:space="preserve">
+    <value>管理</value>
+  </data>
+  <data name="Extensions_Item_ChangeLoadOrder.Text" xml:space="preserve">
+    <value>更改加载顺序</value>
+  </data>
+  <data name="Extensions_Item_LoadOrderTip.Text" xml:space="preserve">
+    <value>发生 DLL 冲突时，更改加载顺序可能有所帮助。</value>
+  </data>
+  <data name="Extensions_Item_MoveToTop.Text" xml:space="preserve">
+    <value>移到最前</value>
+  </data>
+  <data name="Extensions_Item_MoveToBottom.Text" xml:space="preserve">
+    <value>移到最后</value>
+  </data>
+  <data name="Extensions_Item_Delete.Text" xml:space="preserve">
+    <value>删除</value>
   </data>
 </root>

@@ -17,7 +17,7 @@ void SettingsPage::InitializeComponent() {
 	ResourceLoader resourceLoader =
 		ResourceLoader::GetForCurrentView(L"Microsoft.UI.Xaml/Resources");
 	hstring versionStr = resourceLoader.GetString(L"SettingsButtonName");
-	SettingsPageFrame().Title(versionStr);
+	PageFrame().Title(versionStr);
 }
 
 void SettingsPage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) const {
