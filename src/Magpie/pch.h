@@ -24,6 +24,7 @@
 #include <string>
 #include <string_view>
 #include <array>
+#include <vector>
 #include <algorithm>
 #include <functional>
 #include <span>

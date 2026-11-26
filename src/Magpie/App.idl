@@ -13,6 +13,7 @@ namespace Magpie {
 #include "TextMenuFlyout.idl"
 #include "SimpleStackPanel.idl"
 #include "WrapPanel.idl"
+#include "InfoGrid.idl"
 #include "CaptionButtonsControl.idl"
 #include "TitleBarControl.idl"
 #include "PageFrame.idl"

@@ -15,20 +15,22 @@
 #include "JsonHelper.h"
 #include "Logger.h"
 #include "StrHelper.h"
+#include "ImageEncoderFactory.h"
 #include "Win32Helper.h"
+#include "InfoGrid.h"
 #include <rapidjson/document.h>
 #include <zip/zip.h>
 
-using namespace Magpie;
+using namespace ::Magpie;
 
 namespace winrt::Magpie::implementation {
 
 hstring ExtensionItem::Name() const noexcept {
-    return hstring(StrHelper::UTF8ToUTF16(_data->name));
+    return winrt::to_hstring(_data->name);
 }
 
 hstring ExtensionItem::Description() const noexcept {
-	return hstring(StrHelper::UTF8ToUTF16(_data->description));
+	return winrt::to_hstring(_data->description);
 }
 
 bool ExtensionItem::IsEnabled() const noexcept {
@@ -38,6 +40,67 @@ bool ExtensionItem::IsEnabled() const noexcept {
 void ExtensionItem::IsEnabled(bool value) noexcept {
 	ExtensionService::Get().SetExtensionEnabled(_extId, value);
 	RaisePropertyChanged(L"IsEnabled");
+	// 插件启用后才显示它提供的图像编码器和效果，部分功能在加载了 dll 之后才知道
+	RaisePropertyChanged(L"InfoData");
+}
+
+Magpie::InfoGridData ExtensionItem::InfoData() const noexcept {
+	assert(!_extId.starts_with("_"));
+
+	SmallVector<InfoGridData::RowData, 0> rows;
+	rows.reserve(6);
+
+	rows.emplace_back(hstring(L"ID"), winrt::to_hstring(_extId));
+
+	if (_data->version != Version{}) {
+		rows.emplace_back(hstring(L"版本"), hstring(_data->version.ToString<wchar_t>()));
+	}
+
+	if (!_data->author.empty()) {
+		rows.emplace_back(hstring(L"作者"), to_hstring(_data->author));
+	}
+
+	if (_data->homePage) {
+		HyperlinkButton hyperlinkButton;
+		hyperlinkButton.Padding({});
+		hyperlinkButton.Content(box_value(L"访问主页"));
+		hyperlinkButton.NavigateUri(_data->homePage);
+		rows.emplace_back(hstring(L"主页"), std::move(hyperlinkButton));
+	}
+
+	if (!_data->imageEncoderFullIds.empty()) {
+		std::string content;
+		for (const std::string& encoderId : _data->imageEncoderFullIds) {
+			const ImageEncoderMetadata* metadata =
+				ImageEncoderFactory::Get().GetEncoderMetadata(encoderId);
+			if (metadata) {
+				if (!content.empty()) {
+					content.push_back('\n');
+				}
+				content.append(metadata->name);
+			} else {
+				assert(false);
+				Logger::Get().Error(StrHelper::Concat("未找到 ID 为 ", encoderId, " 的编码器"));
+			}
+		}
+
+		rows.emplace_back(hstring(L"图像编码器"), to_hstring(content));
+	}
+
+	if (!_data->effectFullIds.empty()) {
+		std::string content;
+		for (const std::string& effectId : _data->effectFullIds) {
+			// TODO
+			if (!content.empty()) {
+				content.push_back('\n');
+			}
+			content.append(effectId);
+		}
+
+		rows.emplace_back(hstring(L"效果"), to_hstring(content));
+	}
+
+	return make<InfoGridData>(std::move(rows));
 }
 
 ExtensionsViewModel::ExtensionsViewModel() {

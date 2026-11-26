@@ -11,7 +11,10 @@ namespace winrt::Magpie::implementation {
 struct ExtensionItem : ExtensionItemT<ExtensionItem>,
 					   wil::notify_property_changed_base<ExtensionItem> {
 	ExtensionItem(std::string_view extId, const ::Magpie::Extension* data)
-		: _extId(extId), _data(data) {}
+		: _extId(extId), _data(data)
+	{
+		assert(!extId.empty() && data);
+	}
 
 	hstring Name() const noexcept;
 
@@ -19,6 +22,8 @@ struct ExtensionItem : ExtensionItemT<ExtensionItem>,
 
 	bool IsEnabled() const noexcept;
 	void IsEnabled(bool value) noexcept;
+
+	Magpie::InfoGridData InfoData() const noexcept;
 
 private:
 	const std::string _extId;

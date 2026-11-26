@@ -1,5 +1,6 @@
 #pragma once
 #include "SmallVector.h"
+#include "Version.h"
 
 namespace Magpie {
 
@@ -8,10 +9,12 @@ struct Extension {
 	uint32_t idx = 0;
 
 	std::string name;
-	std::string author;
-	std::string homePageUrl;
 	std::string description;
-
+	// 未提供版本号则为 0.0.0
+	Version version;
+	std::string author;
+	winrt::Uri homePage{ nullptr };
+	
 	SmallVector<std::string, 0> imageEncoderFullIds;
 	SmallVector<std::string, 0> effectFullIds;
 

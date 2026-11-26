@@ -171,6 +171,10 @@
       <DependentUpon>HomeViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="InfoGrid.h">
+      <DependentUpon>InfoGrid.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="IsEqualStateTrigger.h">
       <DependentUpon>IsEqualStateTrigger.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -373,6 +377,10 @@
       <DependentUpon>HomeViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="InfoGrid.cpp">
+      <DependentUpon>InfoGrid.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="IsEqualStateTrigger.cpp">
       <DependentUpon>IsEqualStateTrigger.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -513,6 +521,10 @@
     <ClCompile Include="XamlHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="InfoGrid.idl">
+      <DependentUpon>InfoGrid.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </None>
     <None Include="ExtensionsViewModel.idl">
       <SubType>Designer</SubType>
     </None>
@@ -673,6 +685,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="ExtensionsPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="InfoGrid.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="ProfilePage.xaml">

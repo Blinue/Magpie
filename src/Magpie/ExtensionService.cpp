@@ -1,14 +1,14 @@
 #include "pch.h"
 #include "ExtensionService.h"
-#include "AppSettings.h"
-#include "ImageEncoderFactory.h"
-#include "LocalizationService.h"
-#include "StrHelper.h"
-#include "Logger.h"
 #include "AppFolderManager.h"
+#include "AppSettings.h"
 #include "ExtensionHelper.h"
-#include "Win32Helper.h"
+#include "ImageEncoderFactory.h"
 #include "JsonHelper.h"
+#include "LocalizationService.h"
+#include "Logger.h"
+#include "StrHelper.h"
+#include "Win32Helper.h"
 
 namespace Magpie {
 
@@ -162,6 +162,33 @@ void ExtensionService::_LoadExtension(
 	}
 
 	JsonHelper::ReadString(indexRootObj, "description", contextData.second.description);
+
+	wil::zstring_view versionStr;
+	JsonHelper::ReadString(indexRootObj, "version", versionStr);
+	if (!versionStr.empty()) {
+		if (!contextData.second.version.Parse(versionStr)) {
+			Logger::Get().Error(StrHelper::Concat("解析版本号字符串 \"", versionStr, "\" 失败"));
+		}
+	}
+
+	JsonHelper::ReadString(indexRootObj, "author", contextData.second.author);
+
+	wil::zstring_view homePage;
+	JsonHelper::ReadString(indexRootObj, "home_page", homePage);
+	
+	try {
+		winrt::Uri uri(winrt::to_hstring(homePage));
+		winrt::hstring scheme = uri.SchemeName();
+		// 由于 HyperlinkButton 的限制，只支持 http 和 https 协议，这两个协议完全足够了
+		if (scheme == L"http" || scheme == L"https") {
+			contextData.second.homePage = std::move(uri);
+		} else {
+			Logger::Get().Error(StrHelper::Concat("不支持 ", StrHelper::UTF16ToUTF8(scheme), " 协议"));
+		}
+	} catch (const winrt::hresult_error& e) {
+		Logger::Get().ComError(StrHelper::Concat("解析 URI \"", homePage, "\" 失败"), e.code());
+	}
+
 	JsonHelper::ReadBool(indexRootObj, "has_dll", contextData.second.hasDll);
 
 	if (enabled) {

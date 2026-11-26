@@ -81,7 +81,7 @@ EffectParametersViewModel::EffectParametersViewModel(uint32_t scalingModeIdx, ui
 		if (IsApprox(param.minValue, 0.0f) && IsApprox(param.maxValue, 1.0f) && IsApprox(param.step, 1.0f)) {
 			auto boolParamItem = make_self<ScalingModeBoolParameter>(
 				i,
-				hstring(StrHelper::UTF8ToUTF16(param.label.empty() ? param.name : param.label)),
+				winrt::to_hstring(param.label.empty() ? param.name : param.label),
 				paramValue.has_value() ?
 					std::abs(*paramValue) > FLOAT_EPSILON<float> :
 					(std::lround(param.defaultValue) == 1)
@@ -92,7 +92,7 @@ EffectParametersViewModel::EffectParametersViewModel(uint32_t scalingModeIdx, ui
 		} else {
 			auto floatParamItem = make_self<ScalingModeFloatParameter>(
 				i,
-				hstring(StrHelper::UTF8ToUTF16(param.label.empty() ? param.name : param.label)),
+				winrt::to_hstring(param.label.empty() ? param.name : param.label),
 				paramValue.has_value() ? *paramValue : param.defaultValue,
 				param.minValue,
 				param.maxValue,

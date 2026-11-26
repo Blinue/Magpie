@@ -294,6 +294,9 @@
     <None Include="ExtensionsViewModel.idl">
       <Filter>ViewModels</Filter>
     </None>
+    <None Include="InfoGrid.idl">
+      <Filter>Controls</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="HomePage.xaml">
@@ -355,6 +358,9 @@
     </Page>
     <Page Include="ExtensionsPage.xaml">
       <Filter>Pages</Filter>
+    </Page>
+    <Page Include="InfoGrid.xaml">
+      <Filter>Controls</Filter>
     </Page>
   </ItemGroup>
   <ItemGroup>

@@ -1,0 +1,10 @@
+namespace Magpie {
+	[default_interface]
+	runtimeclass InfoGridData {};
+
+	runtimeclass InfoGrid : Windows.UI.Xaml.Controls.Grid {
+		InfoGrid();
+		
+		InfoGridData Data;
+	}
+}
