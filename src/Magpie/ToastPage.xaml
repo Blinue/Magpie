@@ -1,4 +1,4 @@
-﻿<Page x:Class="Magpie.ToastPage"
+<Page x:Class="Magpie.ToastPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -10,8 +10,8 @@
 	                  x:Load="False"
 	                  PreferredPlacement="Center"
 	                  ShouldConstrainToRootBounds="False">
-		<StackPanel x:Name="MessageTeachingTipContent"
-		            Orientation="Horizontal">
+		<local:SimpleStackPanel x:Name="MessageTeachingTipContent"
+		                        Orientation="Horizontal">
 			<Image Width="16"
 			       Height="16"
 			       Margin="0,0,8,0"
@@ -19,14 +19,14 @@
 			       Source="{x:Bind Logo, Mode=OneWay}"
 			       Visibility="{x:Bind IsLogoShown, Mode=OneWay}" />
 			<!--  MaxWidth 用于修复换行时布局错误  -->
-			<StackPanel MaxWidth="330"
-			            Orientation="Vertical">
+			<local:SimpleStackPanel MaxWidth="330"
+			                        Orientation="Vertical">
 				<TextBlock x:Name="TitleTextBlock"
 				           FontWeight="SemiBold"
 				           TextWrapping="WrapWholeWords" />
 				<TextBlock x:Name="MessageTextBlock"
 				           TextWrapping="WrapWholeWords" />
-			</StackPanel>
-		</StackPanel>
+			</local:SimpleStackPanel>
+		</local:SimpleStackPanel>
 	</muxc:TeachingTip>
 </Page>

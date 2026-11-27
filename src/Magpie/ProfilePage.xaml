@@ -306,8 +306,8 @@
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xE8AC;" />
 					</local:SettingsCard.HeaderIcon>
-					<StackPanel Orientation="Horizontal"
-					            Spacing="4">
+					<local:SimpleStackPanel Orientation="Horizontal"
+					                        Spacing="4">
 						<TextBox MaxWidth="240"
 						         Foreground="{x:Bind ViewModel.IsScreenshotFilenameTemplateValid, Mode=OneWay, Converter={StaticResource BoolToForegroundConverter}}"
 						         Text="{x:Bind ViewModel.ScreenshotFilenameTemplate, Mode=TwoWay}" />
@@ -408,7 +408,7 @@
 								</Flyout>
 							</Button.Flyout>
 						</Button>
-					</StackPanel>
+					</local:SimpleStackPanel>
 				</local:SettingsCard>
 				<muxc:InfoBar x:Uid="Profile_Toolbar_ScreenshotFilenameTemplateErrorInfoBar"
 				              IsClosable="False"

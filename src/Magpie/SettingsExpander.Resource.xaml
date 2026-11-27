@@ -85,6 +85,7 @@
 								                    IsWrapEnabled="{TemplateBinding IsWrapEnabled}" />
 							</muxc:Expander.Header>
 							<muxc:Expander.Content>
+								<!--  SimpleStackPanel 不支持 CornerRadius  -->
 								<StackPanel ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
 								            CornerRadius="{Binding CornerRadius, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource SettingsExpanderCornerRadiusConverter}}">
 									<ContentPresenter Content="{TemplateBinding ItemsHeader}" />

@@ -42,18 +42,20 @@ void SimpleStackPanel::Spacing(double value) {
 Size SimpleStackPanel::MeasureOverride(const Size& availableSize) const {
 	const bool isVertical = _orientation == Orientation::Vertical;
 	const float spacing = (float)_spacing;
-	const Size paddings{ (float)_padding.Left + (float)_padding.Right,(float)_padding.Top + (float)_padding.Bottom };
+	const Size paddings = {
+		float(_padding.Left + _padding.Right),
+		float(_padding.Top + _padding.Bottom)
+	};
 
-	const Size childAvailableSize{
+	const Size childAvailableSize = {
 		availableSize.Width - paddings.Width,
 		availableSize.Height - paddings.Height
 	};
 
-	bool firstItem = true;
-	bool anyStretch = false;
-	Size finalSize{ paddings.Width, paddings.Height };
+	bool isFirstItem = true;
+	Size finalSize = { paddings.Width, paddings.Height };
 
-	for (UIElement const& item : Children()) {
+	for (const UIElement& item : Children()) {
 		// 调用 Measure 可以初始化绑定，因此即使子项不可见也要调用
 		item.Measure(childAvailableSize);
 
@@ -62,27 +64,14 @@ Size SimpleStackPanel::MeasureOverride(const Size& availableSize) const {
 			continue;
 		}
 
-		const Size itemSize = item.DesiredSize();
+		Size itemSize = item.DesiredSize();
 
 		if (isVertical) {
 			finalSize.Height += itemSize.Height;
-			if (firstItem) {
-				firstItem = false;
+			if (isFirstItem) {
+				isFirstItem = false;
 			} else {
 				finalSize.Height += spacing;
-			}
-
-			if (anyStretch) {
-				continue;
-			}
-
-			if (!std::isinf(availableSize.Width)) {
-				FrameworkElement elem = item.try_as<FrameworkElement>();
-				if (elem && elem.HorizontalAlignment() == HorizontalAlignment::Stretch) {
-					anyStretch = true;
-					finalSize.Width = availableSize.Width;
-					continue;
-				}
 			}
 
 			if (itemSize.Height > 0) {
@@ -90,23 +79,10 @@ Size SimpleStackPanel::MeasureOverride(const Size& availableSize) const {
 			}
 		} else {
 			finalSize.Width += itemSize.Width;
-			if (firstItem) {
-				firstItem = false;
+			if (isFirstItem) {
+				isFirstItem = false;
 			} else {
 				finalSize.Width += spacing;
-			}
-
-			if (anyStretch) {
-				continue;
-			}
-
-			if (!std::isinf(availableSize.Height)) {
-				FrameworkElement elem = item.try_as<FrameworkElement>();
-				if (elem && elem.VerticalAlignment() == VerticalAlignment::Stretch) {
-					anyStretch = true;
-					finalSize.Height = availableSize.Height;
-					continue;
-				}
 			}
 
 			if (itemSize.Width > 0) {
@@ -123,16 +99,16 @@ Size SimpleStackPanel::ArrangeOverride(Size finalSize) const {
 	const Thickness padding = Padding();
 	const float spacing = (float)Spacing();
 
-	Point position{ (float)padding.Left, (float)padding.Top };
+	Point position = { (float)padding.Left, (float)padding.Top };
 
-	for (UIElement const& item : Children()) {
+	for (const UIElement& item : Children()) {
 		if (item.Visibility() == Visibility::Collapsed) {
 			// 不可见的子项不添加间距
 			continue;
 		}
 
-		const Size itemSize = item.DesiredSize();
-		Rect itemRect{ position.X, position.Y, itemSize.Width, itemSize.Height };
+		Size itemSize = item.DesiredSize();
+		Rect itemRect = { position.X, position.Y, itemSize.Width, itemSize.Height };
 
 		if (isVertical) {
 			auto alignment = HorizontalAlignment::Left;
