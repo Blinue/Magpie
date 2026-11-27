@@ -28,8 +28,6 @@ void ExtensionService::Initialize() noexcept {
 		assert(ExtensionHelper::IsValidId(extId));
 		assert(!_extDatas.contains(extId));
 
-		Logger::Get().Info(StrHelper::Concat("正在加载插件 ", extId));
-
 		std::wstring indexPath = StrHelper::Concat(
 			AppFolderManager::Get().GetWorkingDir().native(),
 			L"\\", AppFolderManager::Get().GetExtDir(),
@@ -85,9 +83,14 @@ bool ExtensionService::AddExtension(
 	std::string_view extId,
 	const rapidjson::GenericObject<true, rapidjson::Value>& indexRootObj
 ) noexcept {
+	if (_extDatas.contains(extId)) {
+		return false;
+	}
+
 	SmallVectorImpl<ExtensionSetting>& extSettings = AppSettings::Get().ExtensionSettings();
 
-	_LoadExtension(extId, indexRootObj, (uint32_t)extSettings.size(), true);
+	uint32_t extIdx = (uint32_t)extSettings.size();
+	_LoadExtension(extId, indexRootObj, extIdx, true);
 
 	extSettings.push_back(ExtensionSetting{
 		.extId = std::string(extId),
@@ -95,6 +98,10 @@ bool ExtensionService::AddExtension(
 	});
 
 	AppSettings::Get().SaveAsync();
+
+	Logger::Get().Info(StrHelper::Concat("已添加插件 ", extId));
+
+	ExtensionAdded.Invoke(extIdx);
 	return true;
 }
 
@@ -122,6 +129,48 @@ bool ExtensionService::SetExtensionEnabled(std::string_view extId, bool enabled)
 		AppSettings::Get().SaveAsync();
 	}
 
+	return true;
+}
+
+bool ExtensionService::RemoveExtension(std::string_view extId) noexcept {
+	auto it = _extDatas.find(extId);
+	if (it == _extDatas.end()) {
+		return false;
+	}
+
+	SmallVectorImpl<ExtensionSetting>& extSettings = AppSettings::Get().ExtensionSettings();
+	if (extSettings[it->second.idx].isEnabled) {
+		_SetExtensionEnabledImpl(*it, false);
+	}
+
+	// 更新索引
+	uint32_t idxToRemove = it->second.idx;
+	for (auto& pair : _extDatas) {
+		if (pair.second.idx > idxToRemove) {
+			--pair.second.idx;
+		}
+	}
+
+	_extDatas.erase(it);
+
+	extSettings.erase(extSettings.begin() + idxToRemove);
+	AppSettings::Get().SaveAsync();
+
+	// 删除插件文件
+	std::wstring extDir = StrHelper::Concat(
+		AppFolderManager::Get().GetWorkingDir().native(),
+		L"\\", AppFolderManager::Get().GetExtDir(),
+		L"\\", StrHelper::UTF8ToUTF16(extId)
+	);
+	HRESULT hr = wil::RemoveDirectoryRecursiveNoThrow(extDir.c_str());
+	if (FAILED(hr)) {
+		Logger::Get().ComError(StrHelper::Concat(
+			"删除文件夹 ", StrHelper::UTF16ToUTF8(extDir), " 失败"), hr);
+	}
+
+	Logger::Get().Info(StrHelper::Concat("已删除插件 ", extId));
+
+	ExtensionRemoved.Invoke(idxToRemove);
 	return true;
 }
 

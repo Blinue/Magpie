@@ -1,6 +1,7 @@
 #pragma once
 #include "ExtensionItem.g.h"
 #include "ExtensionsViewModel.g.h"
+#include "Event.h"
 
 namespace Magpie {
 struct Extension;
@@ -25,7 +26,11 @@ struct ExtensionItem : ExtensionItemT<ExtensionItem>,
 
 	Magpie::InfoGridData InfoData() const noexcept;
 
+	void Remove() noexcept;
+
 private:
+	bool _IsRemoved() const noexcept;
+
 	const std::string _extId;
 	// 和缩放模式不同，Extension 的地址稳定，可以保存指针
 	const ::Magpie::Extension* _data = 0;
@@ -44,7 +49,14 @@ struct ExtensionsViewModel : ExtensionsViewModelT<ExtensionsViewModel>,
 	}
 
 private:
+	void _ExtensionService_Added(uint32_t extIdx) noexcept;
+
+	void _ExtensionService_Removed(uint32_t extIdx) noexcept;
+
 	IObservableVector<IInspectable> _extensions{ nullptr };
+
+	::Magpie::Event<uint32_t>::EventRevoker _extensionAddedRevoker;
+	::Magpie::Event<uint32_t>::EventRevoker _extensionRemovedRevoker;
 };
 
 }

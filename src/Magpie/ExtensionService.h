@@ -2,6 +2,7 @@
 #include "Extension.h"
 #include "MagpieExtApi.h"
 #include "Singleton.h"
+#include "Event.h"
 #include <rapidjson/document.h>
 #include <parallel_hashmap/phmap.h>
 
@@ -24,6 +25,11 @@ public:
 	const Extension* GetExtension(std::string_view extId) const noexcept;
 
 	bool SetExtensionEnabled(std::string_view extId, bool enabled) noexcept;
+
+	bool RemoveExtension(std::string_view extId) noexcept;
+
+	Event<uint32_t> ExtensionAdded;
+	Event<uint32_t> ExtensionRemoved;
 
 private:
 	ExtensionService() = default;

@@ -178,6 +178,7 @@
 					<TransitionCollection>
 						<ContentThemeTransition />
 						<RepositionThemeTransition IsStaggeringEnabled="False" />
+						<AddDeleteThemeTransition />
 					</TransitionCollection>
 				</ListView.ItemContainerTransitions>
 				<ListView.Resources>

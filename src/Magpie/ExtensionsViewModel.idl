@@ -4,6 +4,7 @@ namespace Magpie {
 		String Description { get; };
 		Boolean IsEnabled;
 		InfoGridData InfoData { get; };
+		void Remove();
 	}
 
 	runtimeclass ExtensionsViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged {

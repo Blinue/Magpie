@@ -41,29 +41,21 @@ void SimpleStackPanel::Spacing(double value) {
 
 Size SimpleStackPanel::MeasureOverride(const Size& availableSize) const {
 	const bool isVertical = _orientation == Orientation::Vertical;
-	const bool isStretch = isVertical ?
-		(HorizontalAlignment() == HorizontalAlignment::Stretch && !std::isinf(availableSize.Width)) :
-		(VerticalAlignment() == VerticalAlignment::Stretch && !std::isinf(availableSize.Height));
 	const float spacing = (float)_spacing;
-	const Size paddings{ (float)_padding.Left + (float)_padding.Right,(float)_padding.Top + (float)_padding.Bottom };
+	const Size paddings = {
+		float(_padding.Left + _padding.Right),
+		float(_padding.Top + _padding.Bottom)
+	};
 
-	const Size childAvailableSize{
+	const Size childAvailableSize = {
 		availableSize.Width - paddings.Width,
 		availableSize.Height - paddings.Height
 	};
 
 	bool isFirstItem = true;
-	Size finalSize{ paddings.Width, paddings.Height };
+	Size finalSize = { paddings.Width, paddings.Height };
 
-	if (isStretch) {
-		if (isVertical) {
-			finalSize.Width = childAvailableSize.Width;
-		} else {
-			finalSize.Height = childAvailableSize.Height;
-		}
-	}
-
-	for (UIElement const& item : Children()) {
+	for (const UIElement& item : Children()) {
 		// 调用 Measure 可以初始化绑定，因此即使子项不可见也要调用
 		item.Measure(childAvailableSize);
 
@@ -82,7 +74,7 @@ Size SimpleStackPanel::MeasureOverride(const Size& availableSize) const {
 				finalSize.Height += spacing;
 			}
 
-			if (!isStretch && itemSize.Height > 0) {
+			if (itemSize.Height > 0) {
 				finalSize.Width = std::max(finalSize.Width, itemSize.Width + paddings.Width);
 			}
 		} else {
@@ -93,7 +85,7 @@ Size SimpleStackPanel::MeasureOverride(const Size& availableSize) const {
 				finalSize.Width += spacing;
 			}
 
-			if (!isStretch && itemSize.Width > 0) {
+			if (itemSize.Width > 0) {
 				finalSize.Height = std::max(finalSize.Height, itemSize.Height + paddings.Height);
 			}
 		}
@@ -107,9 +99,9 @@ Size SimpleStackPanel::ArrangeOverride(Size finalSize) const {
 	const Thickness padding = Padding();
 	const float spacing = (float)Spacing();
 
-	Point position{ (float)padding.Left, (float)padding.Top };
+	Point position = { (float)padding.Left, (float)padding.Top };
 
-	for (UIElement const& item : Children()) {
+	for (const UIElement& item : Children()) {
 		if (item.Visibility() == Visibility::Collapsed) {
 			// 不可见的子项不添加间距
 			continue;

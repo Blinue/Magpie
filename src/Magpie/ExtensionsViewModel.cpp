@@ -7,18 +7,18 @@
 #include "ExtensionsViewModel.g.cpp"
 #endif
 #include "App.h"
-#include "AppSettings.h"
 #include "AppFolderManager.h"
+#include "AppSettings.h"
 #include "ExtensionHelper.h"
 #include "ExtensionService.h"
 #include "FileDialogHelper.h"
+#include "ImageEncoderFactory.h"
+#include "InfoGrid.h"
 #include "JsonHelper.h"
+#include "LocalizationService.h"
 #include "Logger.h"
 #include "StrHelper.h"
-#include "ImageEncoderFactory.h"
 #include "Win32Helper.h"
-#include "InfoGrid.h"
-#include "LocalizationService.h"
 #include <rapidjson/document.h>
 #include <zip/zip.h>
 
@@ -27,18 +27,34 @@ using namespace ::Magpie;
 namespace winrt::Magpie::implementation {
 
 hstring ExtensionItem::Name() const noexcept {
+	if (_IsRemoved()) {
+		return {};
+	}
+
     return winrt::to_hstring(_data->name);
 }
 
 hstring ExtensionItem::Description() const noexcept {
+	if (_IsRemoved()) {
+		return {};
+	}
+
 	return winrt::to_hstring(_data->description);
 }
 
 bool ExtensionItem::IsEnabled() const noexcept {
+	if (_IsRemoved()) {
+		return false;
+	}
+
 	return AppSettings::Get().ExtensionSettings()[_data->idx].isEnabled;
 }
 
 void ExtensionItem::IsEnabled(bool value) noexcept {
+	if (_IsRemoved()) {
+		return;
+	}
+
 	ExtensionService::Get().SetExtensionEnabled(_extId, value);
 	RaisePropertyChanged(L"IsEnabled");
 	// 插件启用后才显示它提供的图像编码器和效果，部分功能在加载了 dll 之后才知道
@@ -46,6 +62,10 @@ void ExtensionItem::IsEnabled(bool value) noexcept {
 }
 
 Magpie::InfoGridData ExtensionItem::InfoData() const noexcept {
+	if (_IsRemoved()) {
+		return nullptr;
+	}
+
 	assert(!_extId.starts_with("_"));
 
 	LocalizationService& ls = LocalizationService::Get();
@@ -112,6 +132,17 @@ Magpie::InfoGridData ExtensionItem::InfoData() const noexcept {
 	return make<InfoGridData>(std::move(rows));
 }
 
+void ExtensionItem::Remove() noexcept {
+	if (ExtensionService::Get().RemoveExtension(_extId)) {
+		_data = nullptr;
+	}
+}
+
+// 需确保被删除后依然处于合法的状态，调用任何方法都不会崩溃，因为 WinUI 可能会更新绑定
+bool ExtensionItem::_IsRemoved() const noexcept {
+	return !_data;
+}
+
 ExtensionsViewModel::ExtensionsViewModel() {
 	const SmallVectorImpl<ExtensionSetting>& extSettings = AppSettings::Get().ExtensionSettings();
 	uint32_t extCount = (uint32_t)extSettings.size();
@@ -127,6 +158,11 @@ ExtensionsViewModel::ExtensionsViewModel() {
 		}
 	}
 	_extensions = single_threaded_observable_vector(std::move(effects));
+
+	_extensionAddedRevoker = ExtensionService::Get().ExtensionAdded(
+		auto_revoke, std::bind_front(&ExtensionsViewModel::_ExtensionService_Added, this));
+	_extensionRemovedRevoker = ExtensionService::Get().ExtensionRemoved(
+		auto_revoke, std::bind_front(&ExtensionsViewModel::_ExtensionService_Removed, this));
 }
 
 winrt::fire_and_forget ExtensionsViewModel::ImportExtension() noexcept {
@@ -240,6 +276,23 @@ winrt::fire_and_forget ExtensionsViewModel::ImportExtension() noexcept {
 
 bool ExtensionsViewModel::HasExtension() const noexcept {
 	return !AppSettings::Get().ExtensionSettings().empty();
+}
+
+void ExtensionsViewModel::_ExtensionService_Added(uint32_t extIdx) noexcept {
+	const std::string& extId = AppSettings::Get().ExtensionSettings()[extIdx].extId;
+	const Extension* extension = ExtensionService::Get().GetExtension(extId);
+	if (!extension) {
+		assert(false);
+		return;
+	}
+
+	_extensions.InsertAt(extIdx, *make_self<ExtensionItem>(extId, extension));
+	RaisePropertyChanged(L"HasExtension");
+}
+
+void ExtensionsViewModel::_ExtensionService_Removed(uint32_t extIdx) noexcept {
+	_extensions.RemoveAt(extIdx);
+	RaisePropertyChanged(L"HasExtension");
 }
 
 }
