@@ -87,7 +87,7 @@ bool AdaptersService::_GatherAdapterInfos(
 		return false;
 	}
 
-	std::vector<AdapterInfo> adapterInfos;
+	SmallVector<AdapterInfo, 0> adapterInfos;
 	SmallVector<winrt::com_ptr<IDXGIAdapter1>> adapters;
 
 	winrt::com_ptr<IDXGIAdapter1> curAdapter;
@@ -122,9 +122,9 @@ bool AdaptersService::_GatherAdapterInfos(
 		}
 	}, (uint32_t)adapters.size());
 
-	std::erase_if(adapterInfos, [](const AdapterInfo& info) {
+	adapterInfos.erase(std::remove_if(adapterInfos.begin(), adapterInfos.end(), [](const AdapterInfo& info) {
 		return info.idx == std::numeric_limits<uint32_t>::max();
-	});
+	}), adapterInfos.end());
 
 	App::Get().Dispatcher().TryEnqueue([this, adapterInfos(std::move(adapterInfos))]() {
 		_adapterInfos = std::move(adapterInfos);

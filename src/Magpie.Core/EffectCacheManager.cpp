@@ -120,7 +120,7 @@ bool EffectCacheManager::Load(
 		return false;
 	}
 
-	std::vector<BYTE> buf;
+	SmallVector<BYTE, 0> buf;
 	if (!Win32Helper::ReadFile(cacheFileName.c_str(), buf) || buf.empty()) {
 		return false;
 	}
@@ -167,12 +167,12 @@ void EffectCacheManager::Save(
 ) {
 	const std::wstring linearEffectName = GetLinearEffectName(effectName);
 
-	std::vector<BYTE> buffer;
+	SmallVector<uint8_t, 0> buffer;
 	buffer.reserve(4096);
 
 	try {
-		yas::vector_ostream os(buffer);
-		yas::binary_oarchive<yas::vector_ostream<BYTE>, yas::binary> oa(os);
+		SmallVectorOstream os(buffer);
+		yas::binary_oarchive<SmallVectorOstream, yas::binary> oa(os);
 
 		oa.write(EFFECT_CACHE_VERSION);
 		oa& key& desc;

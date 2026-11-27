@@ -1,4 +1,5 @@
 #pragma once
+#include "SmallVector.h"
 #include <parallel_hashmap/phmap.h>
 
 namespace Magpie {
@@ -199,7 +200,7 @@ struct ScalingOptions {
 	DEFINE_FLAG_ACCESSOR(IsDeveloperMode, ScalingFlags::DeveloperMode, flags)
 	DEFINE_FLAG_ACCESSOR(IsTopmostDisabled, ScalingFlags::DisableTopmost, flags)
 
-	std::vector<EffectOption> effects;
+	SmallVector<EffectOption, 0> effects;
 	ScalingFlags flags = ScalingFlags::AdjustCursorSpeed;
 	Cropping cropping{};
 	GraphicsCardId graphicsCardId;

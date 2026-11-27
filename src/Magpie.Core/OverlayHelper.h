@@ -93,7 +93,7 @@ struct OverlayHelper {
 		{117,117,117,255}
 	};
 
-	static SmallVector<uint32_t> GenerateTimelineColors(const std::vector<const EffectDesc*>& effectDescs) noexcept;
+	static SmallVector<uint32_t> GenerateTimelineColors(const SmallVectorImpl<const EffectDesc*>& effectDescs) noexcept;
 };
 
 }

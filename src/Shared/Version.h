@@ -1,6 +1,5 @@
 #pragma once
 #include <compare>
-#include <tuple>
 #include <fmt/format.h>
 
 namespace Magpie {

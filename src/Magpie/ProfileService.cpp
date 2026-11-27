@@ -103,7 +103,7 @@ static bool TestNewProfileImpl(
 	std::wstring_view pathOrAumid,
 	std::wstring_view parsedClassName
 ) noexcept {
-	const std::vector<Profile>& profiles = AppSettings::Get().Profiles();
+	const SmallVectorImpl<Profile>& profiles = AppSettings::Get().Profiles();
 
 	if (isPackaged) {
 		for (const Profile& rule : profiles) {
@@ -145,7 +145,7 @@ bool ProfileService::AddProfile(
 		return false;
 	}
 
-	std::vector<Profile>& profiles = AppSettings::Get().Profiles();
+	SmallVectorImpl<Profile>& profiles = AppSettings::Get().Profiles();
 	Profile& profile = profiles.emplace_back();
 
 	profile.Copy(copyFrom < 0 ? DefaultProfile() : profiles[copyFrom]);
@@ -169,14 +169,14 @@ void ProfileService::RenameProfile(uint32_t profileIdx, std::wstring_view newNam
 }
 
 void ProfileService::RemoveProfile(uint32_t profileIdx) {
-	std::vector<Profile>& profiles = AppSettings::Get().Profiles();
+	SmallVectorImpl<Profile>& profiles = AppSettings::Get().Profiles();
 	profiles.erase(profiles.begin() + profileIdx);
 	ProfileRemoved.Invoke(profileIdx);
 	AppSettings::Get().SaveAsync();
 }
 
 bool ProfileService::MoveProfile(uint32_t profileIdx, bool isMoveUp) {
-	std::vector<Profile>& profiles = AppSettings::Get().Profiles();
+	SmallVectorImpl<Profile>& profiles = AppSettings::Get().Profiles();
 	if (isMoveUp ? profileIdx == 0 : profileIdx + 1 >= (uint32_t)profiles.size()) {
 		return false;
 	}
@@ -188,7 +188,7 @@ bool ProfileService::MoveProfile(uint32_t profileIdx, bool isMoveUp) {
 	return true;
 }
 
-static bool AnyAutoScaleProfile(const std::vector<Profile>& profiles) noexcept {
+static bool AnyAutoScaleProfile(const SmallVectorImpl<Profile>& profiles) noexcept {
 	for (const Profile& profile : profiles) {
 		if (profile.autoScale != AutoScale::Disabled) {
 			return true;
@@ -198,7 +198,7 @@ static bool AnyAutoScaleProfile(const std::vector<Profile>& profiles) noexcept {
 }
 
 const Profile* ProfileService::GetProfileForWindow(HWND hWnd, bool forAutoScale) noexcept {
-	const std::vector<Profile>& profiles = AppSettings::Get().Profiles();
+	const SmallVectorImpl<Profile>& profiles = AppSettings::Get().Profiles();
 
 	// 作为优化，先检查有没有配置文件启用了自动缩放
 	if (forAutoScale && !AnyAutoScaleProfile(profiles)) {

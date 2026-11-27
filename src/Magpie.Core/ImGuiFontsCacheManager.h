@@ -1,5 +1,6 @@
 #pragma once
 #include "Singleton.h"
+#include "SmallVector.h"
 #include <imgui.h>
 #include <parallel_hashmap/phmap.h>
 
@@ -17,7 +18,7 @@ private:
 	ImGuiFontsCacheManager() = default;
 
 	// dpi -> 字体数据
-	phmap::flat_hash_map<uint32_t, std::vector<uint8_t>> _cacheMap;
+	phmap::flat_hash_map<uint32_t, SmallVector<uint8_t, 0>> _cacheMap;
 };
 
 }

@@ -204,7 +204,7 @@ bool OverlayDrawer::NeedRedraw(uint32_t fps) const noexcept {
 }
 
 void OverlayDrawer::UpdateAfterActiveEffectsChanged() noexcept {
-	const std::vector<const EffectDesc*>& effectDescs =
+	const SmallVectorImpl<const EffectDesc*>& effectDescs =
 		ScalingWindow::Get().Renderer().ActiveEffectDescs();
 	_timelineColors = OverlayHelper::GenerateTimelineColors(effectDescs);
 
@@ -265,7 +265,7 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 			iconFontPath += "\\segmdl2.ttf";
 		}
 
-		std::vector<uint8_t> uiFontData;
+		SmallVector<uint8_t, 0> uiFontData;
 		if (!Win32Helper::ReadFile(uiFontPath.c_str(), uiFontData)) {
 			Logger::Get().Error("读取字体文件失败");
 			return false;
@@ -326,7 +326,7 @@ static void SetGlyphRanges(SmallVector<ImWchar>& uiRanges, T ranges) noexcept {
 
 SmallVector<ImWchar> OverlayDrawer::_BuildFontUI(
 	std::wstring_view language,
-	const std::vector<uint8_t>& fontData
+	const SmallVectorImpl<uint8_t>& fontData
 ) noexcept {
 	ImFontAtlas& fontAtlas = *ImGui::GetIO().Fonts;
 
@@ -768,7 +768,7 @@ bool OverlayDrawer::_DrawToolbar(uint32_t fps, int& itemId) noexcept {
 			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 4.0f * _dpiScale);
 			ImGui::PushStyleVarY(ImGuiStyleVar_ItemSpacing, 6.0f * _dpiScale);
 
-			const std::vector<const EffectDesc*>& effectDescs =
+			const SmallVectorImpl<const EffectDesc*>& effectDescs =
 				ScalingWindow::Get().Renderer().ActiveEffectDescs();
 			const uint32_t effectCount = (uint32_t)effectDescs.size();
 
@@ -1005,7 +1005,7 @@ bool OverlayDrawer::_DrawProfiler(const SmallVector<float>& effectTimings, uint3
 	ImGui::TextUnformatted(fmt::format("{}: {} FPS", frameRateStr, fps).c_str());
 	ImGui::PopTextWrapPos();
 
-	const std::vector<const EffectDesc*>& effectDescs = renderer.ActiveEffectDescs();
+	const SmallVectorImpl<const EffectDesc*>& effectDescs = renderer.ActiveEffectDescs();
 	const uint32_t nEffect = (uint32_t)effectDescs.size();
 
 	SmallVector<_EffectDrawInfo, 4> effectDrawInfos(effectDescs.size());

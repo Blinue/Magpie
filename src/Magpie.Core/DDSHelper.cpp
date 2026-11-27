@@ -54,7 +54,7 @@ static HRESULT LoadTextureDataFromFile(
 	}
 
 	// create enough space for the file data
-	ddsData.Resize(fileInfo.EndOfFile.LowPart);
+	ddsData.Reset(fileInfo.EndOfFile.LowPart, for_overwrite);
 	if (!ddsData) {
 		return E_OUTOFMEMORY;
 	}

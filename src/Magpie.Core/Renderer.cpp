@@ -507,7 +507,7 @@ ID3D11Texture2D* Renderer::_BuildEffects() noexcept {
 	const ScalingOptions& options = ScalingWindow::Get().Options();
 	const bool noFP16 = !_backendResources.IsFP16Supported() || options.IsFP16Disabled();
 
-	const std::vector<EffectOption>& effects = options.effects;
+	const SmallVectorImpl<EffectOption>& effects = options.effects;
 	assert(!effects.empty());
 	const uint32_t effectCount = (uint32_t)effects.size();
 
@@ -664,7 +664,7 @@ bool Renderer::_AppendBicubic(ID3D11Texture2D** inOutTexture) noexcept {
 
 ID3D11Texture2D* Renderer::_ResizeEffects() noexcept {
 	const ScalingOptions& options = ScalingWindow::Get().Options();
-	const std::vector<EffectOption>& effects = options.effects;
+	const SmallVectorImpl<EffectOption>& effects = options.effects;
 	assert(!effects.empty());
 	const uint32_t effectCount = (uint32_t)effects.size();
 
@@ -1167,7 +1167,7 @@ winrt::IAsyncOperation<int> Renderer::_TakeScreenshotImpl(
 		format = _activeEffectDescs[effectIdx]->textures[1].format;
 		imgFormat = L"png";
 	} else {
-		const std::vector<EffectPassDesc>& passes = _activeEffectDescs[effectIdx]->passes;
+		const SmallVectorImpl<EffectPassDesc>& passes = _activeEffectDescs[effectIdx]->passes;
 		const uint32_t passCount = (uint32_t)passes.size();
 
 		const SmallVector<uint32_t>& outputs = passes[passIdx].outputs;
@@ -1262,7 +1262,7 @@ winrt::IAsyncOperation<int> Renderer::_TakeScreenshotImpl(
 		co_return (int)TakeScreenshotResult::InternalError;
 	}
 
-	std::vector<uint8_t> pixelData(size_t(mapped.RowPitch) * desc.Height);
+	SmallVector<uint8_t, 0> pixelData(size_t(mapped.RowPitch) * desc.Height, for_overwrite);
 	std::memcpy(pixelData.data(), mapped.pData, pixelData.size());
 
 	d3dDC->Unmap(stagingTex.get(), 0);

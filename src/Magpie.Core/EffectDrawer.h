@@ -81,9 +81,9 @@ private:
 
 	SmallVector<ID3D11SamplerState*> _samplers;
 	SmallVector<winrt::com_ptr<ID3D11Texture2D>> _textures;
-	std::vector<SmallVector<ID3D11ShaderResourceView*>> _srvs;
+	SmallVector<SmallVector<ID3D11ShaderResourceView*>, 0> _srvs;
 	// 后半部分为空，用于解绑
-	std::vector<SmallVector<ID3D11UnorderedAccessView*>> _uavs;
+	SmallVector<SmallVector<ID3D11UnorderedAccessView*>, 0> _uavs;
 
 	winrt::com_ptr<ID3D11Buffer> _constantBuffer;
 

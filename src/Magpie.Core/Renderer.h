@@ -47,7 +47,7 @@ public:
 
 	void MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 
-	const std::vector<const EffectDesc*>& ActiveEffectDescs() const noexcept {
+	const SmallVectorImpl<const EffectDesc*>& ActiveEffectDescs() const noexcept {
 		return _activeEffectDescs;
 	}
 
@@ -118,7 +118,7 @@ private:
 	DeviceResources _backendResources;
 	Magpie::BackendDescriptorStore _backendDescriptorStore;
 	std::unique_ptr<FrameSourceBase> _frameSource;
-	std::vector<EffectDrawer> _effectDrawers;
+	SmallVector<EffectDrawer, 0> _effectDrawers;
 
 	StepTimer _stepTimer;
 	EffectsProfiler _effectsProfiler;
@@ -143,9 +143,9 @@ private:
 	// 下面四个成员由 _sharedTextureHandle 同步
 	winrt::Windows::System::DispatcherQueue _backendThreadDispatcher{ nullptr };
 	ScalingError _backendInitError = ScalingError::NoError;
-	std::vector<EffectDesc> _effectDescs;
+	SmallVector<EffectDesc, 0> _effectDescs;
 	// 包含追加的 Bicubic
-	std::vector<const EffectDesc*> _activeEffectDescs;
+	SmallVector<const EffectDesc*> _activeEffectDescs;
 };
 
 }

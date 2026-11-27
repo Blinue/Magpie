@@ -1,4 +1,5 @@
 #pragma once
+#include "SmallVector.h"
 
 namespace Magpie {
 
@@ -104,8 +105,8 @@ public:
 	}
 
 private:
-	// 考虑到回调数量都很少，std::vector 的性能更好
-	std::vector<std::pair<uint32_t, _FunctionType>> _delegates;
+	// 考虑到回调数量都很少，vector 的性能更好
+	SmallVector<std::pair<uint32_t, _FunctionType>> _delegates;
 	uint32_t _curToken = 0;
 };
 

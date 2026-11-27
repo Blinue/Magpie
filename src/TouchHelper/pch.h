@@ -6,7 +6,6 @@
 
 // C++ 运行时头文件
 #include <cstdlib>
-#include <vector>
 #include <string>
 #include <string_view>
 #include <cassert>

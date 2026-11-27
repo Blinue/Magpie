@@ -61,7 +61,7 @@ struct Win32Helper {
 
 	static bool IsWindowHung(HWND hWnd) noexcept;
 
-	static bool ReadFile(const wchar_t* fileName, std::vector<uint8_t>& result) noexcept;
+	static bool ReadFile(const wchar_t* fileName, SmallVectorImpl<uint8_t>& result) noexcept;
 
 	static bool WriteFile(const wchar_t* fileName, std::span<const uint8_t> data) noexcept;
 

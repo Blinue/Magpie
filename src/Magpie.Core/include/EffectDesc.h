@@ -98,13 +98,13 @@ struct EffectDesc {
 	std::string name;
 	std::string sortName;	// 仅供 UI 使用
 
-	std::vector<EffectParameterDesc> params;
+	SmallVector<EffectParameterDesc, 0> params;
 	// 0: INPUT
 	// 1: OUTPUT
 	// > 1: 中间纹理
-	std::vector<EffectIntermediateTextureDesc> textures;
-	std::vector<EffectSamplerDesc> samplers;
-	std::vector<EffectPassDesc> passes;
+	SmallVector<EffectIntermediateTextureDesc, 0> textures;
+	SmallVector<EffectSamplerDesc, 0> samplers;
+	SmallVector<EffectPassDesc, 0> passes;
 
 	uint32_t flags = 0;	// EffectFlags
 };

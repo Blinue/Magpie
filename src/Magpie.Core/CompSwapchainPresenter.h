@@ -1,5 +1,6 @@
 #pragma once
 #include "PresenterBase.h"
+#include "SmallVector.h"
 #include <dcomp.h>
 #include <Presentation.h>
 
@@ -30,10 +31,10 @@ private:
 	winrt::com_ptr<IPresentationSurface> _presentationSurface;
 	winrt::com_ptr<ID3D11Fence> _presentationFence;
 
-	std::vector<winrt::com_ptr<IPresentationBuffer>> _presentationBuffers;
-	std::vector<wil::unique_event_nothrow> _presentationBufferAvailableEvents;
-	std::vector<winrt::com_ptr<ID3D11Texture2D>> _bufferTextures;
-	std::vector<winrt::com_ptr<ID3D11RenderTargetView>> _bufferRtvs;
+	SmallVector<winrt::com_ptr<IPresentationBuffer>> _presentationBuffers;
+	SmallVector<wil::unique_event_nothrow> _presentationBufferAvailableEvents;
+	SmallVector<winrt::com_ptr<ID3D11Texture2D>> _bufferTextures;
+	SmallVector<winrt::com_ptr<ID3D11RenderTargetView>> _bufferRtvs;
 
 	bool _isResized = false;
 };

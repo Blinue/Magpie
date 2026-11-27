@@ -1,10 +1,9 @@
 #pragma once
+#include "EffectDesc.h"
 #include "Singleton.h"
 #include <parallel_hashmap/phmap.h>
 
 namespace Magpie {
-
-struct EffectParameterDesc;
 
 struct EffectInfoFlags {
 	static constexpr uint32_t CanScale = 1;
@@ -16,7 +15,7 @@ struct EffectInfo {
 
 	std::wstring name;
 	std::wstring sortName;
-	std::vector<EffectParameterDesc> params;
+	SmallVector<EffectParameterDesc, 0> params;
 	uint32_t flags = 0;	// EffectInfoFlags
 
 	bool CanScale() const noexcept {
@@ -32,7 +31,7 @@ public:
 
 	void Uninitialize() noexcept;
 
-	const std::vector<EffectInfo>& Effects() noexcept;
+	const SmallVectorImpl<EffectInfo>& Effects() noexcept;
 
 	const EffectInfo* GetEffect(std::wstring_view name) noexcept;
 
@@ -41,7 +40,7 @@ private:
 
 	void _WaitForInitialize() noexcept;
 
-	std::vector<EffectInfo> _effects;
+	SmallVector<EffectInfo, 0> _effects;
 	phmap::flat_hash_map<std::wstring, uint32_t> _effectsMap;
 	std::atomic<bool> _initialized;
 	bool _initializedCache = false;

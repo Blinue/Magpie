@@ -401,7 +401,7 @@ const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) n
 		}
 	};
 
-	ByteBuffer pixels(bi.bmiHeader.biSizeImage);
+	ByteBuffer pixels(bi.bmiHeader.biSizeImage, for_overwrite);
 	wil::unique_hdc_window hdcScreen(wil::window_dc(GetDC(NULL)));
 	if (GetDIBits(hdcScreen.get(), iconInfo.hbmColor ? iconInfo.hbmColor : iconInfo.hbmMask,
 		0, bmp.bmHeight, pixels.Data(), &bi, DIB_RGB_COLORS) != bmp.bmHeight
@@ -447,7 +447,7 @@ const CursorDrawer::_CursorInfo* CursorDrawer::_ResolveCursor(HCURSOR hCursor) n
 			}
 		} else {
 			// 彩色掩码光标
-			ByteBuffer maskPixels(bi.bmiHeader.biSizeImage);
+			ByteBuffer maskPixels(bi.bmiHeader.biSizeImage, for_overwrite);
 			if (GetDIBits(hdcScreen.get(), iconInfo.hbmMask, 0, bmp.bmHeight,
 				maskPixels.Data(), &bi, DIB_RGB_COLORS) != bmp.bmHeight
 			) {

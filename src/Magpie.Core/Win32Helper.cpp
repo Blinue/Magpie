@@ -297,7 +297,7 @@ bool Win32Helper::IsWindowHung(HWND hWnd) noexcept {
 	return 0 == SendMessageTimeout(hWnd, WM_NULL, 0, 0, SMTO_ERRORONEXIT, 500, nullptr);
 }
 
-bool Win32Helper::ReadFile(const wchar_t* fileName, std::vector<uint8_t>& result) noexcept {
+bool Win32Helper::ReadFile(const wchar_t* fileName, SmallVectorImpl<uint8_t>& result) noexcept {
 	Logger::Get().Info(StrHelper::Concat("读取文件: ", StrHelper::UTF16ToUTF8(fileName)));
 
 	CREATEFILE2_EXTENDED_PARAMETERS extendedParams{
@@ -313,7 +313,7 @@ bool Win32Helper::ReadFile(const wchar_t* fileName, std::vector<uint8_t>& result
 	}
 
 	DWORD size = GetFileSize(hFile.get(), nullptr);
-	result.resize(size);
+	result.resize_for_overwrite(size);
 
 	DWORD readed;
 	if (!::ReadFile(hFile.get(), result.data(), size, &readed, nullptr)) {
@@ -321,6 +321,10 @@ bool Win32Helper::ReadFile(const wchar_t* fileName, std::vector<uint8_t>& result
 		return false;
 	}
 
+	if (readed < size) {
+		result.truncate(readed);
+	}
+	
 	return true;
 }
 
@@ -771,7 +775,7 @@ std::wstring Win32Helper::GetProcessDescriptionFromWindow(HWND hWnd) noexcept {
 		return {};
 	}
 
-	ByteBuffer infoData(infoSize);
+	ByteBuffer infoData(infoSize, for_overwrite);
 	if (!GetFileVersionInfoEx(FILE_VER_GET_LOCALISED, fileName.c_str(), 0, infoSize, infoData.Data())) {
 		Logger::Get().Win32Error("GetFileVersionInfoEx 失败");
 		return {};

@@ -21,7 +21,7 @@ static constexpr std::array<uint8_t, 20> CERT_FINGERPRINT{
 	0xd8, 0x63, 0xcf, 0x90, 0x3a, 0xb4, 0x72, 0x0e, 0x0b, 0x12
 };
 
-static std::vector<uint8_t> GetCertificateDataFromPE(const wchar_t* fileName) noexcept {
+static SmallVector<uint8_t, 0> GetCertificateDataFromPE(const wchar_t* fileName) noexcept {
 	wil::unique_hfile hFile(CreateFile(
 		fileName, FILE_READ_DATA, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL));
 	if (!hFile) {
@@ -36,7 +36,7 @@ static std::vector<uint8_t> GetCertificateDataFromPE(const wchar_t* fileName) no
 		return {};
 	}
 
-	std::vector<uint8_t> data(len);
+	SmallVector<uint8_t, 0> data(len, for_overwrite);
 	if (!ImageGetCertificateData(hFile.get(), 0, (WIN_CERTIFICATE*)data.data(), &len)) {
 		Logger::Get().Win32Error("ImageGetCertificateData 失败");
 		return {};
@@ -76,7 +76,7 @@ static bool InstallCertificateFromPE(const wchar_t* exePath) noexcept {
 	}
 
 	// 从可执行文件中提取证书
-	std::vector<uint8_t> certData = GetCertificateDataFromPE(exePath);
+	SmallVector<uint8_t, 0> certData = GetCertificateDataFromPE(exePath);
 	if (certData.empty()) {
 		Logger::Get().Error("GetCertificateDataFromPE 失败");
 		return false;
@@ -361,7 +361,7 @@ static bool CheckAndFixTouchHelper(std::filesystem::path& path) noexcept {
 	// 检查版本号
 	path += L".ver";
 
-	std::vector<uint8_t> versionData;
+	SmallVector<uint8_t, 4> versionData;
 
 	const auto checkVersion = [&]() {
 		if (!Win32Helper::ReadFile(path.c_str(), versionData)) {

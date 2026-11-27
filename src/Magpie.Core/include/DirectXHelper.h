@@ -1,4 +1,5 @@
 #pragma once
+#include "SmallVector.h"
 #include <d3d11_4.h>
 
 namespace Magpie {
@@ -16,7 +17,7 @@ struct DirectXHelper {
 		ID3DBlob** blob,
 		const char* sourceName = nullptr,
 		ID3DInclude* include = nullptr,
-		const std::vector<std::pair<std::string, std::string>>& macros = {},
+		const SmallVector<std::pair<std::string, std::string>, 0>& macros = {},
 		bool warningsAreErrors = false
 	);
 

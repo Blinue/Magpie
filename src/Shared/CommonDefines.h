@@ -19,6 +19,12 @@ using winrt::operator co_await;
 
 namespace Magpie {
 
+// 表示默认初始化的标志
+struct for_overwrite_t {
+	explicit for_overwrite_t() = default;
+};
+constexpr inline for_overwrite_t for_overwrite{};
+
 struct Ignore {
 	constexpr Ignore() noexcept = default;
 

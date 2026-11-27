@@ -89,7 +89,7 @@ static winrt::SoftwareBitmap HIcon2SoftwareBitmap(HICON hIcon) {
 			}
 		} else if (iconInfo.hbmMask) {
 			// 彩色掩码图标
-			ByteBuffer maskData(pixelsSize);
+			ByteBuffer maskData(pixelsSize, for_overwrite);
 			if (!CopyPixelsOfHBmp(iconInfo.hbmMask, bmp.bmWidth, bmp.bmHeight, maskData.Data())) {
 				return nullptr;
 			}

@@ -4,6 +4,7 @@
 #include "TextMenuFlyout.g.cpp"
 #endif
 #include "LocalizationService.h"
+#include "SmallVector.h"
 
 using namespace Magpie;
 using namespace winrt::Windows::UI::Xaml::Input;
@@ -47,7 +48,7 @@ void TextMenuFlyout::MenuFlyout_Opening(IInspectable const&, IInspectable const&
 
 	// 延迟初始化
 	if (!_copy) {
-		std::vector<MenuFlyoutItemBase> items;
+		SmallVector<MenuFlyoutItemBase, 6> items;
 
 		LocalizationService& ls = LocalizationService::Get();
 

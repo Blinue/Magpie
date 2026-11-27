@@ -19,7 +19,7 @@ static std::string LogParameters(const phmap::flat_hash_map<std::string, float>&
 	return result;
 }
 
-static std::string LogEffects(const std::vector<EffectOption>& effects) noexcept {
+static std::string LogEffects(const SmallVectorImpl<EffectOption>& effects) noexcept {
 	std::string result;
 	for (const EffectOption& effect : effects) {
 		result.append(fmt::format(R"(

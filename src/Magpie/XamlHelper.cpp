@@ -144,9 +144,9 @@ void XamlHelper::UpdateThemeOfTooltips(const winrt::DependencyObject& root, winr
 }
 
 bool XamlHelper::ContainsControl(const winrt::DependencyObject& parent, const winrt::DependencyObject& target) {
-	std::vector<winrt::DependencyObject> elems{ parent };
+	SmallVector<winrt::DependencyObject> elems{ parent };
 	do {
-		std::vector<winrt::DependencyObject> temp;
+		SmallVector<winrt::DependencyObject> temp;
 
 		for (const winrt::DependencyObject& elem : elems) {
 			const int count = winrt::VisualTreeHelper::GetChildrenCount(elem);

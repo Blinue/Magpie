@@ -146,13 +146,13 @@ static std::wstring GetCacheFileName(const std::wstring_view& language, uint32_t
 }
 
 void ImGuiFontsCacheManager::Save(std::wstring_view language, uint32_t dpi, const ImFontAtlas& fontAltas) noexcept {
-	std::vector<uint8_t>& buffer = _cacheMap[dpi];
+	SmallVectorImpl<uint8_t>& buffer = _cacheMap[dpi];
 	buffer.clear();
 	buffer.reserve(1024);
 
 	try {
-		yas::vector_ostream os(buffer);
-		yas::binary_oarchive<yas::vector_ostream<BYTE>, yas::binary> oa(os);
+		SmallVectorOstream os(buffer);
+		yas::binary_oarchive<SmallVectorOstream, yas::binary> oa(os);
 
 		oa& FONTS_CACHE_VERSION& fontAltas;
 	} catch (...) {
@@ -172,7 +172,7 @@ void ImGuiFontsCacheManager::Save(std::wstring_view language, uint32_t dpi, cons
 }
 
 bool ImGuiFontsCacheManager::Load(std::wstring_view language, uint32_t dpi, ImFontAtlas& fontAltas) noexcept {
-	const std::vector<uint8_t>* pBuffer = nullptr;
+	const SmallVectorImpl<uint8_t>* pBuffer = nullptr;
 
 	// 先在内存缓存中查找，然后是磁盘缓存
 	if (auto it = _cacheMap.find(dpi); it == _cacheMap.end()) {
@@ -181,7 +181,7 @@ bool ImGuiFontsCacheManager::Load(std::wstring_view language, uint32_t dpi, ImFo
 			return false;
 		}
 
-		std::vector<uint8_t> buffer;
+		SmallVector<uint8_t, 0> buffer;
 		if (!Win32Helper::ReadFile(cacheFileName.c_str(), buffer) || buffer.empty()) {
 			return false;
 		}

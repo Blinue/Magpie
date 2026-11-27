@@ -456,7 +456,7 @@ static winrt::SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bo
 
 	UINT stride = width * 4;
 	UINT size = stride * height;
-	ByteBuffer buf(size);
+	ByteBuffer buf(size, for_overwrite);
 
 	hr = formatConverter->CopyPixels(nullptr, stride, size, buf.Data());
 	if (FAILED(hr)) {
@@ -593,7 +593,7 @@ std::variant<std::wstring, winrt::SoftwareBitmap> AppXReader::GetIcon(
 
 	std::wregex regex(fmt::format(L"^{}\\.[^\\.]+\\{}$", iconName, extension), std::wregex::nosubs);
 
-	std::vector<CandidateIcon> candidateIcons;
+	SmallVector<CandidateIcon, 0> candidateIcons;
 
 	WIN32_FIND_DATA findData{};
 	wil::unique_hfind hFind(FindFirstFileEx(StrHelper::Concat(prefix, L"*").c_str(),

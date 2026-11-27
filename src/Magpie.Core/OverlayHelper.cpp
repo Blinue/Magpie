@@ -193,7 +193,7 @@ const ImWchar* OverlayHelper::GetGlyphRangesChineseTraditionalOfficial() noexcep
 	return &fullRanges[0];
 }
 
-static uint32_t GetSeed(const std::vector<const EffectDesc*>& effectDescs) noexcept {
+static uint32_t GetSeed(const SmallVectorImpl<const EffectDesc*>& effectDescs) noexcept {
 	uint32_t result = 0;
 	for (const EffectDesc* effectDesc : effectDescs) {
 		result ^= (uint32_t)std::hash<std::string>()(effectDesc->name);
@@ -201,7 +201,7 @@ static uint32_t GetSeed(const std::vector<const EffectDesc*>& effectDescs) noexc
 	return result;
 }
 
-SmallVector<uint32_t> OverlayHelper::GenerateTimelineColors(const std::vector<const EffectDesc*>& effectDescs) noexcept {
+SmallVector<uint32_t> OverlayHelper::GenerateTimelineColors(const SmallVectorImpl<const EffectDesc*>& effectDescs) noexcept {
 	const uint32_t nEffect = (uint32_t)effectDescs.size();
 	uint32_t totalColors = nEffect > 1 ? nEffect : 0;
 	for (uint32_t i = 0; i < nEffect; ++i) {

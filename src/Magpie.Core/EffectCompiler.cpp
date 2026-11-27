@@ -1131,7 +1131,7 @@ static uint32_t GeneratePassSource(
 	const SmallVector<std::string_view>& commonBlocks,
 	std::string_view passBlock,
 	std::string& result,
-	std::vector<std::pair<std::string, std::string>>& macros
+	SmallVectorImpl<std::pair<std::string, std::string>>& macros
 ) noexcept {
 	const EffectPassDesc& passDesc = desc.passes[(size_t)passIdx - 1];
 
@@ -1554,7 +1554,7 @@ static uint32_t CompilePasses(
 	// 并行生成代码和编译
 	Win32Helper::RunParallel([&](uint32_t id) {
 		std::string source;
-		std::vector<std::pair<std::string, std::string>> macros;
+		SmallVector<std::pair<std::string, std::string>, 0> macros;
 		if (GeneratePassSource(desc, id + 1, cbHlsl, commonBlocks, passBlocks[id], source, macros)) {
 			Logger::Get().Error(fmt::format("生成 Pass{} 失败", id + 1));
 			return;

@@ -322,7 +322,7 @@ ScalingError ScalingService::_StartScaleImpl(HWND hWnd, const Profile& profile, 
 		return ScalingError::InvalidScalingMode;
 	}
 
-	const std::vector<EffectItem>& effects =
+	const SmallVectorImpl<EffectItem>& effects =
 		ScalingModesService::Get().GetScalingMode(profile.scalingMode).effects;
 	if (effects.empty()) {
 		return ScalingError::InvalidScalingMode;

@@ -37,7 +37,7 @@ private:
 
 	winrt::com_ptr<ID3D11Query> _disjointQuery;
 	winrt::com_ptr<ID3D11Query> _startQuery;
-	std::vector<winrt::com_ptr<ID3D11Query>> _passQueries;
+	SmallVector<winrt::com_ptr<ID3D11Query>> _passQueries;
 
 	uint32_t _curPass = 0;
 };

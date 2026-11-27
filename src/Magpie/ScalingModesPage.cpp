@@ -70,7 +70,7 @@ void ScalingModesPage::RemoveScalingModeMenuItem_Click(IInspectable const& sende
 }
 
 void ScalingModesPage::_BuildEffectMenu() noexcept {
-	std::vector<MenuFlyoutItemBase> rootItems;
+	SmallVector<MenuFlyoutItemBase> rootItems;
 
 	phmap::flat_hash_map<std::wstring_view, MenuFlyoutSubItem> folders;
 	folders.reserve(13);
@@ -127,9 +127,9 @@ void ScalingModesPage::_BuildEffectMenu() noexcept {
 		}
 
 		IVector<MenuFlyoutItemBase> items = folder.Items();
-		// 读取到 std::vector 中以提高排序性能
-		std::vector<MenuFlyoutItemBase> itemsVec(items.Size(), nullptr);
-		items.GetMany(0, itemsVec);
+		// 读取到 vector 中以提高排序性能
+		SmallVector<MenuFlyoutItemBase> itemsVec(items.Size(), nullptr);
+		items.GetMany(0, std::span(itemsVec));
 		std::sort(itemsVec.begin(), itemsVec.end(), [](const MenuFlyoutItemBase& l, const MenuFlyoutItemBase& r) {
 			hstring lEffectName = unbox_value<hstring>(l.try_as<MenuFlyoutItem>().Tag());
 			hstring rEffectName = unbox_value<hstring>(r.try_as<MenuFlyoutItem>().Tag());
@@ -139,7 +139,7 @@ void ScalingModesPage::_BuildEffectMenu() noexcept {
 
 			return lEffectInfo->sortName < rEffectInfo->sortName;
 		});
-		items.ReplaceAll(itemsVec);
+		items.ReplaceAll(std::span(itemsVec));
 	}
 
 	for (MenuFlyoutItemBase& item : rootItems) {

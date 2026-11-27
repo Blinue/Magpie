@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "CommonSharedConstants.h"
 #include "EffectCompiler.h"
-#include "EffectDesc.h"
 #include "EffectsService.h"
 #include "Logger.h"
 #include "StrHelper.h"
@@ -15,7 +14,7 @@ EffectInfo::EffectInfo() {}
 
 EffectInfo::~EffectInfo() {}
 
-static void ListEffects(std::vector<std::wstring>& result, std::wstring_view prefix = {}) {
+static void ListEffects(SmallVectorImpl<std::wstring>& result, std::wstring_view prefix = {}) {
 	result.reserve(80);
 
 	WIN32_FIND_DATA findData{};
@@ -50,7 +49,7 @@ static void ListEffects(std::vector<std::wstring>& result, std::wstring_view pre
 fire_and_forget EffectsService::Initialize() {
 	co_await resume_background();
 
-	std::vector<std::wstring> effectNames;
+	SmallVector<std::wstring, 0> effectNames;
 	ListEffects(effectNames);
 
 	const uint32_t nEffect = (uint32_t)effectNames.size();
@@ -105,7 +104,7 @@ void EffectsService::Uninitialize() noexcept {
 	_WaitForInitialize();
 }
 
-const std::vector<EffectInfo>& EffectsService::Effects() noexcept {
+const SmallVectorImpl<EffectInfo>& EffectsService::Effects() noexcept {
 	_WaitForInitialize();
 	return _effects;
 }

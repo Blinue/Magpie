@@ -280,7 +280,7 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 			co_return;
 		}
 
-		ByteBuffer hashObj(hashObjSize);
+		ByteBuffer hashObj(hashObjSize, for_overwrite);
 
 		wil::unique_bcrypt_hash hHash;
 		status = BCryptCreateHash(

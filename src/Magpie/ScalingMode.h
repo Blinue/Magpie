@@ -1,5 +1,6 @@
 #pragma once
 #include "ScalingOptions.h"
+#include "SmallVector.h"
 
 namespace Magpie {
 
@@ -19,7 +20,7 @@ struct EffectItem {
 
 struct ScalingMode {
 	std::wstring name;
-	std::vector<EffectItem> effects;
+	SmallVector<EffectItem, 0> effects;
 };
 
 }

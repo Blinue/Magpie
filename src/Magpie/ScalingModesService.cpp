@@ -23,7 +23,7 @@ uint32_t ScalingModesService::GetScalingModeCount() {
 void ScalingModesService::AddScalingMode(std::wstring_view name, int copyFrom) {
 	assert(!name.empty());
 
-	std::vector<ScalingMode>& scalingModes = AppSettings::Get().ScalingModes();
+	SmallVectorImpl<ScalingMode>& scalingModes = AppSettings::Get().ScalingModes();
 	if (copyFrom < 0) {
 		scalingModes.emplace_back().name = name;
 	} else {
@@ -44,7 +44,7 @@ static void UpdateProfileAfterRemove(Profile& profile, int removedIdx) {
 }
 
 void ScalingModesService::RemoveScalingMode(uint32_t index) {
-	std::vector<ScalingMode>& scalingModes = AppSettings::Get().ScalingModes();
+	SmallVectorImpl<ScalingMode>& scalingModes = AppSettings::Get().ScalingModes();
 	scalingModes.erase(scalingModes.begin() + index);
 
 	UpdateProfileAfterRemove(AppSettings::Get().DefaultProfile(), (int)index);
@@ -66,7 +66,7 @@ static void UpdateProfileAfterMove(Profile& profile, int idx, int targetIdx) {
 }
 
 bool ScalingModesService::MoveScalingMode(uint32_t scalingModeIdx, bool isMoveUp) {
-	std::vector<ScalingMode>& profiles = AppSettings::Get().ScalingModes();
+	SmallVectorImpl<ScalingMode>& profiles = AppSettings::Get().ScalingModes();
 	if (isMoveUp ? scalingModeIdx == 0 : scalingModeIdx + 1 >= (uint32_t)profiles.size()) {
 		return false;
 	}
@@ -247,7 +247,7 @@ bool ScalingModesService::Import(const rapidjson::GenericObject<true, rapidjson:
 		return true;
 	}
 
-	std::vector<ScalingMode> scalingModes;
+	SmallVector<ScalingMode, 0> scalingModes;
 	scalingModes.reserve(size);
 
 	for (const auto& elem : scalingModesArray) {
@@ -272,7 +272,7 @@ bool ScalingModesService::Import(const rapidjson::GenericObject<true, rapidjson:
 		return true;
 	}
 
-	std::vector<ScalingMode>& settings = AppSettings::Get().ScalingModes();
+	SmallVectorImpl<ScalingMode>& settings = AppSettings::Get().ScalingModes();
 	settings.insert(
 		settings.end(),
 		std::make_move_iterator(scalingModes.begin()),

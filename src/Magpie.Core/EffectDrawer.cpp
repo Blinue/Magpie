@@ -557,7 +557,7 @@ SmallVector<uint32_t> EffectDrawer::_CalcPassesToDrawForExport(
 		return passesToDraw;
 	}
 
-	const std::vector<EffectPassDesc>& passes = desc.passes;
+	const SmallVectorImpl<EffectPassDesc>& passes = desc.passes;
 	const uint32_t end = (uint32_t)passes.size() - 1;
 
 	// 用于记录该通道依赖的输入纹理，格式为 (passIdx, texture)

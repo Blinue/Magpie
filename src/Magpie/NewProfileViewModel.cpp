@@ -110,7 +110,7 @@ static void SortCandidateWindows(It begin, It end) {
 }
 
 void NewProfileViewModel::PrepareForOpen() {
-	std::vector<com_ptr<CandidateWindowItem>> candidateWindows;
+	SmallVector<com_ptr<CandidateWindowItem>> candidateWindows;
 	for (HWND hWnd : GetDesktopWindows()) {
 		candidateWindows.emplace_back(make_self<CandidateWindowItem>(hWnd));
 	}

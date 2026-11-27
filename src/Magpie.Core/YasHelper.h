@@ -63,6 +63,26 @@ struct serializer<
 
 }
 
+namespace Magpie {
+
+struct SmallVectorOstream {
+	SmallVectorOstream(SmallVectorImpl<uint8_t>& buffer) : _buffer(buffer) {}
+	SmallVectorOstream(const SmallVectorOstream&) = delete;
+	SmallVectorOstream(SmallVectorOstream&&) = default;
+
+	template <typename T>
+	std::size_t write(const T* ptr, std::size_t size) noexcept {
+		const uint8_t* cptr = (const uint8_t*)ptr;
+		_buffer.insert(_buffer.end(), cptr, cptr + size);
+		return size;
+	}
+
+private:
+	Magpie::SmallVectorImpl<uint8_t>& _buffer;
+};
+
+}
+
 #ifdef _M_ARM64
 #undef _LITTLE_ENDIAN
 #endif

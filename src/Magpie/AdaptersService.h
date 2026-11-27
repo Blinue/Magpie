@@ -24,7 +24,7 @@ public:
 
 	void StartMonitor() noexcept;
 
-	const std::vector<AdapterInfo>& AdapterInfos() const noexcept {
+	const SmallVectorImpl<AdapterInfo>& AdapterInfos() const noexcept {
 		return _adapterInfos;
 	}
 
@@ -46,7 +46,7 @@ private:
 	void _UpdateProfiles() noexcept;
 
 	std::thread _monitorThread;
-	std::vector<AdapterInfo> _adapterInfos;
+	SmallVector<AdapterInfo, 0> _adapterInfos;
 };
 
 }

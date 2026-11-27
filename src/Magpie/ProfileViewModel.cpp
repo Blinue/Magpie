@@ -559,7 +559,7 @@ IVector<IInspectable> ProfileViewModel::GraphicsCards() const noexcept {
 	std::vector<IInspectable> graphicsCards;
 
 	if (IsShowGraphicsCardSettingsCard()) {
-		const std::vector<AdapterInfo>& adapterInfos = AdaptersService::Get().AdapterInfos();
+		const SmallVectorImpl<AdapterInfo>& adapterInfos = AdaptersService::Get().AdapterInfos();
 		graphicsCards.reserve(adapterInfos.size() + 1);
 
 		LocalizationService& ls = LocalizationService::Get();
@@ -583,7 +583,7 @@ int ProfileViewModel::GraphicsCard() const noexcept {
 	}
 
 	// 不要把 graphicsCardId.idx 当作位序使用，AdaptersService 会过滤掉不支持 FL11 的显卡
-	const std::vector<AdapterInfo>& adapterInfos = AdaptersService::Get().AdapterInfos();
+	const SmallVectorImpl<AdapterInfo>& adapterInfos = AdaptersService::Get().AdapterInfos();
 	auto it = std::find_if(adapterInfos.begin(), adapterInfos.end(),
 		[&](const AdapterInfo& ai) { return (int)ai.idx == _data->graphicsCardId.idx; });
 	if (it == adapterInfos.end()) {
@@ -601,7 +601,7 @@ void ProfileViewModel::GraphicsCard(int value) {
 
 	GraphicsCardId& gcid = _data->graphicsCardId;
 
-	const std::vector<AdapterInfo>& adapterInfos = AdaptersService::Get().AdapterInfos();
+	const SmallVectorImpl<AdapterInfo>& adapterInfos = AdaptersService::Get().AdapterInfos();
 	if (value == 0 || value - 1 >= (int)adapterInfos.size()) {
 		// 设为默认显卡，并清空 vendorId 和 deviceId
 		gcid.idx = -1;

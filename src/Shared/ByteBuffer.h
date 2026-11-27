@@ -1,8 +1,11 @@
 #pragma once
+#ifdef _DEBUG
+#include "SmallVector.h"
+#endif
 
 namespace Magpie {
 
-// 申请的内存都已置零
+// 申请的内存未初始化
 class ByteBuffer {
 public:
 	ByteBuffer() = default;
@@ -13,16 +16,17 @@ public:
 	ByteBuffer& operator=(ByteBuffer&&) = default;
 
 #ifdef _DEBUG
-	explicit ByteBuffer(uint32_t size) : _data(size) {
+	// 第二个参数用于提醒调用者申请的内存没有置零
+	ByteBuffer(uint64_t size, for_overwrite_t) : _data(size, for_overwrite) {
 		assert(size > 0);
 	}
 
-	uint8_t& operator[](uint32_t index) noexcept {
+	uint8_t& operator[](uint64_t index) noexcept {
 		assert(index < _data.size());
 		return _data[index];
 	}
 
-	const uint8_t& operator[](uint32_t index) const noexcept {
+	const uint8_t& operator[](uint64_t index) const noexcept {
 		assert(index < _data.size());
 		return _data[index];
 	}
@@ -31,9 +35,9 @@ public:
 		return !_data.empty();
 	}
 
-	void Resize(uint32_t size) noexcept {
+	void Reset(uint64_t size, for_overwrite_t) noexcept {
 		assert(size > 0);
-		_data.resize(size);
+		_data.resize_for_overwrite(size);
 	}
 
 	void Clear() noexcept {
@@ -48,17 +52,18 @@ public:
 		return _data.data();
 	}
 private:
-	std::vector<uint8_t> _data;
+	SmallVector<uint8_t, 0> _data;
 #else
-	explicit ByteBuffer(uint32_t size) : _data(std::make_unique<uint8_t[]>(size)) {
+	// 第二个参数用于提醒调用者申请的内存没有置零
+	ByteBuffer(uint64_t size, for_overwrite_t) : _data(std::make_unique_for_overwrite<uint8_t[]>(size)) {
 		assert(size > 0);
 	}
 
-	uint8_t& operator[](uint32_t index) noexcept {
+	uint8_t& operator[](uint64_t index) noexcept {
 		return _data[index];
 	}
 
-	const uint8_t& operator[](uint32_t index) const noexcept {
+	const uint8_t& operator[](uint64_t index) const noexcept {
 		return _data[index];
 	}
 
@@ -66,9 +71,9 @@ private:
 		return (bool)_data;
 	}
 
-	void Resize(uint32_t size) noexcept {
+	void Reset(uint64_t size, for_overwrite_t) noexcept {
 		assert(size > 0);
-		_data = std::make_unique<uint8_t[]>(size);
+		_data = std::make_unique_for_overwrite<uint8_t[]>(size);
 	}
 
 	void Clear() noexcept {

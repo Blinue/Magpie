@@ -42,7 +42,12 @@ public:
 
 private:
 	bool _BuildFonts() noexcept;
-	SmallVector<ImWchar> _BuildFontUI(std::wstring_view language, const std::vector<uint8_t>& fontData) noexcept;
+
+	SmallVector<ImWchar> _BuildFontUI(
+		std::wstring_view language,
+		const SmallVectorImpl<uint8_t>& fontData
+	) noexcept;
+
 	void _BuildFontIcons(const char* fontPath) noexcept;
 
 	struct _EffectDrawInfo {

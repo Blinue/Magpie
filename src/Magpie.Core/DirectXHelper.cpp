@@ -12,7 +12,7 @@ bool DirectXHelper::CompileComputeShader(
 	ID3DBlob** blob,
 	const char* sourceName,
 	ID3DInclude* include,
-	const std::vector<std::pair<std::string, std::string>>& macros,
+	const SmallVector<std::pair<std::string, std::string>, 0>& macros,
 	bool warningsAreErrors
 ) {
 	winrt::com_ptr<ID3DBlob> errorMsgs = nullptr;

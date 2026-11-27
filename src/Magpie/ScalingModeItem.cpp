@@ -121,10 +121,10 @@ void ScalingModeItem::_Effects_VectorChanged(IObservableVector<IInspectable> con
 	assert(args.CollectionChange() == CollectionChange::ItemInserted);
 	uint32_t movingToIdx = args.Index();
 
-	std::vector<EffectItem>& effects = _Data().effects;
+	SmallVectorImpl<EffectItem>& effects = _Data().effects;
 	EffectItem removedEffect = std::move(effects[_movingFromIdx]);
 	effects.erase(effects.begin() + _movingFromIdx);
-	effects.emplace(effects.begin() + movingToIdx, std::move(removedEffect));
+	effects.insert(effects.begin() + movingToIdx, std::move(removedEffect));
 
 	uint32_t minIdx, maxIdx;
 	if (_movingFromIdx < movingToIdx) {
@@ -148,7 +148,7 @@ void ScalingModeItem::_ScalingModeEffectItem_Removed(uint32_t index) {
 		return;
 	}
 
-	std::vector<EffectItem>& effects = _Data().effects;
+	SmallVectorImpl<EffectItem>& effects = _Data().effects;
 	effects.erase(effects.begin() + index);
 
 	_isMovingEffects = false;
