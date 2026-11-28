@@ -1,14 +1,14 @@
-// 移植自 https://github.com/CommunityToolkit/Windows/tree/efbaf965029806fe29e02a6421af3c8f434e1460/components/SettingsControls/src/SettingsCard
+// 移植自 https://github.com/CommunityToolkit/Windows/tree/656fd357cf5aea62126d11a0375046a94a782dc2/components/SettingsControls/src/SettingsCard
 
 #include "pch.h"
 #include "SettingsCard.h"
 #if __has_include("SettingsCard.g.cpp")
 #include "SettingsCard.g.cpp"
 #endif
-#include <winrt/Windows.UI.Input.h>
 #include "XamlHelper.h"
+#include <winrt/Windows.UI.Input.h>
 
-using namespace Magpie;
+using namespace ::Magpie;
 using namespace winrt;
 using namespace Windows::UI::Xaml;
 using namespace Windows::UI::Xaml::Controls;
@@ -21,6 +21,10 @@ static constexpr const wchar_t* NormalState = L"Normal";
 static constexpr const wchar_t* PointerOverState = L"PointerOver";
 static constexpr const wchar_t* PressedState = L"Pressed";
 static constexpr const wchar_t* DisabledState = L"Disabled";
+
+// static constexpr const wchar_t* BitmapHeaderIconStates = L"BitmapHeaderIconStates";
+static constexpr const wchar_t* BitmapHeaderIconEnabledState = L"BitmapHeaderIconEnabled";
+static constexpr const wchar_t* BitmapHeaderIconDisabledState = L"BitmapHeaderIconDisabled";
 
 static constexpr const wchar_t* ContentAlignmentStates = L"ContentAlignmentStates";
 // static constexpr const wchar_t* RightState = L"Right";
@@ -100,7 +104,10 @@ void SettingsCard::OnApplyTemplate() {
 	VisualStateManager::GoToState(*this, IsEnabled() ? NormalState : DisabledState, true);
 	_isEnabledChangedRevoker = IsEnabledChanged(auto_revoke, [this](IInspectable const&, DependencyPropertyChangedEventArgs const&) {
 		VisualStateManager::GoToState(*this, IsEnabled() ? NormalState : DisabledState, true);
+		_CheckHeaderIconState();
 	});
+
+	_CheckHeaderIconState();
 }
 
 void SettingsCard::OnPointerPressed(PointerRoutedEventArgs const& args) {
@@ -269,6 +276,15 @@ void SettingsCard::_CheckVerticalSpacingState(VisualState const& s) {
 		VisualStateManager::GoToState(*this, ContentSpacingState, true);
 	} else {
 		VisualStateManager::GoToState(*this, NoContentSpacingState, true);
+	}
+}
+
+void SettingsCard::_CheckHeaderIconState() {
+	// The Disabled visual state will only set the right Foreground brush, but for images we need to lower the opacity so it looks disabled.
+
+	// 这里原本检查 BitmapIcon，而我们使用 ImageIcon 作为图标
+	if (HeaderIcon().try_as<MUXC::ImageIcon>()) {
+		VisualStateManager::GoToState(*this, IsEnabled() ? BitmapHeaderIconEnabledState : BitmapHeaderIconDisabledState, true);
 	}
 }
 

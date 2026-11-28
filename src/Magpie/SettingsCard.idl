@@ -13,6 +13,9 @@ namespace Magpie{
 	[Windows.UI.Xaml.TemplateVisualState("PointerOverState", "CommonStates")]
 	[Windows.UI.Xaml.TemplateVisualState("PressedState", "CommonStates")]
 	[Windows.UI.Xaml.TemplateVisualState("DisabledState", "CommonStates")]
+
+	[Windows.UI.Xaml.TemplateVisualState("BitmapHeaderIconEnabledState", "BitmapHeaderIconStates")]
+	[Windows.UI.Xaml.TemplateVisualState("BitmapHeaderIconDisabledState", "BitmapHeaderIconStates")]
 	
 	[Windows.UI.Xaml.TemplateVisualState("RightState", "ContentAlignmentStates")]
 	[Windows.UI.Xaml.TemplateVisualState("RightWrappedState", "ContentAlignmentStates")]

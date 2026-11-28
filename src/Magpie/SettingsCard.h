@@ -37,6 +37,8 @@ private:
 
 	void _CheckVerticalSpacingState(VisualState const& s);
 
+	void _CheckHeaderIconState();
+
 	void _EnableButtonInteraction();
 
 	void _DisableButtonInteraction();
