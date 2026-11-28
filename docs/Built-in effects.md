@@ -166,6 +166,9 @@ Magpie ships with a handful of effects that can be used in combinations. Most of
 * FXAA_Medium, FXAA_High, FXAA_Ultra: Fast anti-aliasing by approximation. In increasing order of demand to computing power.
   * Output size: the same as the input
 
+* Grayscale: Convert colors to grayscale
+  * Output size: the same as the input
+
 * GTU_v050: Aims to emulate the blurry and mixed effects of CRT displays rather than masks or curvature. Supports scanning lines.
   * Output size: determined by scale configuration
   * Parameters
@@ -191,6 +194,9 @@ Magpie ships with a handful of effects that can be used in combinations. Most of
     * Red Channel
     * Green Channel
     * Blue Channel
+
+* InvertColor: Invert colors
+  * Output size: the same as the input
 
 * Jinc: Scaling with the Jinc algorithm
   * Output size: determined by scale configuration
