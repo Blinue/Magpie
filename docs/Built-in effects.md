@@ -192,6 +192,9 @@ Magpie ships with a handful of effects that can be used in combinations. Most of
     * Green Channel
     * Blue Channel
 
+* InvertColor: Invert colors
+  * Output size: the same as the input
+
 * Jinc: Scaling with the Jinc algorithm
   * Output size: determined by scale configuration
   * Parameters
